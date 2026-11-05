@@ -1,0 +1,68 @@
+<section class="modules">
+  <div class="featured">
+    <h2 class="title">{{ heading_title }}</h2>
+    <div class="products">
+      <div class="swiper-container" id="featured">
+        <div class="swiper-wrapper">
+          {% for product in products %}
+            <div class="swiper-slide">
+              <div class="products-block">
+                  <div class="products-image">
+                    <a href="{{ product.href }}">
+                      <img src="{{ product.thumb }}" alt="{{ product.name }}" title="{{ product.name }}" class="img-fluid" />
+                    </a>
+                  </div>
+                  <a href="{{ product.href }}">
+                  <h4 class="products-title">{{ product.name }}</h4>
+                  </a>
+                  <div class="products-atr">{{ product.description_add }}</div>
+                  <div class="products-text">{{ product.description }}</div>
+                  {% if not product.special %}
+                  <div class="products-price">{{ product.price }}</div>
+                  {% else %}
+                  <div class="products-price d-flex">
+                      <div>{{ product.special }}</div>
+                      <div class="products-price-special"><s>{{ product.price }}</s></div>
+                  </div>
+                  {% endif %}
+                  <div class="products-buy" onclick="cart.add('{{ product.product_id }}');">{{ button_cart }}</div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+          <div class="swiper-pagination"></div>
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+    var swiper = new Swiper('#featured', {
+          pagination: {
+              el: '.swiper-pagination',
+              clickable: true,
+          },
+        spaceBetween: 30,
+        loop: true,
+        loopFillGroupWithBlank: true,
+        breakpoints: {
+            0: {
+                slidesPerView: 1,
+            },
+            768: {
+                slidesPerView: 2,
+            },
+            992: {
+                slidesPerView: 2,
+            },
+            1200: {
+                slidesPerView: 3,
+            },
+            1500: {
+                slidesPerView: 4,
+            },
+            1920: {
+                slidesPerView: 5,
+            }
+        }
+    });
+</script>

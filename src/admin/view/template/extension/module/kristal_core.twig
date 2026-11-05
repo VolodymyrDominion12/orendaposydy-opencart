@@ -1,0 +1,259 @@
+{# Фіча 019: «Крістал: основне». Автоекранування в OpenCart вимкнене — дані користувача виводимо через |e. #}
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-kristal-core" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    {% if success %}
+    <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    {% if prefilled %}
+    <div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ text_prefilled }}</div>
+    {% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_edit }}</h3>
+      </div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-kristal-core" class="form-horizontal">
+          <ul class="nav nav-tabs">
+            <li class="active"><a href="#tab-contacts" data-toggle="tab">{{ tab_contacts }}</a></li>
+            <li><a href="#tab-social" data-toggle="tab">{{ tab_social }}</a></li>
+            <li><a href="#tab-telegram" data-toggle="tab">{{ tab_telegram }}</a></li>
+            <li><a href="#tab-spam" data-toggle="tab">{{ tab_spam }}</a></li>
+            <li><a href="#tab-preview" data-toggle="tab">{{ tab_preview }}</a></li>
+          </ul>
+          <div class="tab-content">
+
+            {# ---------- Контакти ---------- #}
+            <div class="tab-pane active" id="tab-contacts">
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
+                <div class="col-sm-10">
+                  <select name="status" id="input-status" class="form-control">
+                    <option value="1"{% if status %} selected="selected"{% endif %}>{{ text_enabled }}</option>
+                    <option value="0"{% if not status %} selected="selected"{% endif %}>{{ text_disabled }}</option>
+                  </select>
+                </div>
+              </div>
+              {% for field in ['name', 'legal_name', 'address', 'city', 'postcode', 'email'] %}
+              <div class="form-group{% if error[field] %} has-error{% endif %}">
+                <label class="col-sm-2 control-label" for="input-{{ field }}">{{ attribute(_context, 'entry_' ~ field) }}</label>
+                <div class="col-sm-10">
+                  <input type="{{ field == 'email' ? 'email' : 'text' }}" name="{{ field }}" value="{{ attribute(_context, field)|e }}" id="input-{{ field }}" class="form-control" />
+                  {% if error[field] %}<div class="text-danger">{{ error[field] }}</div>{% endif %}
+                </div>
+              </div>
+              {% endfor %}
+              <div class="form-group{% if error.geo %} has-error{% endif %}">
+                <label class="col-sm-2 control-label" for="input-geo-lat">{{ entry_geo }}</label>
+                <div class="col-sm-5">
+                  <input type="text" name="geo_lat" value="{{ geo_lat|e }}" placeholder="{{ entry_geo_lat }}" id="input-geo-lat" class="form-control" inputmode="decimal" />
+                </div>
+                <div class="col-sm-5">
+                  <input type="text" name="geo_lng" value="{{ geo_lng|e }}" placeholder="{{ entry_geo_lng }}" id="input-geo-lng" class="form-control" inputmode="decimal" />
+                </div>
+                {% if error.geo %}<div class="col-sm-10 col-sm-offset-2 text-danger">{{ error.geo }}</div>{% endif %}
+              </div>
+
+              <fieldset>
+                <legend>{{ entry_phones }}</legend>
+                <p class="help-block">{{ text_phone_hint }} {{ text_core_sync }}</p>
+                {% for phone in phones %}
+                {% set i = loop.index0 %}
+                <div class="form-group{% if error.phone[i] is defined %} has-error{% endif %}">
+                  <label class="col-sm-2 control-label" for="input-phone-{{ i }}">{{ entry_phone }} {{ loop.index }}</label>
+                  <div class="col-sm-3">
+                    <input type="tel" name="phones[{{ i }}][number]" value="{{ phone.number|e }}" placeholder="+38 067 123 45 67" id="input-phone-{{ i }}" class="form-control" autocomplete="off" />
+                  </div>
+                  <div class="col-sm-3">
+                    <input type="text" name="phones[{{ i }}][label]" value="{{ phone.label|e }}" placeholder="{{ entry_phone_label }}" class="form-control" />
+                  </div>
+                  <div class="col-sm-4">
+                    {% for messenger in ['viber', 'telegram', 'whatsapp'] %}
+                    <label class="checkbox-inline"><input type="checkbox" name="phones[{{ i }}][{{ messenger }}]" value="1"{% if attribute(phone, messenger) %} checked="checked"{% endif %} /> {{ attribute(_context, 'text_' ~ messenger) }}</label>
+                    {% endfor %}
+                  </div>
+                  {% if error.phone[i] is defined %}<div class="col-sm-10 col-sm-offset-2 text-danger">{{ error.phone[i] }}</div>{% endif %}
+                </div>
+                {% endfor %}
+              </fieldset>
+
+              <fieldset>
+                <legend>{{ entry_hours }}</legend>
+                <p class="help-block">{{ text_hours_hint }}</p>
+                {% for row in hours %}
+                {% set i = loop.index0 %}
+                <div class="form-group{% if error.hours[i] is defined %} has-error{% endif %}">
+                  <div class="col-sm-6 col-sm-offset-2">
+                    {% for day in days %}
+                    <label class="checkbox-inline"><input type="checkbox" name="hours[{{ i }}][days][]" value="{{ day.code }}"{% if day.code in row.days %} checked="checked"{% endif %} /> {{ day.name }}</label>
+                    {% endfor %}
+                  </div>
+                  <div class="col-sm-2">
+                    <div class="input-group"><span class="input-group-addon">{{ entry_hours_from }}</span>
+                      <input type="time" name="hours[{{ i }}][from]" value="{{ row.from|e }}" class="form-control" /></div>
+                  </div>
+                  <div class="col-sm-2">
+                    <div class="input-group"><span class="input-group-addon">{{ entry_hours_to }}</span>
+                      <input type="time" name="hours[{{ i }}][to]" value="{{ row.to|e }}" class="form-control" /></div>
+                  </div>
+                  {% if error.hours[i] is defined %}<div class="col-sm-10 col-sm-offset-2 text-danger">{{ error.hours[i] }}</div>{% endif %}
+                </div>
+                {% endfor %}
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="input-hours-note">{{ entry_hours_note }}</label>
+                  <div class="col-sm-10">
+                    <input type="text" name="hours_note" value="{{ hours_note|e }}" id="input-hours-note" class="form-control" />
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+
+            {# ---------- Месенджери й соцмережі ---------- #}
+            <div class="tab-pane" id="tab-social">
+              <p class="help-block">{{ text_social_hint }}</p>
+              {% for field in ['telegram_username', 'instagram', 'facebook', 'tiktok', 'youtube'] %}
+              <div class="form-group{% if error[field] %} has-error{% endif %}">
+                <label class="col-sm-2 control-label" for="input-{{ field }}">{{ attribute(_context, 'entry_' ~ field) }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="{{ field }}" value="{{ attribute(_context, field)|e }}" id="input-{{ field }}" class="form-control" />
+                  {% if error[field] %}<div class="text-danger">{{ error[field] }}</div>{% endif %}
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+
+            {# ---------- Telegram ---------- #}
+            <div class="tab-pane" id="tab-telegram">
+              <p class="help-block">{{ text_tg_hint }}</p>
+              <div class="form-group{% if error.tg_token %} has-error{% endif %}">
+                <label class="col-sm-2 control-label" for="input-tg-token">{{ entry_tg_token }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="tg_token" value="" placeholder="{{ tg_token_masked ? tg_token_masked : '123456789:AA…' }}" id="input-tg-token" class="form-control" autocomplete="off" spellcheck="false" />
+                  {% if text_tg_token_saved %}
+                  <div class="help-block">{{ text_tg_token_saved }}</div>
+                  <label class="checkbox-inline"><input type="checkbox" name="tg_token_clear" value="1" /> {{ entry_tg_token_clear }}</label>
+                  {% endif %}
+                  {% if error.tg_token %}<div class="text-danger">{{ error.tg_token }}</div>{% endif %}
+                </div>
+              </div>
+              <div class="form-group{% if error.tg_chat_id %} has-error{% endif %}">
+                <label class="col-sm-2 control-label" for="input-tg-chat-id">{{ entry_tg_chat_id }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="tg_chat_id" value="{{ tg_chat_id|e }}" placeholder="-1001234567890" id="input-tg-chat-id" class="form-control" />
+                  {% if error.tg_chat_id %}<div class="text-danger">{{ error.tg_chat_id }}</div>{% endif %}
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-10 col-sm-offset-2">
+                  <button type="button" id="button-tg-test" class="btn btn-info"><i class="fa fa-paper-plane"></i> {{ button_tg_test }}</button>
+                  <div id="tg-test-result" style="margin-top: 10px;"></div>
+                </div>
+              </div>
+            </div>
+
+            {# ---------- Антиспам ---------- #}
+            <div class="tab-pane" id="tab-spam">
+              <p class="help-block">{{ text_spam_hint }}</p>
+              {% for field in ['spam_min_seconds', 'spam_rate_limit', 'spam_rate_window'] %}
+              <div class="form-group{% if error[field] %} has-error{% endif %}">
+                <label class="col-sm-2 control-label" for="input-{{ field }}">{{ attribute(_context, 'entry_' ~ field) }}</label>
+                <div class="col-sm-10">
+                  <input type="number" name="{{ field }}" value="{{ attribute(_context, field)|e }}" id="input-{{ field }}" class="form-control" min="0" step="1" inputmode="numeric" />
+                  {% if error[field] %}<div class="text-danger">{{ error[field] }}</div>{% endif %}
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+
+            {# ---------- Перевірка (JSON-LD) ---------- #}
+            <div class="tab-pane" id="tab-preview">
+              {% if jsonld %}
+              <p class="help-block">{{ text_preview_hint }}</p>
+              <p><button type="button" id="button-jsonld-copy" class="btn btn-default"><i class="fa fa-copy"></i> {{ text_copy }}</button></p>
+              <pre id="kristal-jsonld" style="white-space: pre-wrap;">{{ jsonld|e }}</pre>
+              {% else %}
+              <p class="help-block">{{ text_preview_empty }}</p>
+              {% endif %}
+            </div>
+
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+<script type="text/javascript"><!--
+// Відкрити вкладку з першою помилкою
+var $firstError = $('#form-kristal-core .has-error').first().closest('.tab-pane');
+if ($firstError.length) {
+	$('a[href="#' + $firstError.attr('id') + '"]').tab('show');
+}
+
+$('#button-tg-test').on('click', function() {
+	var $button = $(this);
+	var $result = $('#tg-test-result');
+
+	$.ajax({
+		url: '{{ tg_test_url }}',
+		type: 'post',
+		dataType: 'json',
+		data: {
+			tg_token: $('#input-tg-token').val(),
+			tg_chat_id: $('#input-tg-chat-id').val()
+		},
+		beforeSend: function() {
+			$button.prop('disabled', true);
+			$result.html('<span class="text-muted">{{ text_tg_sending }}</span>');
+		},
+		complete: function() {
+			$button.prop('disabled', false);
+		},
+		success: function(json) {
+			var $alert = $('<div class="alert"></div>');
+
+			if (json['error']) {
+				$alert.addClass('alert-danger').text(json['error']);
+			} else {
+				$alert.addClass('alert-success').text(json['success']);
+			}
+
+			$result.empty().append($alert);
+		},
+		error: function(xhr, ajaxOptions, thrownError) {
+			$result.empty().append($('<div class="alert alert-danger"></div>').text(thrownError || xhr.statusText));
+		}
+	});
+});
+
+$('#button-jsonld-copy').on('click', function() {
+	var text = $('#kristal-jsonld').text();
+	var $button = $(this);
+
+	if (navigator.clipboard) {
+		navigator.clipboard.writeText(text).then(function() {
+			$button.html('<i class="fa fa-check"></i> {{ text_copied }}');
+		});
+	}
+});
+//--></script>
+</div>
+{{ footer }}

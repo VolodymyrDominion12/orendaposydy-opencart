@@ -1,0 +1,21 @@
+{
+  "_comment": "Мобільні бюджети (AGENTS.md §8). Емуляція: 360x640, slow 4G, CPU x4. Перевищення = не готово.",
+  "lcp_ms": 2500,
+  "cls": 0.1,
+  "tbt_ms": 300,
+  "total_kb": 1200,
+  "js_kb": 250,
+  "css_kb": 80,
+  "img_kb": 700,
+  "font_kb": 120,
+  "requests": 50,
+  "overflow": 0,
+  "tap_small": 0,
+  "small_text": 0,
+  "img_no_dims": 0,
+  "img_not_lazy": 0,
+  "img_oversized": 0,
+  "img_legacy": 0,
+  "viewport_bad": 0,
+  "tel_inputs": 0
+}

@@ -1,0 +1,122 @@
+# ---------------------------------------------------------------------------
+# Локальне середовище OpenCart 3 — orendaposydy.com
+#
+# Запуск:  make up      →  http://localhost:8090
+#
+# Порти зсунуті на 8090/8091/3308/8026, щоб не конфліктувати з
+# mrestus-opencart (там 8080/8081/3307/8025), якщо обидва проєкти підняті.
+# ---------------------------------------------------------------------------
+name: orendaposydy-shop
+
+services:
+
+  # --- PHP 7.4 + Apache (найближчий аналог LiteSpeed із прода) -------------
+  web:
+    build:
+      context: ./docker
+      args:
+        PHP_VERSION: ${PHP_VERSION:-7.4}
+        UID: ${HOST_UID:-1000}
+        GID: ${HOST_GID:-1000}
+    image: orendaposydy-opencart-web:${PHP_VERSION:-7.4}
+    container_name: orendaposydy-web
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-8090}:80"
+    volumes:
+      # Файли сайту. Усі правки робимо тут — вони одразу видимі в контейнері.
+      - ./src:/var/www/html:cached
+      # Дамп із phpMyAdmin можна просто кинути сюди — і імпортувати.
+      - ./dumps:/dumps:ro
+      # Копії бойових config.php — НАВМИСНО поза docroot: усе, що лежить
+      # у src/, Apache віддає по HTTP, разом із логіном і паролем до БД.
+      - ./backups:/backups
+    environment:
+      TZ: ${TZ:-Europe/Kyiv}
+      # Ці змінні читає make-config.sh, коли генерує config.php
+      DB_HOSTNAME: db
+      DB_USERNAME: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_DATABASE: ${DB_NAME}
+      DB_PREFIX: ${DB_PREFIX:-oc_}
+      SITE_URL: ${SITE_URL:-http://localhost:8090/}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [shop]
+
+  # --- База даних ----------------------------------------------------------
+  # sql-mode без STRICT_TRANS_TABLES — свідоме рішення: OpenCart 3 у багатьох
+  # місцях пише порожній рядок у числове поле, і в строгому режимі збереження
+  # товару падає з "Incorrect integer value". На проді строгий режим майже
+  # завжди вимкнений, тому локально робимо так само.
+  db:
+    image: mariadb:10.6
+    container_name: orendaposydy-db
+    restart: unless-stopped
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_general_ci
+      - --sql-mode=NO_ENGINE_SUBSTITUTION
+      - --max-allowed-packet=256M
+      - --innodb-buffer-pool-size=512M
+      - --innodb-flush-log-at-trx-commit=2
+    ports:
+      # 3308, а не 3306 — щоб не конфліктувати з локальним MySQL
+      - "${DB_PORT:-3308}:3306"
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${DB_NAME}
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+      TZ: ${TZ:-Europe/Kyiv}
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./dumps:/dumps:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+    networks: [shop]
+
+  # --- phpMyAdmin-замінник -------------------------------------------------
+  # На проді ви працюєте через phpMyAdmin у cPanel — тут Adminer:
+  # легший, але вміє те саме (SQL-запити, експорт, імпорт).
+  adminer:
+    image: adminer:latest
+    container_name: orendaposydy-adminer
+    restart: unless-stopped
+    ports:
+      - "${ADMINER_PORT:-8091}:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+      ADMINER_DESIGN: dracula
+    depends_on:
+      - db
+    networks: [shop]
+
+  # --- Перехоплювач пошти --------------------------------------------------
+  # ВАЖЛИВО: після імпорту бойової БД налаштування пошти вказують на реальний
+  # SMTP, і локальне тестування замовлення надіслало б СПРАВЖНІЙ лист
+  # клієнту. localize.sql перемикає пошту на mailpit — листи осідають тут.
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: orendaposydy-mailpit
+    restart: unless-stopped
+    ports:
+      - "${MAILPIT_UI_PORT:-8026}:8025"    # http://localhost:8026
+      - "${MAILPIT_SMTP_PORT:-1026}:1025"  # SMTP, на нього дивиться OpenCart
+    environment:
+      TZ: ${TZ:-Europe/Kyiv}
+      MP_MAX_MESSAGES: 500
+    networks: [shop]
+
+volumes:
+  db-data:
+    name: orendaposydy-db-data
+
+networks:
+  shop:
+    name: orendaposydy-shop-net

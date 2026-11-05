@@ -1,0 +1,51 @@
+<!--meta title="Калькулятор посуду для події — скільки брати на N гостей | Крістал" nav="calc" desc="Порахуйте, скільки тарілок, приборів і келихів потрібно на вашу подію. Список з цінами — у кошик або менеджеру."-->
+<div class="k-wrap">
+  <ol class="k-crumbs"><li><a href="01-home.html">Головна</a></li><li aria-current="page">Калькулятор події</li></ol>
+  <div class="k-cathead">
+    <h1 class="k-h1">Калькулятор події</h1>
+    <p class="k-lead">Вкажіть гостей і формат — порахуємо посуд, прибори й скло з запасом 10%. Список можна одразу покласти в кошик або надіслати менеджеру.</p>
+  </div>
+
+  <div class="k-calc" data-calc>
+    <form class="k-calc__in k-panel k-panel--gold" onsubmit="return false">
+      <div class="k-slider">
+        <div class="k-slider__row"><label for="guests" class="k-h3">Гостей</label><output class="k-slider__val" for="guests" data-out>100</output></div>
+        <input id="guests" type="range" min="10" max="300" step="5" value="100" data-guests>
+      </div>
+      <div class="k-field"><span>Формат</span>
+        <div class="k-seg">
+          <label><input type="radio" name="fmt" value="banquet" checked><span>Банкет</span></label>
+          <label><input type="radio" name="fmt" value="buffet"><span>Фуршет</span></label>
+          <label><input type="radio" name="fmt" value="coffee"><span>Кава-брейк</span></label>
+        </div>
+      </div>
+      <div class="k-field"><span>Страв на гостя</span>
+        <div class="k-seg">
+          <label><input type="radio" name="dishes" value="2"><span>2</span></label>
+          <label><input type="radio" name="dishes" value="3" checked><span>3</span></label>
+          <label><input type="radio" name="dishes" value="4"><span>4+</span></label>
+        </div>
+      </div>
+      <div class="k-field"><span>Напої</span>
+        <label class="k-check"><input type="checkbox" name="wine" checked>Вино</label>
+        <label class="k-check"><input type="checkbox" name="champ" checked>Шампанське</label>
+        <label class="k-check"><input type="checkbox" name="strong">Міцні напої</label>
+      </div>
+      <label class="k-field"><span>Серія посуду</span><select class="k-select" name="series"><option value="1">Classic — біла порцеляна</option><option value="2">Royal — золотий обідок (×2)</option></select></label>
+    </form>
+
+    <div>
+      <table class="k-calc__table">
+        <thead><tr><th>Позиція</th><th class="n">К-сть</th><th class="n hide-m">Ціна</th><th class="n">Сума</th></tr></thead>
+        <tbody data-rows></tbody>
+      </table>
+      <div class="k-calc__total k-panel">
+        <div><div class="k-muted k-small">Разом за добу</div><div class="k-price" data-total>0 ₴</div><div class="k-hint" data-pp></div></div>
+        <div class="k-btns"><a class="k-btn k-btn--primary" href="05-cart.html"><svg class="k-ico"><use href="#i-bag"/></svg>Все в кошик</a><a class="k-btn k-btn--secondary" href="#lead">Надіслати менеджеру</a></div>
+      </div>
+      <p class="k-note" style="margin-top:var(--space-4)">Норми «на гостя» і ціни — мок (з 001). У темі норми редагуються в адмінці модуля kristal_calculator (фіча 008).</p>
+    </div>
+  </div>
+</div>
+
+{{> lead}}

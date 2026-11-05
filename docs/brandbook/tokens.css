@@ -1,0 +1,75 @@
+/* Крістал — CSS-токени, згенеровано з tokens.json. Темна тема — основна. */
+@import url("https://fonts.googleapis.com/css2?family=Forum&family=Manrope:wght@400;500;700&family=JetBrains+Mono:wght@500;600&display=swap");
+
+:root, [data-theme="dark"] {
+  --night: #141012;
+  --night-raised: #1e191b;
+  --night-sunken: #0b090a;
+  --line: #3a3135;
+  --ink: #f6f0e8;
+  --ink-muted: #ada3a3;
+  --gold: #ffc22e;
+  --gold-glint: #ffe08a;
+  --gold-deep: #d99a12;
+  --gold-soft: #2f2410;
+  --gold-text: #ffc22e;
+  --on-gold: #141012;
+  --ruby: #c41e24;
+  --ruby-deep: #7e0d12;
+  --ruby-text: #ff7b72;
+  --on-ruby: #fff6ea;
+  --silver: #c9ccd1;
+  --success: #6fd08c;
+  --danger: #ff9d5c;
+  --focus-ring: #ffc22e;
+  --link: var(--gold-text);
+  --shadow-card: 0 1px 0 rgba(255,255,255,0.04) inset, 0 12px 32px rgba(0,0,0,0.5);
+  --shadow-glow: 0 0 0 1px rgba(255,194,46,0.4), 0 0 28px rgba(255,194,46,0.28);
+}
+
+[data-theme="light"] {
+  --night: #f8f5f0;
+  --night-raised: #ffffff;
+  --night-sunken: #efe9e1;
+  --line: #ddd3c8;
+  --ink: #17120f;
+  --ink-muted: #625853;
+  --gold: #ffc22e;
+  --gold-glint: #ffe08a;
+  --gold-deep: #d99a12;
+  --gold-soft: #fff1c9;
+  --gold-text: #7a5600;
+  --on-gold: #141012;
+  --ruby: #b3171d;
+  --ruby-deep: #7e0d12;
+  --ruby-text: #a3141a;
+  --on-ruby: #fff6ea;
+  --silver: #6b7079;
+  --success: #1e7a3c;
+  --danger: #b4410f;
+  --focus-ring: #7a5600;
+  --link: var(--gold-text);
+  --shadow-card: 0 1px 2px rgba(23,18,15,0.06), 0 8px 24px rgba(23,18,15,0.08);
+  --shadow-glow: 0 0 0 1px rgba(217,154,18,0.45), 0 8px 22px rgba(217,154,18,0.25);
+}
+
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-24: 96px;
+  --radius-none: 0;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-round: 50%;
+  --border-hair: 1px;
+  --border-gold: 2px;
+  --font-display: "Forum", "Times New Roman", Georgia, serif;
+  --font-sans: "Manrope", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}

@@ -1,0 +1,6 @@
+{
+  "permissions": {
+    "allow": ["Bash(make:*)", "Bash(git status:*)", "Bash(git diff:*)", "Bash(ls:*)"],
+    "deny":  ["Bash(make deploy-apply:*)", "Bash(make core-prod-remove:*)", "Bash(make destroy:*)"]
+  }
+}

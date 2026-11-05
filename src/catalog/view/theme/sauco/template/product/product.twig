@@ -1,0 +1,115 @@
+{{ header }}
+<div class="product d-flex content" id="product">
+    <div class="product-main">
+        <ul class="breadcrumb">
+            {% for breadcrumb in breadcrumbs %}
+                <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}{% if not loop.last %}<span>-</span>{% endif %}</a></li>
+            {% endfor %}
+        </ul>
+        <div class="product-content row">
+            <div class="product-image">
+                <div class="thumbnails">
+                    {% if thumb %}
+                        <a class="thumbnail" href="{{ popup }}" title="{{ heading_title }}">
+                            <img src="{{ thumb }}" title="{{ heading_title }}" alt="{{ heading_title }}" class="img-fluid"/>
+                        </a>
+                    {% endif %}
+                    {% if images %}
+                        <ul class="product-images d-flex flex-wrap text-center">
+                        {% for image in images %}
+                            <li class="product-images-additional">
+                                <a href="{{ image.popup }}">
+                                    <img src="{{ image.thumb }}" title="{{ heading_title }}" alt="{{ heading_title }}" class="img-fluid"/>
+                                </a>
+                            </li>
+                        {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="product-info col-xl">
+                <h1 class="product-title">{{ heading_title }}</h1>
+                 <div class="product-attr">{{ description_add }}</div>
+                <hr>
+                 <div class="product-desc">{{ description }}</div>
+                <hr>
+                 <div class="d-flex product-action">
+                     {% if not special %}
+                         <div class="product-price">{{ price }}</div>
+                     {% else %}
+                         <div class="product-price d-flex">
+                             <div>{{ special }}</div>
+                             <div class="product-price-special"><s>{{ price }}</s></div>
+                         </div>
+                     {% endif %}
+                     <div class="product-buy" id="button-cart">{{ button_cart }}</div>
+                 </div>
+            </div>
+        </div>
+    </div>
+    {% if products %}
+        <div class="product-featured">
+            <h2 class="title">{{ text_related }}</h2>
+            <div class="product-featured-content">
+                {% for product in products %}
+                    <div class="product-featured-block d-flex">
+                        <div class="product-featured-block-image d-flex align-items-center">
+                            <a href="{{ product.href }}">
+                                <img src="{{ product.thumb }}" alt="{{ product.name }}" title="{{ product.name }}" class="img-fluid" />
+                            </a>
+                        </div>
+                        <div class="product-featured-block-info d-flex justify-content-between flex-column">
+                            <a href="{{ product.href }}">
+                            <div class="product-featured-block-name">{{ product.name }}</div>
+                            </a>
+                            <div class="product-featured-block-attr">{{ product.description_add }}</div>
+                            {% if not product.special %}
+                                <div class="product-featured-block-price">{{ product.price }}</div>
+                            {% else %}
+                                <div class="product-featured-block-price d-flex">
+                                    <div>{{ product.special }}</div>
+                                    <div class="product-featured-block-price-special"><s>{{ product.price }}</s></div>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="product-featured-block-buy d-flex justify-content-center align-items-center" onclick="cart.add('{{ product.product_id }}');">
+                            <i class="fa fa-plus" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+<script type="text/javascript"><!--
+    $('#button-cart').on('click', function() {
+        $.ajax({
+            url: 'index.php?route=checkout/cart/add',
+            type: 'post',
+            data: {
+                product_id:{{ product_id }},
+                quantity:1,
+            },
+            dataType: 'json',
+            success: function(json) {
+                setTimeout(function () {
+                    $('#cart-count').text(json['total']);
+                    $('#mobile-cart-count').text(json['total']);
+                    cartInvisible();
+                }, 100);
+            }
+        });
+    });
+    //--></script>
+<script>
+    $(document).ready(function() {
+        $('.thumbnails').magnificPopup({
+            type:'image',
+            delegate: 'a',
+            gallery: {
+                enabled: true
+            }
+        });
+    });
+</script>
+{{ footer }}

@@ -1,0 +1,116 @@
+{{ header }}
+<div class="catalog content">
+  <div class="container-fluid">
+    <div class="catalog-title">
+      <div class="row align-items-center">
+        <div class="col-lg-4"><h1>{{ heading_title }}</h1></div>
+        <div class="col-lg-8">
+          <div class="catalog-menu">
+            {% if swiper %}
+            <div class="swiper-container" id="sub-category">
+              <ul class="swiper-wrapper">
+                {% if categories %}
+                    {% for category in categories %}
+                      <div class="swiper-slide">
+                      {% if category.current %}
+                        <li class="active"><span>{{ category.name }}</span></li>
+                      {% else %}
+                        <li><a href="{{ category.href }}">{{ category.name }}</a></li>
+                      {% endif %}
+                      </div>
+                    {% endfor %}
+                {% endif %}
+              </ul>
+              <div class="swiper-scrollbar"></div>
+            </div>
+            {% else %}
+              {% if categories %}
+                <ul>
+                  {% for category in categories %}
+                    {% if category.current %}
+                      <li class="active"><span>{{ category.name }}</span></li>
+                    {% else %}
+                      <li><a href="{{ category.href }}">{{ category.name }}</a></li>
+                    {% endif %}
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="catalog-products">
+    <div class="container-fluid">
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}{% if not loop.last %}<span>-</span>{% endif %}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="container-fluid">
+      <div class="row">
+        {% for product in products %}
+        <div class="col-xl-3 col-lg-4 col-sm-6">
+          <div class="products-block">
+            <div class="products-image">
+              <a href="{{ product.href }}">
+                <img src="{{ product.thumb }}" alt="{{ product.name }}" title="{{ product.name }}" class="img-fluid" />
+              </a>
+            </div>
+            <a href="{{ product.href }}">
+            <h4 class="products-title">{{ product.name }}</h4>
+            </a>
+            <div class="products-atr">{{ product.description_add }}</div>
+            <div class="products-text">{{ product.description }}</div>
+            {% if not product.special %}
+              <div class="products-price">{{ product.price }}</div>
+            {% else %}
+              <div class="products-price d-flex">
+                <div>{{ product.special }}</div>
+                <div class="products-price-special"><s>{{ product.price }}</s></div>
+              </div>
+            {% endif %}
+            <div class="products-buy" onclick="cart.add('{{ product.product_id }}');">{{ button_cart }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {{ pagination }}
+  </div>
+  <div class="catalog-text">
+    {% if description %}
+      <div class="container-fluid">{{ description }}</div>
+    {% endif %}
+  </div>
+  {{ content_bottom }}
+</div>
+<script>
+  $(document).ready(function () {
+    var swiper = new Swiper('#sub-category', {
+      slidesPerView: 1,
+      spaceBetween: 0,
+      scrollbar: {
+        el: '.swiper-scrollbar',
+        hide: false,
+      },
+      breakpoints: {
+        557: {
+          slidesPerView: 2,
+        },
+        800: {
+          slidesPerView: 3,
+        },
+        1200: {
+          slidesPerView: 4,
+        },
+        1500: {
+          slidesPerView: 5,
+        },
+      }
+    });
+  });
+</script>
+{{ footer }} 

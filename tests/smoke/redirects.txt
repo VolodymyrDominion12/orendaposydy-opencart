@@ -1,0 +1,5 @@
+# 301-редиректи:  старий_шлях  новий_шлях
+# Заповнюється у фічі 002 з таблиці «URL і 301-редиректи» концепції.
+#
+# /salati/bilij-posud            /posud/tarilky
+# /orenda-prokat-mebliv          /mebli

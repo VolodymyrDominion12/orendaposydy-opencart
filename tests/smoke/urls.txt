@@ -1,0 +1,36 @@
+# Smoke-перевірки вітрини:  шлях  код  [allow=h1,canonical]   # коментар
+#
+# allow=... тимчасово вимикає перевірку для відомої проблеми. Кожен allow
+# має коментар із номером фічі, яка його прибере.
+# Стан: після 001 (make migrate) — мок-каталог застосовано.
+
+# Загальні сторінки (тема sauco: логотип теж h1 → два h1, прибирає 003)
+/                                   200  allow=h1          # 003
+/oplata                             200  allow=h1          # 003
+/order                              200  allow=h1,canonical # кошик: noindex, canonical не потрібен (011)
+/kristal-smoke-neisnuyucha-storinka 404
+
+# 001: нові категорії
+/posud                              200  allow=h1          # 003
+/posud/tarilky                      200  allow=h1          # 003
+/posud/ekskliuzyvnyi-posud          200  allow=h1          # 003
+/stolovi-prybory/vydelky            200  allow=h1          # 003
+/sklo-ta-kelykhy                    200  allow=h1          # 003
+/kukhonne-obladnannia/marmity       200  allow=h1          # 003
+/kavove-obladnannia                 200  allow=h1          # 003
+/barne-obladnannia/barni-stiiky     200  allow=h1          # 003
+/mebli                              200  allow=h1          # 003
+/mebli/stiltsi                      200  allow=h1          # 003
+/tekstyl/skatertyny                 200  allow=h1          # 003
+/shatry                             200  allow=h1          # 003
+/dekor                              200  allow=h1          # 003
+/ekoposud                           200  allow=h1          # 003
+
+# 001: товари
+/tarilka-obidnia-bila-27-sm         200  allow=h1          # 003
+/stilets-chiavari-bilyi             200  allow=h1          # 003
+/shatro-5-10-m-na-50-hostei         200  allow=h1          # 003
+
+# 001: старі категорії приховані → 404. Фіча 002 замінить на 301 (tests/smoke/redirects.txt)
+/salati                             404
+/orenda-prokat-mebliv               404
