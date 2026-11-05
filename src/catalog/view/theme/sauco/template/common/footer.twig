@@ -1,0 +1,61 @@
+<footer class="footer">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col-md-6 col-12 text-md-left text-center order-md-0 order-1">
+                <div>{{ address }}</div>
+                <div>{{ open }}</div>
+            </div>
+            <div class="col-md-6 col-12 order-0 order-md-1">
+                <div class="footer-logo">
+                    {% if logo %}
+                        <a href="{{ home }}"><img src="{{ logo }}" title="{{ name }}" alt="{{ name }}" class="img-fluid" /></a>
+                    {% else %}
+                        <h1><a href="{{ home }}">{{ name }}</a></h1>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% if fondy %}
+        <div class="footer-fondy">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <img src="catalog/view/theme/sauco/image/visa.png" alt="visa" class="img-fluid" />
+                    <img src="catalog/view/theme/sauco/image/master.png" alt="master" class="img-fluid" />
+                    <img src="catalog/view/theme/sauco/image/fondy.png" alt="fondy" class="img-fluid" />
+                </div>
+                <div class="row justify-content-center">
+                    <a href="{{ fondy_term.href }}" class="footer-fondy-terms">{{ fondy_term.title }}</a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</footer>
+{% for script in scripts %}
+    <script src="{{ script }}" type="text/javascript"></script>
+{% endfor %}
+<script src="catalog/view/theme/sauco/js/polyfills.js"></script>
+<script src="catalog/view/theme/sauco/js/mmenu/mmenu.js"></script>
+<script>
+    new Mmenu('#menu',
+        {
+            extensions: [ "pagedim-black", "theme-dark"],
+            navbar: {
+                title: "Меню"
+            },
+            navbars: [{
+                "position": "top",
+            }]
+        }
+    );
+    setTimeout(function () {
+        $('#menu').removeClass('d-none');
+        let menu = $('#menu').width();
+        $('.mm-menu_offcanvas').css('width',menu + 'px');
+    }, 300);
+</script>
+
+</div>
+{{ script_after_body }}
+</body>
+</html>

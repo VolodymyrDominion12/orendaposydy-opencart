@@ -1,0 +1,44 @@
+@import url("https://fonts.googleapis.com/css2?family=Forum&family=Manrope:wght@400;500;700&family=JetBrains+Mono:wght@500;600&display=swap");
+
+/* Крістал — компоненти. Кольори, відступи й шрифти лише з токенів. */
+.kr-row { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; padding:var(--space-4); }
+body { background:var(--night); color:var(--ink); font-family:var(--font-sans); margin:0; }
+
+/* Button */
+.kr-btn { font:700 15px/20px var(--font-sans); letter-spacing:.02em; padding:var(--space-3) var(--space-6);
+  border-radius:var(--radius-none); border:var(--border-hair) solid transparent; cursor:pointer;
+  display:inline-flex; gap:var(--space-2); align-items:center; transition:background .15s, box-shadow .15s; }
+.kr-btn:focus-visible { outline:2px solid var(--focus-ring); outline-offset:2px; }
+.kr-btn--primary { background:var(--gold); color:var(--on-gold); }
+.kr-btn--primary:hover { background:var(--gold-glint); box-shadow:var(--shadow-glow); }
+.kr-btn--primary:active { background:var(--gold-deep); }
+.kr-btn--secondary { background:transparent; color:var(--gold-text); border-color:var(--gold); }
+.kr-btn--secondary:hover { background:var(--gold-soft); }
+.kr-btn--ghost { background:transparent; color:var(--ink); border-color:var(--line); }
+.kr-btn--ghost:hover { border-color:var(--ink-muted); }
+.kr-btn[disabled] { opacity:.45; cursor:not-allowed; box-shadow:none; }
+
+/* Badge */
+.kr-badge { font:700 11px/14px var(--font-sans); letter-spacing:.12em; text-transform:uppercase;
+  padding:var(--space-1) var(--space-2); border-radius:var(--radius-sm); display:inline-block; }
+.kr-badge--hit { background:var(--ruby); color:var(--on-ruby); }
+.kr-badge--new { background:var(--gold); color:var(--on-gold); }
+.kr-badge--stock { background:transparent; color:var(--success); border:var(--border-hair) solid var(--success); }
+.kr-badge--none { background:transparent; color:var(--danger); border:var(--border-hair) solid var(--danger); }
+.kr-badge--muted { background:transparent; color:var(--silver); border:var(--border-hair) solid var(--line); }
+
+/* ProductCard */
+.kr-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:var(--space-6); padding:var(--space-4); }
+.kr-card { background:var(--night-raised); border:var(--border-hair) solid var(--line); border-radius:var(--radius-md);
+  overflow:hidden; display:flex; flex-direction:column; transition:box-shadow .2s, border-color .2s; }
+.kr-card:hover { box-shadow:var(--shadow-card); border-color:var(--gold-deep); }
+.kr-card__media { aspect-ratio:4/3; background:var(--night-sunken); position:relative; display:grid; place-items:center; }
+.kr-card__media svg { width:42%; height:auto; }
+.kr-card__media .kr-badge { position:absolute; top:var(--space-3); left:var(--space-3); }
+.kr-card__body { padding:var(--space-4) var(--space-4) var(--space-6); display:flex; flex-direction:column; gap:var(--space-2); }
+.kr-card__cat { font:700 11px/14px var(--font-sans); letter-spacing:.12em; text-transform:uppercase; color:var(--ink-muted); }
+.kr-card__name { font:700 17px/22px var(--font-sans); color:var(--ink); margin:0; }
+.kr-card__meta { font:500 13px/18px var(--font-mono); color:var(--ink-muted); }
+.kr-card__foot { display:flex; justify-content:space-between; align-items:center; gap:var(--space-2); margin-top:var(--space-2); flex-wrap:wrap; }
+.kr-price { font:600 20px/24px var(--font-mono); color:var(--gold-text); }
+.kr-price small { font-size:13px; color:var(--ink-muted); font-weight:500; }

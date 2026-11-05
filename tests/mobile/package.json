@@ -1,0 +1,11 @@
+{
+  "name": "kristal-mobile-audit",
+  "private": true,
+  "description": "Мобільний аудит вітрини (make test-mobile)",
+  "scripts": {
+    "audit": "node mobile-audit.cjs"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  }
+}

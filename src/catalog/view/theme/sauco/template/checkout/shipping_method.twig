@@ -1,0 +1,23 @@
+{% if shipping_status %}
+{% if shipping_methods %}
+<h4 class="text-center order-method-title">{{ text_shipping_method }}</h4>
+{% if shipping_free_status %}<p class="text-center">{{ shipping_free_total }}</p>{% endif %}
+{% for shipping_method in shipping_methods %}
+{% if not shipping_method.error %}
+{% for quote in shipping_method.quote %}
+<div class="order-method-block">
+  <label{% if quote.code == code or not code %} class="order-method-label"{% endif %}> {% if quote.code == code or not code %}
+      {% set code = quote.code %}
+      <input type="radio" name="shipping_method" value="{{ quote.code }}" checked="checked" data-cost="{{ quote.cost }}" />
+    {% else %}
+      <input type="radio" name="shipping_method" value="{{ quote.code }}" data-cost="{{ quote.cost }}" />
+    {% endif %}
+    {{ quote.title }} - {{ quote.text }}</label>
+</div>
+{% endfor %}
+{% else %}
+<div class="alert alert-danger alert-dismissible">{{ shipping_method.error }}</div>
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endif %}

@@ -1,0 +1,58 @@
+{% if fondy_data.message %}
+  <div class="alert alert-warning">
+    {{ fondy_data.message }}
+    <button type="button" class="close" data-dismiss="alert">×</button>
+  </div>
+{% else %}
+  <div style="display: none" id="checkout">
+    <div id="checkout_wrapper"></div>
+  </div>
+  <script type="text/javascript">
+    function checkoutInit(url) {
+      $ipsp('checkout').scope(function () {
+        this.setCheckoutWrapper('#checkout_wrapper');
+        this.addCallback(__DEFAULTCALLBACK__);
+        this.action('decline', function (data, type) {
+          console.log(data);
+        });
+        this.action('show', function (data) {
+          $('#checkout_loader').remove();
+          $('#checkout').show();
+          $('.preloader').removeClass('active');
+          setTimeout(function () {
+            $('.preloader').remove();
+          },300);
+        });
+        this.action('hide', function (data) {
+          $('#checkout').hide();
+        });
+        this.action('resize', function (data) {
+          $('#checkout_wrapper').height(data.height);
+        });
+        this.loadUrl(url);
+      });
+    }
+  </script>
+  <script>
+    function loadJS(src, callback) {
+      var s = document.createElement('script');
+      s.src = src;
+      s.async = true;
+      s.onreadystatechange = s.onload = function() {
+        var state = s.readyState;
+        if (!callback.done && (!state || /loaded|complete/.test(state))) {
+          callback.done = true;
+          callback();
+        }
+      };
+      document.getElementsByTagName('head')[0].appendChild(s);
+    }
+    loadJS('https://api.fondy.eu/static_common/v1/checkout/ipsp.js', function() {
+      checkoutInit('{{ fondy_data.url }}');
+    });
+  </script>
+  {#<div id="buttons-fondy">#}
+      {#<p>{{ text_fondy_done }}</p>#}
+      {#<a onclick="checkoutInit('{{ fondy_data.url }}');" id="fondy-btn" class="btn-confirm">{{ button_confirm }}</a>#}
+  {#</div>#}
+{% endif %}

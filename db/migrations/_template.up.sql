@@ -1,0 +1,23 @@
+-- ---------------------------------------------------------------------------
+-- {{VERSION}}_{{SLUG}} — UP
+-- Специфікація: specs/NNN-.../plan.md
+--
+-- Правила (docs/agents/db-schema-checklist.md):
+--   * лише {{PREFIX}}, ідемпотентно (IF NOT EXISTS / IF EXISTS);
+--   * нові таблиці: InnoDB, utf8mb4, PRIMARY KEY, назва {{PREFIX}}kristal_*;
+--   * індекси під кожен запит із plan.md; не дублювати лівий префікс наявного;
+--   * ядрові таблиці — лише додавання.
+-- ---------------------------------------------------------------------------
+
+-- Приклад нової таблиці:
+-- CREATE TABLE IF NOT EXISTS `{{PREFIX}}kristal_example` (
+--   `example_id`  INT(11)      NOT NULL AUTO_INCREMENT,
+--   `product_id`  INT(11)      NOT NULL,
+--   `status`      TINYINT(1)   NOT NULL DEFAULT 1,
+--   `date_added`  DATETIME     NOT NULL,
+--   PRIMARY KEY (`example_id`),
+--   KEY `idx_product_status` (`product_id`, `status`)
+-- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Приклад індексу на ядровій таблиці:
+-- ALTER TABLE `{{PREFIX}}product` ADD INDEX IF NOT EXISTS `idx_status_sort` (`status`, `sort_order`);

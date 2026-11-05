@@ -1,0 +1,47 @@
+<section class="modules modules-menu">
+  <h2 class="title text-center">{{ heading_title }}</h2>
+  <div class="swiper-container" id="modules-menu">
+    <div class="swiper-wrapper">
+      {% for category in categories %}
+        <div class="swiper-slide">
+          <div class="modules-menu-block">
+            <a href="{{ category.href }}" class="list-group-item">
+              <img src="{{ category.image }}" alt="{{ category.name }}">
+              <div>{{ category.name }}</div>
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="swiper-button-next"></div>
+    <div class="swiper-button-prev"></div>
+  </div>
+</section>
+
+<script>
+  var swiper = new Swiper('#modules-menu', {
+    loop: true,
+    spaceBetween: 30,
+    navigation: {
+      nextEl: '.swiper-button-next',
+      prevEl: '.swiper-button-prev',
+    },
+    breakpoints: {
+      0: {
+        slidesPerView: 1,
+      },
+      768: {
+        slidesPerView: 3,
+      },
+      992: {
+        slidesPerView: 3,
+      },
+      1200: {
+        slidesPerView: 4,
+      },
+      1500: {
+        slidesPerView: 5,
+      },
+    }
+  });
+</script>

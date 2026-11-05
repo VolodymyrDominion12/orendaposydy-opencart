@@ -1,0 +1,19 @@
+{{ header }}
+<div id="common-success" class="container-fluid content">
+  <div class="row">
+    <div class="col-12">
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}{% if not loop.last %}<span>-</span>{% endif %}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+     <div id="content" class="text-center col-xl-4 col-md-6 col-sm-8 service-page">
+       <i class="fa fa-check-circle-o" aria-hidden="true"></i>
+      <h1>{{ heading_title }}</h1>
+      {{ text_message }}
+        <div><a href="{{ continue }}" class="btn d-block">{{ button_continue }}</a></div>
+      </div>
+  </div>
+</div>
+{{ footer }}

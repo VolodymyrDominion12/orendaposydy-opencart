@@ -1,0 +1,75 @@
+<div class="slider">
+    {% if not mobile %}
+  <div class="swiper-container d-sm-block d-none" id="banner-desk-{{ module }}">
+    <div class="swiper-wrapper">
+      {% for banner in banners %}
+          <div class="swiper-slide">
+            {% if banner.link %}
+              <a href="{{ banner.link }}" title="{{ banner.title }}">
+                <img src="{{ banner.image }}" alt="{{ banner.title }}" class="img-fluid" />
+              </a>
+            {% else %}
+              <img src="{{ banner.image }}" alt="{{ banner.title }}" class="img-fluid" />
+            {% endif %}
+          </div>
+      {% endfor %}
+    </div>
+    <!-- Add Pagination -->
+    <div class="swiper-pagination"></div>
+    <!-- Add Arrows -->
+    <div class="swiper-button-next"></div>
+    <div class="swiper-button-prev"></div>
+  </div>
+  {% else %}
+  <div class="swiper-container d-sm-none" id="banner-mobile-{{ module }}">
+    <div class="swiper-wrapper">
+      {% for banner in banners %}
+          <div class="swiper-slide">
+            {% if banner.link %}
+              <a href="{{ banner.link }}" title="{{ banner.title }}">
+                <img src="{{ banner.image }}" alt="{{ banner.title }}" class="slider-img-fluid" />
+              </a>
+            {% else %}
+              <img src="{{ banner.image }}" alt="{{ banner.title }}" class="slider-img-fluid" />
+            {% endif %}
+          </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% if not mobile %}
+<script>
+  var swiper = new Swiper('#banner-desk-{{ module }}', {
+    // Enable lazy loading
+    lazy: true,
+    centeredSlides: true,
+    loop:true,
+    autoplay: {
+      delay: 2500,
+      disableOnInteraction: false,
+    },
+    pagination: {
+      el: '.swiper-pagination',
+      clickable: true,
+    },
+    navigation: {
+      nextEl: '.swiper-button-next',
+      prevEl: '.swiper-button-prev',
+    },
+  });
+</script>
+{% else %}
+<script>
+  var swiper = new Swiper('#banner-mobile-{{ module }}', {
+    // Enable lazy loading
+    lazy: true,
+    centeredSlides: true,
+    loop:true,
+    autoplay: {
+      delay: 2500,
+      disableOnInteraction: false,
+    },
+  });
+</script>
+{% endif %}

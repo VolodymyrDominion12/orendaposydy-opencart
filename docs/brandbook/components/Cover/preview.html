@@ -1,0 +1,51 @@
+<!-- @dsCard height=288 -->
+<!doctype html>
+<html lang="uk">
+<head><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css">
+<meta charset="utf-8">
+<title>Крістал</title>
+<style>
+  html, body { margin:0; height:100%; }
+  body { background:var(--night); color:var(--ink); font-family:var(--font-sans); overflow:hidden; }
+  .cover { position:relative; height:288px; overflow:hidden; }
+  .art { position:absolute; top:0; left:480px; width:480px; height:288px; overflow:hidden; }
+  .art svg { display:block; width:480px; height:288px; }
+  .field-deep { fill:var(--ruby-deep); }
+  .field { fill:var(--ruby); }
+  .gold { fill:var(--gold); }
+  .silver { fill:var(--silver); }
+  .rim { fill:none; stroke:var(--gold); }
+  .rim-outer { stroke-width:var(--border-gold); }
+  .rim-inner { stroke-width:var(--border-hair); }
+  .words { position:absolute; left:var(--space-8); bottom:var(--space-8); max-width:440px; }
+  .name { margin:0; font-family:var(--font-display); font-size:112px; line-height:.92; font-weight:400; letter-spacing:.01em; color:var(--ink); }
+  .tag { margin:var(--space-2) 0 0 4px; font-size:14px; line-height:20px; color:var(--ink-muted); }
+</style>
+</head>
+<body>
+<div class="cover">
+<div class="art" aria-hidden="true">
+<svg viewBox="0 0 480 288" width="480" height="288">
+<!--
+  blocks      ruby-deep 192×272 slab bled off the top with a ruby field inset space-4 (the emblem's red field) · gold 128×168 · silver 104×64 bleeding off the right — ≈35% of 960×288
+  arrangement one tall heraldic slab with two satellites, bottoms on one line space-6 above the edge, space-4 gutters
+  pattern     literal motif from the emblem: its gold rim as a double frame (border-gold + border-hair, space-1 apart) round the field, and the crown as one gold silhouette (72 wide = space-8 + space-8 + space-2) centred in the field
+  scales      sides in space-4/space-8 multiples; gutters space-4; rim gap space-1; corners radius-none (the system is square)
+-->
+<rect class="field-deep" x="24" y="-8" width="192" height="272"/>
+<rect class="field" x="40" y="8" width="160" height="240"/>
+<rect class="rim rim-outer" x="48" y="16" width="144" height="224"/>
+<rect class="rim rim-inner" x="53" y="21" width="134" height="214"/>
+<polygon class="gold" points="84,152 84,104 102,124 120,96 138,124 156,104 156,152"/>
+<rect class="gold" x="84" y="160" width="72" height="8"/>
+<rect class="gold" x="232" y="96" width="128" height="168"/>
+<rect class="silver" x="376" y="200" width="104" height="64"/>
+</svg>
+</div>
+<div class="words">
+  <h1 class="name">Крістал</h1>
+  <p class="tag">Оренда посуду, меблів і обладнання для подій · Львів, з 2013</p>
+</div>
+</div>
+</body>
+</html>

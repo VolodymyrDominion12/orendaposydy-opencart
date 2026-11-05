@@ -1,0 +1,35 @@
+{% if payment_status %}
+{% if payment_methods %}
+<div class="order-products-info">
+<p class="text-center order-method-title">{{ text_payment_method }}</p>
+{% for payment_method in payment_methods %}
+<div class="order-method-block">
+  <label{% if payment_method.code == code or not code %} class="order-method-label"{% endif %}>{% if payment_method.code == code or not code %}
+    {% set code = payment_method.code %}
+    <input type="radio" name="payment_method" value="{{ payment_method.code }}" checked="checked" />
+    {% else %}
+    <input type="radio" name="payment_method" value="{{ payment_method.code }}" />
+    {% endif %}
+    {{ payment_method.title }}
+    {% if payment_method.terms %}
+    ({{ payment_method.terms }})
+    {% endif %} </label>
+</div>
+{% endfor %}
+</div>
+{% endif %}
+{% if code == 'oplata' %}
+  <div class="text-center order-products-info-hr">
+    <div id="confirm" class="order-products-info">{{ text_checkout }}</div>
+    <div id="fondy"></div>
+  </div>
+{% else %}
+  <div class="text-center order-products-info-hr">
+    <input type="submit" value="{{ text_checkout }}">
+  </div>
+{% endif %}
+{% else %}
+  <div class="text-center order-products-info-hr">
+    <input type="submit" value="{{ text_checkout }}">
+  </div>
+{% endif %}
