@@ -112,6 +112,7 @@ is_protected() {
         .git|.git/*|*/.git/*)                  return 0 ;;
         dumps/*|backups/*|*.sql|*.sql.gz)      return 0 ;;
         install/*|./install/*)                 return 0 ;;
+        image/catalog/kristal/mock/*|./image/catalog/kristal/mock/*) return 0 ;;
     esac
     if [ "${INCLUDE_HTACCESS:-0}" -eq 0 ]; then
         case "$p" in
@@ -136,6 +137,8 @@ protect_reason() {
             echo "SQL виконується через phpMyAdmin, а не заливається як файл" ;;
         install/*|./install/*)
             echo "теку install/ на проді тримати небезпечно — її треба видаляти" ;;
+        image/catalog/kristal/mock/*|./image/catalog/kristal/mock/*)
+            echo "мок-зображення (AGENTS.md §10) — на прод не потрапляють" ;;
         *) echo "службовий шлях" ;;
     esac
 }

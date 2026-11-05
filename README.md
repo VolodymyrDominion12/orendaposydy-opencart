@@ -63,6 +63,22 @@ make localize-admin
 
 ---
 
+## Правила роботи (для людей і AI-агентів)
+
+| Файл | Що |
+|---|---|
+| [`AGENTS.md`](AGENTS.md) | обов'язкові правила: SDD, код OpenCart, БД, запити, тести, мобільна версія, SEO, безпека, деплой |
+| [`CLAUDE.md`](CLAUDE.md) | підключає `AGENTS.md` для Claude Code |
+| [`specs/`](specs/README.md) | специфікації фіч (spec → plan → tasks), беклог `specs/BACKLOG.md` |
+| [`docs/agents/`](docs/agents/) | чек-листи: схема БД, продуктивність запитів, мобільна версія, тестування |
+| `db/` | міграції, знімок схеми, baseline аудиту |
+| `tests/smoke/`, `tests/mobile/` | smoke-URL, редиректи, мобільні бюджети |
+
+Перед «готово»: `make verify` (lint PHP 7.3, аудит БД, схема, міграції, smoke, мобільний аудит).
+Перший запуск: `make db-check UPDATE=1`, `make db-schema-snapshot`, `make mobile-setup` — див. `db/README.md`.
+
+---
+
 ## Структура
 
 ```

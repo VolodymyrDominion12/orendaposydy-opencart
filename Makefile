@@ -178,3 +178,5 @@ url: ## Показати адреси локальних сервісів
 	@printf '  База:      http://localhost:%s/\n' "$$(grep -E '^ADMINER_PORT=' .env | cut -d= -f2)"
 	@printf '  Пошта:     http://localhost:%s/\n' "$$(grep -E '^MAILPIT_UI_PORT=' .env | cut -d= -f2)"
 	@printf '  Прод:      https://orendaposydy.com/\n'
+
+include make/quality.mk
