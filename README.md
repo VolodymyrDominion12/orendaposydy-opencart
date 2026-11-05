@@ -1,8 +1,9 @@
 # orendaposydy-opencart
 
-Локальне середовище й деплой для **https://orendaposydy.com/** (OpenCart 3,
-шаблон `sauco`). Зроблено за тим самим принципом, що й `mrestus-opencart`:
-Docker локально, FTP на прод, жодних «залив через FileZilla і сподіваюсь».
+Локальне середовище й деплой для **https://orendaposydy.com/** (OpenCart
+**3.0.3.2**, шаблон `sauco`). Зроблено за тим самим принципом, що й
+`mrestus-opencart`: Docker локально, FTP на прод, жодних «залив через
+FileZilla і сподіваюсь».
 
 ---
 
@@ -16,6 +17,7 @@ Docker локально, FTP на прод, жодних «залив через
 | Тека сайту | `/home/matusuni/orendaposydy.com` (у FTP: `orendaposydy.com/`) |
 | База даних | `matusuni_kozak`, юзер `matusuni_kozak`, префікс `oc_` |
 | Storage | `orendaposydy.com/storage_kozak/` (нестандартна тека!) |
+| Версія OpenCart | **3.0.3.2** (з `index.php`), шаблон `sauco` |
 | PHP | 7.3.33, LiteSpeed |
 | SSH | **закритий** → деплой тільки через FTP / File Manager |
 
