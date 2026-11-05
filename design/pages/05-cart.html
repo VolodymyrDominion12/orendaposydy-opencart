@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Кошик події | Крістал</title>
-<meta name="description" content="Кошик події: дати, доставка, контакти. Заявка без оплати або передоплата онлайн.">
+<meta name="description" content="Кошик події: дати, доставка, контакти. Бронювання з передоплатою 50%.">
 <meta name="robots" content="noindex">
 <link rel="stylesheet" href="../../docs/brandbook/tokens.css">
 <link rel="stylesheet" href="../assets/k-design.css">
@@ -147,7 +147,7 @@
 <div class="k-wrap">
   <ol class="k-crumbs"><li><a href="01-home.html">Головна</a></li><li aria-current="page">Кошик події</li></ol>
   <h1 class="k-h1" style="margin-bottom:var(--space-4)">Кошик події</h1>
-  <ol class="k-stepper"><li class="is-on">Список</li><li class="is-on">Дати й доставка</li><li class="is-on">Контакти</li><li>Підтвердження менеджера</li></ol>
+  <ol class="k-stepper"><li class="is-on">Список</li><li class="is-on">Дати й доставка</li><li class="is-on">Контакти</li><li>Передоплата 50%</li></ol>
 
   <div class="k-checkout">
     <form action="#" onsubmit="return false">
@@ -213,14 +213,14 @@
           <div class="k-seg"><label><input type="radio" name="ch" checked><span>Viber</span></label><label><input type="radio" name="ch"><span>Telegram</span></label><label><input type="radio" name="ch"><span>Дзвінок</span></label><label><input type="radio" name="ch"><span>Email</span></label></div>
         </div>
         <label class="k-field"><span>Коментар</span><textarea class="k-textarea" placeholder="Меню, час доставки, поверх, потрібен монтаж…"></textarea></label>
-        <label class="k-check"><input type="checkbox">Потрібен рахунок для ФОП / ТОВ</label>
       </div>
 
       <div class="k-block">
-        <div class="k-block__title"><span class="k-mono">04</span><h2 class="k-h3" style="font-size:20px">Оплата</h2></div>
-        <div class="k-radio-card" role="radiogroup" aria-label="Оплата">
-          <label><input type="radio" name="pay" checked><b>Заявка без оплати</b><span>Менеджер підтвердить наявність і надішле рахунок</span></label>
-          <label><input type="radio" name="pay"><b>Передоплата онлайн</b><span>Visa, Mastercard, Apple Pay через Fondy</span></label>
+        <div class="k-block__title"><span class="k-mono">04</span><h2 class="k-h3" style="font-size:20px">Бронювання · передоплата 50%</h2></div>
+        <p class="k-muted">Передоплата закріплює дату й позиції за вами. Решту 50% і доставку сплачуєте при отриманні.</p>
+        <div class="k-radio-card" role="radiogroup" aria-label="Спосіб передоплати">
+          <label><input type="radio" name="pay" checked><b>Карткою онлайн</b><span>Visa, Mastercard, Apple Pay · Fondy</span></label>
+          <label><input type="radio" name="pay"><b>Рахунок для ФОП / ТОВ</b><span>Надішлемо рахунок на 50%; бронь — після надходження оплати</span></label>
         </div>
       </div>
     </form>
@@ -232,11 +232,13 @@
         <dt>× діб оренди</dt><dd>2</dd>
         <dt>Знижка за 2+ доби <span class="k-mock">мок</span></dt><dd class="k-gold">−1 380 ₴</dd>
         <dt>Доставка</dt><dd class="k-muted" style="font-family:var(--font-sans)">у кошторисі</dd>
-        <dt class="k-total">Разом</dt><dd class="k-total">26 220 ₴</dd>
+        <dt class="k-sub">Разом за оренду</dt><dd class="k-sub">26 220 ₴</dd>
+        <dt class="k-total">Передоплата 50% зараз</dt><dd class="k-total">13 110 ₴</dd>
+        <dt>Решта при отриманні</dt><dd>13 110 ₴ + доставка</dd>
       </dl>
-      <p class="k-hint" style="margin:var(--space-3) 0 var(--space-6)">Відшкодування за бій нараховується лише за фактом. Застава — за умовами оренди.</p>
-      <button class="k-btn k-btn--primary k-btn--block" type="submit">Надіслати заявку</button>
-      <p class="k-hint" style="margin-top:var(--space-3);text-align:center">Відповімо протягом 15 хвилин у робочий час</p>
+      <p class="k-hint" style="margin:var(--space-3) 0 var(--space-6)">Якщо якоїсь позиції не буде на вашу дату, менеджер запропонує заміну або поверне передоплату <span class="k-mock">уточнити</span>. Відшкодування за бій — лише за фактом.</p>
+      <button class="k-btn k-btn--primary k-btn--block" type="submit">Забронювати й сплатити 13 110 ₴</button>
+      <p class="k-hint" style="margin-top:var(--space-3);text-align:center">Безпечна оплата через Fondy · підтвердження в Viber і на email</p>
     </aside>
   </div>
 </div>

@@ -530,7 +530,9 @@ body.has-sticky { padding-bottom: calc(128px + env(safe-area-inset-bottom)); }
 .k-summary dt { padding-right: var(--space-4); }
 .k-summary dt { color: var(--ink-muted); }
 .k-summary dd { margin: 0; text-align: right; font-family: var(--font-mono); font-weight: 500; }
-.k-summary .k-total { border-top: var(--border-hair) solid var(--line); padding-top: var(--space-4); margin-top: var(--space-2); }
+.k-summary .k-sub { border-top: var(--border-hair) solid var(--line); padding-top: var(--space-4); margin-top: var(--space-2); }
+.k-summary dd.k-sub { font-weight: 600; color: var(--ink); }
+.k-summary dt.k-total { color: var(--ink); font-weight: 700; align-self: center; }
 .k-summary dd.k-total { font: 600 26px/1 var(--font-mono); color: var(--gold-text); }
 .k-radio-card { display: grid; gap: var(--space-3); }
 @media (min-width: 768px) { .k-radio-card { grid-template-columns: 1fr 1fr; } }
