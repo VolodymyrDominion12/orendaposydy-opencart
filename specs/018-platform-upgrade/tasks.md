@@ -4,26 +4,26 @@
 
 ## Підготовка
 - [x] **T0.** Lint під 7.3 + 8.3, Dockerfile без ionCube, `vendor-src/` у `.gitignore` — *перевірка:* `bash -n` скриптів OK; `make build && make php-version` → немає ionCube (AC-1) **[людина]**.
-- [ ] **T1. [людина]** ~~`opencart-3.0.4.1.zip`~~ ✔; ще `opencart-3.0.3.2.zip` у `vendor-src/`; гілка `git switch -c feature/018-platform-upgrade` — *перевірка:* `ls vendor-src/`.
+- [x] **T1. [людина]** ~~`opencart-3.0.4.1.zip`~~ ✔; ще `opencart-3.0.3.2.zip` у `vendor-src/`; гілка `git switch -c feature/018-platform-upgrade` — *перевірка:* `ls vendor-src/`.
 - [ ] **T2. [людина]** Зафіксувати «до»: `make db-profile URL=/ > specs/018-platform-upgrade/profile-before.txt` (+ `/posud/tarilky`, одна картка), `make test-smoke` — *перевірка:* файли є, smoke зелений.
 
 ## Реалізація
 - [x] **T3a.** Аналіз пакета 3.0.4.1: схема, upgrade-скрипти, налаштування, події, мови, Twig/vendor, сторонні залишки — *перевірка:* знахідки в `plan.md` → «Знахідки аналізу».
 - [x] **T4.** `tools/core-upgrade.sh` (report / apply / verify / package / prod-remove / rollback) + цілі `make core-*` — *перевірка:* `bash -n` OK; пісочниця агента: report класифікує 18 тестових файлів (KEEP/REMOVE/REVIEW), знаходить ручну правку ядра й `spaceless`; apply → verify = «ядро = 3.0.4.1, vendor на місці»; package — ZIP 12 МБ з `storage_kozak/vendor/autoload.php`, без config/install; rollback повертає 3.0.3.2, правку й tweak, зображення не чіпає.
 - [x] **T5a.** Міграція `0002_core_3041` (`sort_order DEFAULT 0` + `sms_alert`) — *перевірка:* статична звірка з `db/schema.sql` і дампом.
-- [ ] **T5b. [людина]** `make migrate-down V=0003 && make migrate-down V=0002 && make migrate` (відкат — лише у зворотному порядку; закриває й відкат 0003 з T6c); `make migrate-status` — 0001–0003 застосовані; `make db-check` — без нових зауважень.
+- [x] **T5b. [людина]** `make migrate-down V=0003 && make migrate-down V=0002 && make migrate` (відкат — лише у зворотному порядку; закриває й відкат 0003 з T6c); `make migrate-status` — 0001–0003 застосовані; `make db-check` — без нових зауважень. ✔ 2026-11-06 21:58: відкат 0003 → 0002 і повторне застосування пройшли; `migrate-status` — 0001–0003 застосовані.
 - [x] **T3b-1.** Перший звіт (без 3.0.3.2) розібрано: знайдено оформлення `sauco` (`checkout/order` + `simple_order`), ручну правку `seo_url.php`, зміни `header/footer/product/category` під тему, вимкнені перейменуванням контролери, сміття в кеші Twig. Скрипт доповнено: `core-keep.txt`, правила для файлів з «_», `*.php_original`, `admin/index1.php`; перевірка мовних маршрутів — за кодом 3.0.4.1; Twig-скан без кешу; `apply` без 3.0.3.2 відмовляється. Пісочниця: header-правку збережено, `checkout.php` не повернуто, `order`/`simple_order` на місці, verify OK, rollback OK.
 - [x] **T3b-2.** Звіт з офіційним 3.0.3.2 розібрано (41 ручна правка ядра, 23 навмисно вимкнені файли, 952 до видалення, 6 REVIEW). Рішення — у «Замітки»; закладено в скрипт (`TAKE_NEW_CORE`, правила KEEP для перекладів, потрібних ядру, і зображень адмінки).
-- [ ] **T3b. [людина]** ~~`opencart-3.0.3.2.zip` у `vendor-src/`~~ ✔ → `make core-report` → надіслати агенту `specs/018-platform-upgrade/core-report.md` (розділи 1–3: ручні правки ядра, Twig 3, REVIEW) і `core-keep.txt`. Агент розбирає кожен пункт.
+- [x] **T3b. [людина]** ~~`opencart-3.0.3.2.zip` у `vendor-src/`~~ ✔ → `make core-report` → надіслати агенту `specs/018-platform-upgrade/core-report.md` (розділи 1–3: ручні правки ядра, Twig 3, REVIEW) і `core-keep.txt`. Агент розбирає кожен пункт.
 - [ ] **T6. [людина]** після розбору звіту: `make core-apply APPLY=1 && make migrate && make clear-cache-all && make refresh-mods && make core-verify` — *перевірка:* «ядро = 3.0.4.1, vendor на місці»; адмінка → версія 3.0.4.1 (AC-2).
 - [x] **T6b.** Smoke після `core-apply` (людина, 20:59): 20 сторінок — 200 без PHP-помилок; падіння лише через «заглушку шаблону» з `config_script_after_body` (AddThis) → міграція `0003_remove_addthis` (бекап у `oc_kristal_setting_backup`, `down` повертає значення). Попередження «немає canonical» на `/` і `/oplata` — існуючий стан, → 011.
-- [ ] **T6c. [людина]** `make migrate && make clear-cache && make test-smoke` — *перевірка:* усі рядки OK; `make migrate-down V=0003 && make migrate` без помилок. Smoke ✔ (21:32): 23/23 OK, 2 попередження «немає canonical» на `/` і `/oplata` (існуючий стан → 011). Лишилось: відкат 0003.
+- [x] **T6c. [людина]** `make migrate && make clear-cache && make test-smoke` — *перевірка:* усі рядки OK; `make migrate-down V=0003 && make migrate` без помилок. Smoke ✔ (21:32): 23/23 OK, 2 попередження «немає canonical» на `/` і `/oplata` (існуючий стан → 011). Відкат 0003 ✔ (разом з T5b); smoke після повторного застосування — 23/23 OK (21:58).
 - [x] **T7.** Оновити `AGENTS.md`, `README.md`, `docs/agents/testing.md` (3.0.4.1, lint 7.3 + 8.3) — *перевірка:* `grep -rn "3.0.3.2"` лише в історичних місцях. Зроблено 2026-11-06: + розділ «Twig 3» в `AGENTS.md` §3, пункти про `storage_kozak/vendor/` і `core-keep.txt` у README, підказки `make lint` у `make/quality.mk`. `grep` — 3.0.3.2 лишився тільки в `specs/018-*`, `make/quality.mk` (назва переходу 3.0.3.2 → 3.0.4.1) і README (стан проду до деплою).
 
 ## Перевірки (DoD) — [людина]
 - [x] `make lint ALL=1` — 7.3 і 8.3 без помилок (AC-8): 2026-11-06 — «PHP-файлів для перевірки немає» (власного коду `kristal_*` ще немає; перевірка реально запрацює з 019/003)
-- [ ] `make db-check` — без нових зауважень. 21:33: 2 нові `id_not_indexed` у службових таблицях відкату (`kristal_setting_backup.store_id`, `kristal_mock_backup.entity_id`) — розібрано в `plan.md` → «db-check: свідомо прийняті», індекс не потрібен → `make db-check UPDATE=1` [людина]
-- [ ] `make db-schema-diff` = міграція 0002; потім `make db-schema-snapshot` (AC-3)
+- [x] `make db-check` — без нових зауважень. 21:33: 2 нові `id_not_indexed` у службових таблицях відкату (`kristal_setting_backup.store_id`, `kristal_mock_backup.entity_id`) — розібрано в `plan.md` → «db-check: свідомо прийняті», індекс не потрібен → прийнято `make db-check UPDATE=1`, 21:58 — «Нових зауважень немає», baseline 306 рядків (закомітити `db/db-check.baseline.tsv`)
+- [x] `make db-schema-diff` = міграція 0002; потім `make db-schema-snapshot` (AC-3): знімок `db/schema.sql` уже містить 0002 (`oc_event.sort_order DEFAULT 0`) і службову таблицю 0003; 21:58 — «Схема збігається зі знімком»
 - [ ] `make db-profile` до → після (/, /posud/tarilky, картка): 
 - [x] `make test-smoke` — усі OK (AC-4): 23/23, 2 попередження canonical (→ 011)
 - [ ] `make test-mobile` — не гірше стартового рівня
@@ -36,7 +36,7 @@
 |---|---|---|
 | AC-1 | `make php-version` | |
 | AC-2 | адмінка → футер; `make core-diff` проти 3.0.4.1 = 0 відмінностей ядра | |
-| AC-3 | `make db-schema-diff` | |
+| AC-3 | `make db-schema-diff` | ✔ 2026-11-06 21:58 — збігається зі знімком (0002 + 0003) |
 | AC-4 | `make test-smoke`, `make logs-php` | ✔ 2026-11-06 21:32 — 23/23 OK, логи чисті |
 | AC-5 | замовлення → адмінка, Mailpit, Telegram | |
 | AC-6 | оформлення з Fondy, тестовий режим | |
