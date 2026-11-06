@@ -1,0 +1,66 @@
+# Файли ядра 3.0.4.1, які apply НЕ копіює в src/. Формат: шлях<TAB>причина.
+# Рядок можна видалити (тоді файл ядра перезапише поточний) або додати свій.
+admin/controller/catalog/product.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+admin/controller/common/column_left.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+admin/controller/common/dashboard.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+admin/controller/common/footer.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+admin/controller/common/header.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+admin/controller/extension/dashboard/recent.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+admin/controller/sale/order.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+admin/controller/setting/setting.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+admin/index.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+admin/model/catalog/product.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+admin/view/stylesheet/stylesheet.css	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+admin/view/template/catalog/product_form.twig	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+admin/view/template/common/header.twig	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+admin/view/template/extension/payment/cod.twig	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+admin/view/template/extension/shipping/flat.twig	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+admin/view/template/extension/shipping/free.twig	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+admin/view/template/extension/shipping/pickup.twig	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+admin/view/template/sale/order_history.twig	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+admin/view/template/sale/order_info.twig	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+admin/view/template/sale/order_invoice.twig	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+admin/view/template/sale/order_list.twig	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+admin/view/template/setting/setting.twig	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+catalog/controller/checkout/cart.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+catalog/controller/common/cart.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+catalog/controller/common/footer.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+catalog/controller/common/header.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+catalog/controller/common/home.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+catalog/controller/extension/module/banner.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+catalog/controller/extension/module/category.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+catalog/controller/extension/module/featured.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+catalog/controller/product/category.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+catalog/controller/product/product.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+catalog/controller/startup/seo_url.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+catalog/model/catalog/product.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+catalog/model/extension/payment/cod.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+catalog/model/extension/shipping/flat.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+catalog/model/extension/shipping/free.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+catalog/model/extension/shipping/pickup.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+catalog/model/extension/total/shipping.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+catalog/view/javascript/common.js	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+system/config/install.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+catalog/controller/checkout/checkout.php	навмисно вимкнено на сайті (є _checkout.php) — не повертаємо
+catalog/controller/checkout/confirm.php	навмисно вимкнено на сайті (є _confirm.php) — не повертаємо
+catalog/controller/checkout/failure.php	навмисно вимкнено на сайті (є _failure.php) — не повертаємо
+catalog/controller/checkout/guest.php	навмисно вимкнено на сайті (є _guest.php) — не повертаємо
+catalog/controller/checkout/guest_shipping.php	навмисно вимкнено на сайті (є _guest_shipping.php) — не повертаємо
+catalog/controller/checkout/login.php	навмисно вимкнено на сайті (є _login.php) — не повертаємо
+catalog/controller/checkout/payment_address.php	навмисно вимкнено на сайті (є _payment_address.php) — не повертаємо
+catalog/controller/checkout/payment_method.php	навмисно вимкнено на сайті (є _payment_method.php) — не повертаємо
+catalog/controller/checkout/register.php	навмисно вимкнено на сайті (є _register.php) — не повертаємо
+catalog/controller/checkout/shipping_address.php	навмисно вимкнено на сайті (є _shipping_address.php) — не повертаємо
+catalog/controller/checkout/shipping_method.php	навмисно вимкнено на сайті (є _shipping_method.php) — не повертаємо
+catalog/controller/common/column_left.php	навмисно вимкнено на сайті (є _column_left.php) — не повертаємо
+catalog/controller/common/column_right.php	навмисно вимкнено на сайті (є _column_right.php) — не повертаємо
+catalog/controller/common/currency.php	навмисно вимкнено на сайті (є _currency.php) — не повертаємо
+catalog/controller/common/language.php	навмисно вимкнено на сайті (є _language.php) — не повертаємо
+catalog/controller/common/maintenance.php	навмисно вимкнено на сайті (є _maintenance.php) — не повертаємо
+catalog/controller/common/search.php	навмисно вимкнено на сайті (є _search.php) — не повертаємо
+catalog/controller/information/contact.php	навмисно вимкнено на сайті (є _contact.php) — не повертаємо
+catalog/controller/information/sitemap.php	навмисно вимкнено на сайті (є _sitemap.php) — не повертаємо
+catalog/controller/product/compare.php	навмисно вимкнено на сайті (є _compare.php) — не повертаємо
+catalog/controller/product/manufacturer.php	навмисно вимкнено на сайті (є _manufacturer.php) — не повертаємо
+catalog/controller/product/search.php	навмисно вимкнено на сайті (є _search.php) — не повертаємо
+catalog/controller/product/special.php	навмисно вимкнено на сайті (є _special.php) — не повертаємо

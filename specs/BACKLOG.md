@@ -49,7 +49,9 @@
 - `oc_store` має запис `store_id=1` з тим самим доменом, частина SEO URL продубльована для store 1 — з'ясувати, чи він потрібен.
 - Основний домен: orendaposudu.com чи orendaposydy.com (README і `oc_store` вказують orendaposydy.com).
 - 2026-11-06 (інвентаризація для 018): подія `sms_alert` (`oc_event` id 46) вказує на `extension/module/sms_alert`, а контролер перейменовано в `_module/_sms_alert.php` — подія мертва → прибирається в 018.
-- 2026-11-06: ~40 осиротілих мовних файлів від видалених сторонніх модулів (cyber_*, uni_*, ocfilter, dream_filter, progroman, blog_*, divido, laybuy) і `catalog/model/checkout/simple_order.php` → прибираються в 018.
+- 2026-11-06: ~40 осиротілих мовних файлів від видалених сторонніх модулів (cyber_*, uni_*, ocfilter, dream_filter, progroman, blog_*, divido, laybuy) → прибираються в 018. ~~`simple_order.php` — мертвий~~: це робоче оформлення `sauco` (`checkout/order`), лишається до 010.
+- 2026-11-06 (звіт 018): `catalog/controller/startup/seo_url.php` змінено вручну (opencart-russia.ru): 301 з `?route=` на ЧПУ і ЧПУ для маршрутів (`/order`, `/success`) → після 018 зникає; відтворити в `kristal_seo` (011) з кешем (зараз — запит до БД на кожне посилання).
+- 2026-11-06 (звіт 018): файли ядра `common/header|footer`, `product/product|category` змінено під тему `sauco`, частину контролерів ядра вимкнено перейменуванням (`_checkout.php`, `_search.php` …) → лишаються як є (`core-keep.txt`) до 003.
 - 2026-11-06: Dockerfile ставить ionCube Loader з коментарем про Simple/dream_filter, але зашифрованих файлів у проєкті немає (коментар із mrestus) → прибирається в 018.
 - 2026-11-06: токен Telegram-бота `notifications_in_telegram` лежить відкрито в `oc_setting` і в дампі (дамп у `.gitignore` — ок). Після 023 — перевипустити токен у @BotFather.
 - 2026-11-06: у корені `src/` — `error_log` (73 КБ), `php.ini` з `upload_max_filesize = 999M`, `cgi-bin/` → переглянути в 017.
