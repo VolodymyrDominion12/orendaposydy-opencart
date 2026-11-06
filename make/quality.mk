@@ -7,6 +7,7 @@
 # ---------------------------------------------------------------------------
 
 .PHONY: lint test-smoke test-mobile mobile-setup verify \
+        core-report core-apply core-verify core-package core-prod-remove core-rollback \
         db-check db-schema-snapshot db-schema-diff db-explain db-profile \
         migrate migrate-status migrate-down migrate-print migrate-new
 
@@ -63,3 +64,24 @@ mobile-setup: ## Один раз: встановити Playwright + Chromium д�
 
 verify: ## Усі перевірки перед «готово»: lint + db-check + схема + міграції + smoke + мобільний
 	@bash tools/verify.sh
+
+# ===========================================================================
+# Оновлення ядра OpenCart 3.0.3.2 → 3.0.4.1 (фіча 018). Без APPLY=1 — лише показ.
+# ===========================================================================
+core-report: ## 018: звіт src/ проти ядра 3.0.4.1 → specs/018-platform-upgrade/core-report.md
+	@bash tools/core-upgrade.sh report
+
+core-apply: ## 018: бекап + ядро 3.0.4.1 + vendor + видалення залишків (APPLY=1)
+	@APPLY=$(APPLY) bash tools/core-upgrade.sh apply
+
+core-verify: ## 018: перевірити, що src/ = ядро 3.0.4.1 і vendor на місці
+	@bash tools/core-upgrade.sh verify
+
+core-package: ## 018: ZIP ядра + vendor для файлового менеджера cPanel
+	@bash tools/core-upgrade.sh package
+
+core-prod-remove: ## 018: видалити залишки на проді через FTP (APPLY=1)
+	@APPLY=$(APPLY) bash tools/core-upgrade.sh prod-remove
+
+core-rollback: ## 018: повернути код src/ з бекапу: make core-rollback BK=backups/core-018-….tar.gz APPLY=1
+	@BK=$(BK) APPLY=$(APPLY) bash tools/core-upgrade.sh rollback

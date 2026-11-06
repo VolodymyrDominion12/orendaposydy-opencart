@@ -1,13 +1,14 @@
 # ---------------------------------------------------------------------------
-# OpenCart 3.0.x — локальне середовище розробки
+# OpenCart 3.0.x (3.0.4.1) — локальне середовище розробки
 #
 # Чому саме так:
 #   * Apache, а не nginx — на проді LiteSpeed, який читає .htaccess.
 #     OpenCart покладається на .htaccess для SEO-URL, тому Apache дає
 #     однакову поведінку маршрутизації "локально == прод".
-#   * PHP 7.4 за замовчуванням. Прод працює на PHP 7.3.33; 7.4 — найближча
-#     версія, яку OpenCart 3.0.3.x офіційно підтримує. Якщо потрібна точна
-#     відповідність — зберіть з PHP_VERSION=7.3 (див. .env).
+#   * PHP 7.4 за замовчуванням. Прод працює на PHP 7.3.33 (лишається, поки
+#     не вирішено перехід усіх сайтів акаунта — фіча 026); OpenCart 3.0.4.1
+#     підтримує PHP 7.3–8.3. Синтаксис під 7.3 перевіряє `make lint`
+#     справжнім php:7.3-cli. Точна відповідність — PHP_VERSION=7.3 у .env.
 #   * UID/GID контейнера = UID/GID вашого користувача на хості. Інакше
 #     Apache (www-data, uid 33) не зможе писати в кеш, а ви не зможете
 #     редагувати створені ним файли.
@@ -120,38 +121,10 @@ RUN set -eux; \
 # --- 4. Конфіг PHP для розробки ---------------------------------------------
 COPY php-dev.ini /usr/local/etc/php/conf.d/zz-opencart-dev.ini
 
-# --- 4b. ionCube Loader ------------------------------------------------------
-# ОБОВ'ЯЗКОВИЙ для цього магазину. Частина файлів зашифрована ionCube:
-#   system/library/simple/php/simple_*.php   (Simple / SimpleCheckout)
-#   system/library/simple/php/filterit_*.php
-#   catalog/language/uk-ua/extension/module/dream_filter.php
-# Без завантажувача такий файл друкує "Site error: the ionCube PHP Loader
-# needs to be installed" і завершує роботу. Симптом підступний: HTTP-код
-# усе одно 200, тому моніторинг і `make check` бачили «робочий сайт», хоча
-# у браузері був текст помилки замість магазину.
-# На хостингу лоадер ставить панель; у нашому образі його треба покласти самим.
-# zend_extension мусить стояти в conf.d ПЕРШИМ (файл 00-...), інакше частина
-# зашифрованих файлів устигає завантажитись до лоадера.
-#
-# УВАГА про версію: офіційний образ php оголошує ENV PHP_VERSION=7.4.33, і це
-# ENV перекриває ARG PHP_VERSION=7.4. ionCube ж називає лоадери лише
-# major.minor (ioncube_loader_lin_7.4.so), тому беремо "${PHP_VERSION%.*}",
-# інакше `cp` шукає ioncube_loader_lin_7.4.33.so і build падає.
-RUN set -eux; \
-    ext_dir="$(php -r 'echo ini_get("extension_dir");')"; \
-    ts=""; \
-    if php -i | grep -q 'Thread Safety => enabled'; then ts="_ts"; fi; \
-    ioncube_ver="${PHP_VERSION%.*}"; \
-    curl -fsSL -o /tmp/ioncube.tar.gz \
-        https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz; \
-    mkdir -p /tmp/ioncube; \
-    tar -xzf /tmp/ioncube.tar.gz -C /tmp/ioncube; \
-    cp "/tmp/ioncube/ioncube/ioncube_loader_lin_${ioncube_ver}${ts}.so" "$ext_dir/"; \
-    printf 'zend_extension=ioncube_loader_lin_%s%s.so\n' "$ioncube_ver" "$ts" \
-        > /usr/local/etc/php/conf.d/00-ioncube.ini; \
-    rm -rf /tmp/ioncube /tmp/ioncube.tar.gz; \
-    php -m | grep -i ioncube; \
-    php -v | grep -i ioncube
+# --- 4b. ionCube Loader -----------------------------------------------------
+# Не ставимо (фіча 018): зашифрованих ionCube файлів у проєкті немає, а
+# сторонні модулі з маркетплейсів проєкт не використовує. Якщо колись
+# з'явиться зашифрований файл — це сигнал прибрати модуль, а не ставити лоадер.
 
 # --- 5. Точка входу + генератор конфіга -------------------------------------
 COPY entrypoint.sh    /usr/local/bin/entrypoint.sh
