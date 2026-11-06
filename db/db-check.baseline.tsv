@@ -67,6 +67,7 @@ id_not_indexed	oc_information_to_layout	layout_id
 id_not_indexed	oc_information_to_layout	store_id
 id_not_indexed	oc_information_to_store	store_id
 id_not_indexed	oc_kristal_mock_backup	entity_id
+id_not_indexed	oc_kristal_setting_backup	store_id
 id_not_indexed	oc_layout_module	layout_id
 id_not_indexed	oc_layout_route	layout_id
 id_not_indexed	oc_layout_route	store_id

@@ -11,7 +11,7 @@
 - [x] **T3a.** Аналіз пакета 3.0.4.1: схема, upgrade-скрипти, налаштування, події, мови, Twig/vendor, сторонні залишки — *перевірка:* знахідки в `plan.md` → «Знахідки аналізу».
 - [x] **T4.** `tools/core-upgrade.sh` (report / apply / verify / package / prod-remove / rollback) + цілі `make core-*` — *перевірка:* `bash -n` OK; пісочниця агента: report класифікує 18 тестових файлів (KEEP/REMOVE/REVIEW), знаходить ручну правку ядра й `spaceless`; apply → verify = «ядро = 3.0.4.1, vendor на місці»; package — ZIP 12 МБ з `storage_kozak/vendor/autoload.php`, без config/install; rollback повертає 3.0.3.2, правку й tweak, зображення не чіпає.
 - [x] **T5a.** Міграція `0002_core_3041` (`sort_order DEFAULT 0` + `sms_alert`) — *перевірка:* статична звірка з `db/schema.sql` і дампом.
-- [ ] **T5b. [людина]** `make migrate && make migrate-down V=0002 && make migrate`; `make db-check` — без нових зауважень.
+- [ ] **T5b. [людина]** `make migrate-down V=0003 && make migrate-down V=0002 && make migrate` (відкат — лише у зворотному порядку; закриває й відкат 0003 з T6c); `make migrate-status` — 0001–0003 застосовані; `make db-check` — без нових зауважень.
 - [x] **T3b-1.** Перший звіт (без 3.0.3.2) розібрано: знайдено оформлення `sauco` (`checkout/order` + `simple_order`), ручну правку `seo_url.php`, зміни `header/footer/product/category` під тему, вимкнені перейменуванням контролери, сміття в кеші Twig. Скрипт доповнено: `core-keep.txt`, правила для файлів з «_», `*.php_original`, `admin/index1.php`; перевірка мовних маршрутів — за кодом 3.0.4.1; Twig-скан без кешу; `apply` без 3.0.3.2 відмовляється. Пісочниця: header-правку збережено, `checkout.php` не повернуто, `order`/`simple_order` на місці, verify OK, rollback OK.
 - [x] **T3b-2.** Звіт з офіційним 3.0.3.2 розібрано (41 ручна правка ядра, 23 навмисно вимкнені файли, 952 до видалення, 6 REVIEW). Рішення — у «Замітки»; закладено в скрипт (`TAKE_NEW_CORE`, правила KEEP для перекладів, потрібних ядру, і зображень адмінки).
 - [ ] **T3b. [людина]** ~~`opencart-3.0.3.2.zip` у `vendor-src/`~~ ✔ → `make core-report` → надіслати агенту `specs/018-platform-upgrade/core-report.md` (розділи 1–3: ручні правки ядра, Twig 3, REVIEW) і `core-keep.txt`. Агент розбирає кожен пункт.
@@ -21,7 +21,7 @@
 - [x] **T7.** Оновити `AGENTS.md`, `README.md`, `docs/agents/testing.md` (3.0.4.1, lint 7.3 + 8.3) — *перевірка:* `grep -rn "3.0.3.2"` лише в історичних місцях. Зроблено 2026-11-06: + розділ «Twig 3» в `AGENTS.md` §3, пункти про `storage_kozak/vendor/` і `core-keep.txt` у README, підказки `make lint` у `make/quality.mk`. `grep` — 3.0.3.2 лишився тільки в `specs/018-*`, `make/quality.mk` (назва переходу 3.0.3.2 → 3.0.4.1) і README (стан проду до деплою).
 
 ## Перевірки (DoD) — [людина]
-- [ ] `make lint ALL=1` — 7.3 і 8.3 без помилок (AC-8)
+- [x] `make lint ALL=1` — 7.3 і 8.3 без помилок (AC-8): 2026-11-06 — «PHP-файлів для перевірки немає» (власного коду `kristal_*` ще немає; перевірка реально запрацює з 019/003)
 - [ ] `make db-check` — без нових зауважень. 21:33: 2 нові `id_not_indexed` у службових таблицях відкату (`kristal_setting_backup.store_id`, `kristal_mock_backup.entity_id`) — розібрано в `plan.md` → «db-check: свідомо прийняті», індекс не потрібен → `make db-check UPDATE=1` [людина]
 - [ ] `make db-schema-diff` = міграція 0002; потім `make db-schema-snapshot` (AC-3)
 - [ ] `make db-profile` до → після (/, /posud/tarilky, картка): 
@@ -41,7 +41,7 @@
 | AC-5 | замовлення → адмінка, Mailpit, Telegram | |
 | AC-6 | оформлення з Fondy, тестовий режим | |
 | AC-7 | `SELECT * FROM oc_event WHERE code='sms_alert'` → 0; файли зі списку відсутні | |
-| AC-8 | `make lint ALL=1` | |
+| AC-8 | `make lint ALL=1` | ✔ 2026-11-06 — нашого PHP-коду поки немає |
 | AC-9 | прод: smoke, версія, PHP 7.3.33, замовлення «ТЕСТ 018» | |
 | AC-10 | відкат локально | |
 
