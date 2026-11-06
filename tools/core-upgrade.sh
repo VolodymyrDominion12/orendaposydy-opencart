@@ -93,6 +93,17 @@ core_files_to_copy() {
     fi
 }
 
+# Ручні правки ядра, для яких БЕРЕМО нове ядро (рішення 2026-11-06, specs/018 → tasks «Замітки»):
+# косметика адмінки (напис-логотип, «версія теми», .d-none, меню, пробіли в дашборді), а стара шапка
+# адмінки підключає jquery-2.1.1, якого в 3.0.4.1 немає.
+TAKE_NEW_CORE='admin/index.php
+admin/controller/common/header.php
+admin/controller/common/footer.php
+admin/controller/common/column_left.php
+admin/controller/common/dashboard.php
+admin/view/template/common/header.twig
+admin/view/stylesheet/stylesheet.css'
+
 # Записати згенерований список: якщо людина не редагувала попередній (збігається з
 # останнім згенерованим у .cache) — перезаписати; інакше — поруч як .new.
 write_generated() {
@@ -164,6 +175,7 @@ classify() {
         config-dist.php|admin/config-dist.php|.htaccess.txt)
                                            echo "KEEP	шаблон з пакета ядра (не перезаписуємо)"; return ;;
         .well-known/*|cgi-bin/*)           echo "KEEP	службове хостингу (переглянути в 017)"; return ;;
+        admin/view/image/*|catalog/view/image/*) echo "KEEP	зображення інтерфейсу (не заважає)"; return ;;
         admin/language/uk-ua/uk-ua.*|catalog/language/uk-ua/uk-ua.*)
                                            echo "KEEP	мовний пакет uk-ua"; return ;;
     esac
@@ -176,7 +188,7 @@ classify() {
             local route="${f#*/language/uk-ua/}"; route="${route%.php}"
             if grep -rqF --include='*.php' "'$route'" "$NEW/admin" "$NEW/catalog" "$NEW/system" 2>/dev/null \
                || { [ -s "$CACHE/kept-php.list" ] && (cd "$SRC" && xargs -a "$CACHE/kept-php.list" grep -lqF "'$route'" 2>/dev/null); }; then
-                echo "REVIEW	мовний файл без відповідника в ядрі, але маршрут '$route' використовується в ядрі 3.0.4.1 або в нашому коді"
+                echo "KEEP	переклад, який завантажує ядро 3.0.4.1 або збережений код (en-gb у пакеті немає)"
             else
                 echo "REMOVE	мовний файл видаленого модуля (маршрут ніде не використовується)"
             fi
@@ -240,7 +252,9 @@ report)
         echo "# Файли ядра 3.0.4.1, які apply НЕ копіює в src/. Формат: шлях<TAB>причина."
         echo "# Рядок можна видалити (тоді файл ядра перезапише поточний) або додати свій."
         if [ -s "$CACHE/hacks.list" ]; then
-            { grep -xFf "$CACHE/new.list" "$CACHE/hacks.list" || true; } | sed 's/$/\tручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003/'
+            { grep -xFf "$CACHE/new.list" "$CACHE/hacks.list" || true; } \
+                | { grep -vxF "$TAKE_NEW_CORE" || true; } \
+                | sed 's/$/\tручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003/'
         fi
         while IFS= read -r f; do
             d="$(dirname "$f")"; b="$(basename "$f")"
@@ -249,6 +263,8 @@ report)
         done < "$CACHE/new.list"
     } > "$CACHE/keep.tmp"
     write_generated "$CACHE/keep.tmp" "$KEEP_LIST"
+    # старі файли ядра, що лишаються, теж можуть завантажувати мовні файли
+    { grep -v '^\s*\(#\|$\)' "$KEEP_LIST" | cut -f1 | grep '\.php$' || true; } >> "$CACHE/kept-php.list"
     core_files_to_copy > "$CACHE/copy.list"
 
     : > "$CACHE/class.tsv"
@@ -288,11 +304,18 @@ report)
             echo "Ці файли **за замовчуванням лишаються старими** (\`core-keep.txt\`): тема \`sauco\` бере з них дані."
             echo "Їх замінить тема \`kristal\` (003). Рядок у \`core-keep.txt\` можна прибрати, якщо правка не потрібна."
             echo
+            { grep -vxF "$TAKE_NEW_CORE" "$CACHE/hacks.list" || true; } > "$CACHE/hacks.keep"
             while IFS= read -r f; do
                 lines="$( { diff <(tr -d '\r' < "$OLD/$f") <(tr -d '\r' < "$SRC/$f") 2>/dev/null || true; } | grep -c '^[<>]' || true)"
                 printf -- '- `%s` — %s рядків різниці\n' "$f" "$lines"
-            done < "$CACHE/hacks.list"
+            done < "$CACHE/hacks.keep"
         fi
+        echo
+        echo "### Ручні правки, для яких беремо нове ядро 3.0.4.1"
+        echo
+        echo "Косметика адмінки; стара шапка адмінки підключає jquery-2.1.1, якого в 3.0.4.1 немає:"
+        echo
+        printf '%s\n' "$TAKE_NEW_CORE" | { grep -xFf - "$CACHE/hacks.list" || true; } | sed 's/^/- `/; s/$/`/'
         echo
         echo "## 1a. Навмисно вимкнені файли ядра (не повертаються)"
         echo

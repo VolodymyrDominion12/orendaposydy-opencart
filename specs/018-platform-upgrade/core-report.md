@@ -1,18 +1,18 @@
 # 018 — звіт оновлення ядра 3.0.3.2 → 3.0.4.1
 
-Згенеровано `make core-report` 2026-11-06 20:36. Не редагувати вручну.
+Згенеровано `make core-report` 2026-11-06 20:45. Не редагувати вручну.
 
 | Що | Кількість |
 |---|---|
 | Файлів ядра 3.0.4.1 | 2256 |
 | Спільних із src/ | 1327 |
 | Нових у 3.0.4.1 | 929 |
-| **Не копіюються** (core-keep.txt) | 64 |
-| Буде скопійовано з ядра | 2192 |
+| **Не копіюються** (core-keep.txt) | 57 |
+| Буде скопійовано з ядра | 2199 |
 | Файлів src/, яких немає в 3.0.4.1 | 1467 |
-| — залишаються (KEEP) | 509 |
+| — залишаються (KEEP) | 515 |
 | — до видалення (REMOVE) | 952 |
-| — вирішити вручну (REVIEW) | 6 |
+| — вирішити вручну (REVIEW) | 0 |
 
 ## 1. Ручні правки ядра (src/ ≠ оригінальний 3.0.3.2)
 
@@ -20,18 +20,11 @@
 Їх замінить тема `kristal` (003). Рядок у `core-keep.txt` можна прибрати, якщо правка не потрібна.
 
 - `admin/controller/catalog/product.php` — 16 рядків різниці
-- `admin/controller/common/column_left.php` — 910 рядків різниці
-- `admin/controller/common/dashboard.php` — 32 рядків різниці
-- `admin/controller/common/footer.php` — 2 рядків різниці
-- `admin/controller/common/header.php` — 2 рядків різниці
 - `admin/controller/extension/dashboard/recent.php` — 2 рядків різниці
 - `admin/controller/sale/order.php` — 32 рядків різниці
 - `admin/controller/setting/setting.php` — 38 рядків різниці
-- `admin/index.php` — 3 рядків різниці
 - `admin/model/catalog/product.php` — 18 рядків різниці
-- `admin/view/stylesheet/stylesheet.css` — 6 рядків різниці
 - `admin/view/template/catalog/product_form.twig` — 2085 рядків різниці
-- `admin/view/template/common/header.twig` — 9 рядків різниці
 - `admin/view/template/extension/payment/cod.twig` — 2 рядків різниці
 - `admin/view/template/extension/shipping/flat.twig` — 4 рядків різниці
 - `admin/view/template/extension/shipping/free.twig` — 2 рядків різниці
@@ -60,6 +53,18 @@
 - `catalog/model/extension/total/shipping.php` — 12 рядків різниці
 - `catalog/view/javascript/common.js` — 10 рядків різниці
 - `system/config/install.php` — 4 рядків різниці
+
+### Ручні правки, для яких беремо нове ядро 3.0.4.1
+
+Косметика адмінки; стара шапка адмінки підключає jquery-2.1.1, якого в 3.0.4.1 немає:
+
+- `admin/controller/common/column_left.php`
+- `admin/controller/common/dashboard.php`
+- `admin/controller/common/footer.php`
+- `admin/controller/common/header.php`
+- `admin/index.php`
+- `admin/view/stylesheet/stylesheet.css`
+- `admin/view/template/common/header.twig`
 
 ## 1a. Навмисно вимкнені файли ядра (не повертаються)
 
@@ -93,12 +98,7 @@
 
 ## 3. Вирішити вручну (REVIEW)
 
-- `admin/language/uk-ua/extension/extension.php` — мовний файл без відповідника в ядрі, але маршрут 'extension/extension' використовується в ядрі 3.0.4.1 або в нашому коді
-- `admin/language/uk-ua/extension/extension/promotion.php` — мовний файл без відповідника в ядрі, але маршрут 'extension/extension/promotion' використовується в ядрі 3.0.4.1 або в нашому коді
-- `admin/language/uk-ua/mail/affiliate.php` — мовний файл без відповідника в ядрі, але маршрут 'mail/affiliate' використовується в ядрі 3.0.4.1 або в нашому коді
-- `admin/view/image/payment/1.png` — не ядро 3.0.3.2 і не відомий модуль — вирішити вручну
-- `catalog/language/uk-ua/information/tracking.php` — мовний файл без відповідника в ядрі, але маршрут 'information/tracking' використовується в ядрі 3.0.4.1 або в нашому коді
-- `catalog/language/uk-ua/mail/order.php` — мовний файл без відповідника в ядрі, але маршрут 'mail/order' використовується в ядрі 3.0.4.1 або в нашому коді
+Немає.
 
 ## 4. До видалення (REMOVE) — за причинами
 
@@ -118,9 +118,11 @@
 
 - Fondy (офіційний модуль провайдера) — 8
 - Telegram-сповіщення (до 023) — 5
+- зображення інтерфейсу (не заважає) — 1
 - мовний пакет uk-ua — 4
 - оформлення замовлення теми sauco (до 010) — 3
 - переклад файлу ядра — 360
+- переклад, який завантажує ядро 3.0.4.1 або збережений код (en-gb у пакеті немає) — 5
 - службове хостингу (переглянути в 017) — 1
 - тема sauco (до 003) — 119
 - файл сайту/хостингу — 9
