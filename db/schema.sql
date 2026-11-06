@@ -396,7 +396,7 @@ CREATE TABLE `oc_event` (
   `trigger` text NOT NULL,
   `action` text NOT NULL,
   `status` tinyint(1) NOT NULL,
-  `sort_order` int(3) NOT NULL,
+  `sort_order` int(3) NOT NULL DEFAULT 0,
   PRIMARY KEY (`event_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 CREATE TABLE `oc_extension` (
@@ -551,6 +551,31 @@ CREATE TABLE `oc_information_to_store` (
   `store_id` int(11) NOT NULL,
   PRIMARY KEY (`information_id`,`store_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `oc_kristal_migration` (
+  `version` varchar(16) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `checksum` char(40) NOT NULL,
+  `applied_at` datetime NOT NULL,
+  PRIMARY KEY (`version`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `oc_kristal_mock_backup` (
+  `entity` varchar(32) NOT NULL,
+  `entity_id` int(11) NOT NULL,
+  `field` varchar(64) NOT NULL,
+  `value` text NOT NULL,
+  PRIMARY KEY (`entity`,`entity_id`,`field`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `oc_kristal_setting_backup` (
+  `setting_id` int(11) NOT NULL,
+  `store_id` int(11) NOT NULL,
+  `code` varchar(128) NOT NULL,
+  `key` varchar(128) NOT NULL,
+  `value` mediumtext NOT NULL,
+  `serialized` tinyint(1) NOT NULL,
+  `migration` varchar(64) NOT NULL,
+  `backed_up_at` datetime NOT NULL,
+  PRIMARY KEY (`setting_id`,`migration`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 CREATE TABLE `oc_language` (
   `language_id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(32) NOT NULL,

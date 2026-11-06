@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------
-# Цілі якості: міграції БД, аудит схеми, EXPLAIN, профіль запитів, lint PHP 7.3,
+# Цілі якості: міграції БД, аудит схеми, EXPLAIN, профіль запитів, lint PHP 7.3 + 8.3,
 # smoke і мобільний аудит. Правила — AGENTS.md §4–8.
 #
 # Підключається з Makefile одним рядком (наприкінці файлу):
@@ -50,7 +50,7 @@ db-explain: ## EXPLAIN із підсвіткою: make db-explain SQL="SELECT ..
 db-profile: ## Запити БД однієї сторінки: make db-profile URL=/mebli [BUDGET=100 MAXMS=50]
 	@bash tools/db-profile.sh
 
-lint: ## Перевірка PHP під 7.3 (змінені файли; ALL=1 — усі наші)
+lint: ## Перевірка PHP під 7.3 (прод) + 8.3 (наперед) (змінені файли; ALL=1 — усі наші)
 	@bash tools/lint-php.sh
 
 test-smoke: ## Smoke вітрини з tests/smoke/ (BASE=https://... — інший сайт)

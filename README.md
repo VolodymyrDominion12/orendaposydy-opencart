@@ -1,7 +1,7 @@
 # orendaposydy-opencart
 
 Локальне середовище й деплой для **https://orendaposydy.com/** (OpenCart
-**3.0.3.2**, шаблон `sauco`). Зроблено за тим самим принципом, що й
+**3.0.4.1**, шаблон `sauco`). Зроблено за тим самим принципом, що й
 `mrestus-opencart`: Docker локально, FTP на прод, жодних «залив через
 FileZilla і сподіваюсь».
 
@@ -17,7 +17,7 @@ FileZilla і сподіваюсь».
 | Тека сайту | `/home/matusuni/orendaposydy.com` (у FTP: `orendaposydy.com/`) |
 | База даних | `matusuni_kozak`, юзер `matusuni_kozak`, префікс `oc_` |
 | Storage | `orendaposydy.com/storage_kozak/` (нестандартна тека!) |
-| Версія OpenCart | **3.0.3.2** (з `index.php`), шаблон `sauco` |
+| Версія OpenCart | **3.0.4.1** локально (фіча 018); на проді **3.0.3.2** до деплою 018 (у `index.php` релізу 3.0.3.2 — `VERSION '3.0.3.1'`, дефект релізу). Шаблон `sauco` |
 | PHP | 7.3.33, LiteSpeed |
 | SSH | **закритий** → деплой тільки через FTP / File Manager |
 
@@ -74,7 +74,7 @@ make localize-admin
 | `db/` | міграції, знімок схеми, baseline аудиту |
 | `tests/smoke/`, `tests/mobile/` | smoke-URL, редиректи, мобільні бюджети |
 
-Перед «готово»: `make verify` (lint PHP 7.3, аудит БД, схема, міграції, smoke, мобільний аудит).
+Перед «готово»: `make verify` (lint PHP 7.3 + 8.3, аудит БД, схема, міграції, smoke, мобільний аудит).
 Перший запуск: `make db-check UPDATE=1`, `make db-schema-snapshot`, `make mobile-setup` — див. `db/README.md`.
 
 ---
@@ -90,7 +90,7 @@ orendaposydy-opencart/
 ├── dumps/                дампи бази
 ├── backups/              бекапи перед деплоєм, копії бойових config.php
 ├── docker/
-│   ├── Dockerfile        PHP 7.4 + Apache + розширення OpenCart + ionCube
+│   ├── Dockerfile        PHP 7.4 + Apache + розширення OpenCart (без ionCube)
 │   ├── php-dev.ini       ліміти й режим розробки
 │   ├── entrypoint.sh     створює каталоги, виставляє права
 │   └── make-config.sh    генератор config.php
@@ -146,11 +146,22 @@ orendaposydy-opencart/
    створює entrypoint). Через це після імпорту може знадобитись
    `make refresh-mods` — кеш OCMOD із прода не переноситься.
 3. **`src/storage_kozak/` у git не потрапляє** (кеш, логи, сесії).
-4. **PHP на проді 7.3.33, локально 7.4** — сумісно для OpenCart 3; за
-   потреби `PHP_VERSION=7.3` у `.env` (образ EOL).
+4. **PHP на проді 7.3.33, локально 7.4** — OpenCart 3.0.4.1 підтримує
+   PHP 7.3–8.3; за потреби `PHP_VERSION=7.3` у `.env` (образ EOL). PHP на
+   хостингу не змінюємо — це зачепить інші сайти акаунта (→ фіча 026).
+   `make lint` перевіряє наш код під 7.3 і 8.3.
 5. **Замовлення й листи локально безпечні:** `make import` перемикає пошту на
    Mailpit (`http://localhost:8026`) і вимикає платіжні модулі
    (`tools/sql/03-disable-live-services.sql`).
+6. **Twig 3 у `storage/vendor/`.** З 3.0.4.1 Twig лежить у
+   `DIR_STORAGE/vendor/` — на проді це `storage_kozak/vendor/`. Без цієї
+   теки падає весь сайт, тому ядро 3.0.4.1 деплоїться ZIP-пакетом
+   `make core-package` разом з vendor (див. `specs/018-platform-upgrade/plan.md`).
+7. **Частина файлів ядра змінена під `sauco`** (шапка, підвал, товар,
+   категорія, `seo_url.php`, оформлення `checkout/order`) і при оновленні
+   ядра не перезаписується — перелік у
+   `specs/018-platform-upgrade/core-keep.txt`. Замінюються разом з темою (003)
+   і оформленням (010).
 
 ---
 
