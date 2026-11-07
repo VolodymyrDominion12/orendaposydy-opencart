@@ -1,7 +1,7 @@
 #!/bin/bash
 # ---------------------------------------------------------------------------
 # Усі перевірки перед «готово» (AGENTS.md §6):
-#   lint (PHP 7.3 + 8.3 наперед) → db-check → db-schema diff → migrate status → smoke → мобільний
+#   lint (PHP 7.3 + 8.3 наперед) → test-lib → db-check → db-schema diff → migrate status → smoke → мобільний
 # Кроки виконуються всі, навіть якщо один упав; exit 1, якщо впав хоч один.
 # ---------------------------------------------------------------------------
 
@@ -20,6 +20,7 @@ run() {
 }
 
 run "PHP lint 7.3 + 8.3"   bash "$T/lint-php.sh"
+run "Тести бібліотеки"     bash "$T/test-lib.sh"
 run "Аудит схеми"         bash "$T/db-check.sh"
 run "Схема vs знімок"     bash "$T/db-schema.sh" diff
 run "Статус міграцій"     bash "$T/migrate.sh" status

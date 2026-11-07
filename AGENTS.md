@@ -70,6 +70,18 @@ spec.md  →  plan.md  →  tasks.md  →  реалізація  →  verify  �
 | Вигляд | Тема `catalog/view/theme/kristal/` (twig, css, js); `sauco` не правимо |
 | Тексти інтерфейсу | Мовні файли `language/uk-ua/...`, не хардкод у twig |
 
+- **Спільна бібліотека `Kristal\*`** (`system/library/kristal/`, фіча 019) — не пиши свого, якщо є готове.
+  Класи підвантажує автолоадер ядра (без `$this->load->library()`):
+  | Потрібно | Клас |
+  |---|---|
+  | Контакти (телефони, месенджери, адреса, графік, соцмережі) | `\Kristal\Nap::get($this->registry)` — з кешем `kristal.nap`, 0 запитів |
+  | Телефон: нормалізація, `tel:`, показ, маска | `\Kristal\Phone` |
+  | Захист форми (honeypot + токен + time-trap + ліміт IP) | `\Kristal\Antispam::fromConfig(...)` + `\Kristal\Rate_limit`; тексти — `catalog/language/*/extension/module/kristal_core.php` |
+  | Telegram | `\Kristal\Telegram` (не кидає винятків, токен у помилках — `***`) |
+  | JSON-LD | `\Kristal\Jsonld::localBusiness()`, `render()` |
+  | Лог без персональних даних | `new \Kristal\Log()` → `storage/logs/kristal.log` (не реєструй як `log` — це ядровий логер) |
+  | Скинути кеш наших модулів | `\Kristal\Cache_key::flush($this->cache)` |
+  Новий клас бібліотеки — з тестом у `tests/lib/` (`make test-lib`).
 - Префікс усього нашого: **`kristal_`** (модулі, події, таблиці, налаштування, CSS-класи `k-`).
 - Доступ до БД — лише `$this->db->query()` з **`DB_PREFIX`**; числа через `(int)`/`(float)`, рядки через `$this->db->escape()`.
 - Повторні дані (меню, категорії, налаштування) кешуються `$this->cache->get/set` з ключем `kristal.*` і скидаються при зміні.
@@ -129,6 +141,7 @@ spec.md  →  plan.md  →  tasks.md  →  реалізація  →  verify  �
 | Рівень | Команда | Коли |
 |---|---|---|
 | Синтаксис PHP 7.3 + 8.3 | `make lint` | кожна зміна PHP |
+| Тести бібліотеки `Kristal\*` | `make test-lib` | кожна зміна `system/library/kristal/` |
 | Аудит схеми | `make db-check`, `make db-schema-diff` | кожна міграція |
 | План запиту | `make db-explain SQL=...` | кожен новий/змінений запит |
 | Профіль сторінки | `make db-profile URL=...` | зміни, що зачіпають вітрину |

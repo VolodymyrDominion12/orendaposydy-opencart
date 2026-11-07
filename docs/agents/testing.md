@@ -12,6 +12,23 @@
 Змінні: `LINT_PHP_IMAGE` (образ проду), `LINT_PHP_FORWARD_IMAGE` (образ наперед; `""` — вимкнути).
 Ядро OpenCart 3.0.4.1 lint не перевіряє — це офіційний код під PHP 7.3–8.3.
 
+### 1a. Тести бібліотеки — `make test-lib`
+Модульні тести класів `Kristal\*` (`src/system/library/kristal/`) без фреймворку: `tests/lib/run.php` + `tests/lib/*_test.php`.
+Два проходи:
+- у контейнері `web` (PHP як локально) — з БД, тести `Rate_limit` працюють зі справжньою таблицею `oc_kristal_rate_limit`
+  (потрібна міграція 0004, тестові рядки прибираються);
+- у `php:7.3-cli` (прод) — без БД, такі тести позначаються `SKIP`.
+
+Будь-який Notice/Warning у тесті = падіння. Фільтр: `make test-lib T=phone`. Без Docker: `php tests/lib/run.php` (тести з БД — SKIP).
+Новий клас бібліотеки → новий `tests/lib/<клас>_test.php`:
+```php
+<?php
+test('що перевіряємо', function () {
+	assert_same('+380671234567', \Kristal\Phone::normalize('067 123 45 67'));
+});
+```
+Доступні: `assert_same`, `assert_true`, `assert_false`, `assert_contains`, `assert_not_contains`, `skip()`, `test_db()` (`\DB` ядра або SKIP).
+
 ### 2. Аудит БД — `make db-check`, `make db-schema-diff`
 Див. `db-schema-checklist.md`.
 
@@ -40,13 +57,14 @@ smoke-URL, SQL-запит з очікуваним результатом, або
 Коли з'являться калькулятор і оформлення заявки — сценарії на Playwright у `tests/e2e/` (окрема специфікація).
 
 ## `make verify`
-Запускає `lint` → `db-check` → `db-schema-diff` → `migrate-status` → `test-smoke` → `test-mobile`. Падіння будь-якого кроку = не готово.
+Запускає `lint` → `test-lib` → `db-check` → `db-schema-diff` → `migrate-status` → `test-smoke` → `test-mobile`. Падіння будь-якого кроку = не готово.
 
 ## Звіт
 Наприкінці фічі в `tasks.md` (і у відповіді агента):
 ```
 Перевірено:
 - make lint — OK (12 файлів, PHP 7.3 + 8.3)
+- make test-lib — 34 OK, 0 FAIL (web з БД) + 31 OK, 3 SKIP (PHP 7.3)
 - make db-check — без нових зауважень
 - make db-profile URL=/mebli — 74 запити, макс 12 мс (бюджет 100 / 50)
 - make test-smoke — 18/18 OK

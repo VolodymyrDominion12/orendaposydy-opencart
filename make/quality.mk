@@ -6,7 +6,7 @@
 #   include make/quality.mk
 # ---------------------------------------------------------------------------
 
-.PHONY: lint test-smoke test-mobile mobile-setup verify \
+.PHONY: lint test-lib test-smoke test-mobile mobile-setup verify \
         core-report core-apply core-verify core-package core-prod-remove core-rollback \
         db-check db-schema-snapshot db-schema-diff db-explain db-profile \
         migrate migrate-status migrate-down migrate-print migrate-new
@@ -53,6 +53,9 @@ db-profile: ## Запити БД однієї сторінки: make db-profile 
 lint: ## Перевірка PHP під 7.3 (прод) + 8.3 (наперед) (змінені файли; ALL=1 — усі наші)
 	@bash tools/lint-php.sh
 
+test-lib: ## Тести бібліотеки kristal (tests/lib): web-контейнер з БД + PHP 7.3 (T=phone — фільтр)
+	@bash tools/test-lib.sh $(T)
+
 test-smoke: ## Smoke вітрини з tests/smoke/ (BASE=https://... — інший сайт)
 	@bash tools/test-smoke.sh
 
@@ -62,7 +65,7 @@ test-mobile: ## Мобільний аудит: CWV, вага, 360px, тач-зо
 mobile-setup: ## Один раз: встановити Playwright + Chromium для test-mobile
 	@bash tools/test-mobile.sh --setup
 
-verify: ## Усі перевірки перед «готово»: lint + db-check + схема + міграції + smoke + мобільний
+verify: ## Усі перевірки перед «готово»: lint + test-lib + db-check + схема + міграції + smoke + мобільний
 	@bash tools/verify.sh
 
 # ===========================================================================

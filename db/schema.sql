@@ -565,6 +565,14 @@ CREATE TABLE `oc_kristal_mock_backup` (
   `value` text NOT NULL,
   PRIMARY KEY (`entity`,`entity_id`,`field`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `oc_kristal_rate_limit` (
+  `key_hash` char(40) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
+  `action` varchar(32) NOT NULL,
+  `hits` int(11) NOT NULL DEFAULT 0,
+  `window_start` datetime NOT NULL,
+  PRIMARY KEY (`key_hash`),
+  KEY `idx_window_start` (`window_start`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 CREATE TABLE `oc_kristal_setting_backup` (
   `setting_id` int(11) NOT NULL,
   `store_id` int(11) NOT NULL,
