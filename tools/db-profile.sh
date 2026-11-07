@@ -53,7 +53,10 @@ sql_root "SET GLOBAL slow_query_log = 0;
           SET GLOBAL long_query_time = 0;
           SET GLOBAL log_slow_verbosity = 'query_plan';" >/dev/null \
     || die "Не вдалося налаштувати slow log (перевірте DB_ROOT_PASSWORD)"
-dc exec -T db sh -c ": > '${LOG}'"
+# Файл має належати mysql: `docker exec` за замовчуванням працює від root, і тоді
+# mysqld не може відкрити журнал (ERROR 29 … Errcode: 13 Permission denied).
+dc exec -T db rm -f "${LOG}"
+dc exec -T -u mysql db sh -c ": > '${LOG}'"
 sql_root "FLUSH SLOW LOGS; SET GLOBAL slow_query_log = 1;" >/dev/null
 
 RESP="$(curl -s -o /dev/null -w '%{http_code} %{time_total}' --max-time 60 "$FULL" || echo '000 0')"
@@ -90,6 +93,10 @@ COUNT="$(wc -l < "$REC" | tr -d ' ')"
 read -r CODE TTOTAL <<< "$RESP"
 TOTAL_MS="$(awk -F'\t' '{s += $1} END {printf "%.1f", s}' "$REC")"
 MAX_MS="$(awk -F'\t' 'BEGIN{m=0} {if ($1 > m) m = $1} END {printf "%.1f", m}' "$REC")"
+
+# Далі лише звіт: `sort | head` дає SIGPIPE (код 141), а з pipefail це обривало скрипт
+# після першого розділу.
+set +o pipefail
 
 step "Профіль: $FULL"
 printf '  HTTP %s за %s с\n' "$CODE" "$TTOTAL"

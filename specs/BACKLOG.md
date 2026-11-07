@@ -55,5 +55,5 @@
 - 2026-11-06: Dockerfile ставить ionCube Loader з коментарем про Simple/dream_filter, але зашифрованих файлів у проєкті немає (коментар із mrestus) → прибирається в 018.
 - 2026-11-06: токен Telegram-бота `notifications_in_telegram` лежить відкрито в `oc_setting` і в дампі (дамп у `.gitignore` — ок). Після 023 — перевипустити токен у @BotFather.
 - 2026-11-06: у корені `src/` — `error_log` (73 КБ), `php.ini` з `upload_max_filesize = 999M`, `cgi-bin/` → переглянути в 017.
-- 2026-11-07: `make db-profile` не працює — `SET GLOBAL slow_query_log` → `ERROR 29 File '/var/lib/mysql/kristal-profile.log' not found (Errcode: 13 Permission denied)`; профілі до/після для 018 і 019 не зняті → виправити `tools/db-profile.sh` (шлях журналу, доступний mysqld, напр. `/tmp`) окремим fix.
+- ~~2026-11-07: `make db-profile` не працює (журнал створювався від root → Permission denied; звіт обривався SIGPIPE)~~ → виправлено (fix: db-profile). Перший замір: / — 319, /posud/tarilky — 400, картка — 309 запитів (бюджет 80/100/80); 223–299 з них — `oc_seo_url` по запиту на кожне посилання → пріоритет для 011 (`kristal_seo`: кеш ЧПУ).
 - 2026-11-07: кнопка «Перемістити storage» на дашборді адмінки локально ламає обидва `config.php` (`DIR_STORAGE=/var/www/storage/`, якої в контейнері немає) → не натискати локально; винесення storage за docroot на проді — у 017.
