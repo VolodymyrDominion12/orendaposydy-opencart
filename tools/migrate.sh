@@ -126,7 +126,9 @@ status)
 up)
     APPLIED="$(applied | cut -f1)"
     DONE=0
-    while IFS=$'\t' read -r v slug; do
+    # Список читаємо з дескриптора 3: `docker compose exec -T` усередині циклу (sql) інакше
+    # з'їдає stdin циклу, і за один запуск застосовувалась лише перша з очікуваних міграцій.
+    while IFS=$'\t' read -r v slug <&3; do
         [ -n "$v" ] || continue
         if [ -n "$ARG" ] && [ "$((10#$v))" -gt "$((10#$ARG))" ]; then break; fi
         printf '%s\n' "$APPLIED" | grep -qx "$v" && continue
@@ -139,7 +141,7 @@ up)
                 VALUES ('${v}', '${slug}', '$(checksum "$up")', NOW());"
         ok "застосовано"
         DONE=$((DONE + 1))
-    done <<< "$(list_files)"
+    done 3<<< "$(list_files)"
     if [ "$DONE" -eq 0 ]; then ok "Нових міграцій немає"; exit 0; fi
     printf '\n  Далі за чек-листом:  make db-check  →  make db-schema-diff  →  make db-explain  →  make db-schema-snapshot\n'
     printf '  і скиньте кеш:  make clear-cache\n'
