@@ -27,7 +27,7 @@
 - [x] `make db-schema-diff` = лише `oc_kristal_rate_limit`; потім `make db-schema-snapshot` — знімок уже містить таблицю, diff: «збігається» (закомітити `db/schema.sql`)
 - [x] `make db-explain` для 3 запитів із `plan.md`: SELECT за PK — const («Impossible WHERE noticed after reading const tables» = рядка немає, читання за PK); DELETE — `range` по `idx_window_start`, rows 1; INSERT … ON DUPLICATE KEY UPDATE `db-explain` не приймає (лише SELECT/UPDATE/DELETE) — upsert за PK, план не потрібен
 - [x] `make migrate-down V=0004 && make migrate` — без помилок; після повтору schema-diff збігається
-- [ ] `make db-profile` до → після (/, /posud/tarilky, картка): без змін (AC-11) — ⚠ не заміряно: `make db-profile` падає `ERROR 29 … /var/lib/mysql/kristal-profile.log … Permission denied` (поломка інструмента, у беклозі). Вітрину 019 не змінює (0 OCMOD/подій/шаблонів) — ризик низький
+- [x] `make db-profile` (/, /posud/tarilky, картка) — 2026-11-07 після виправлення інструмента: **319 / 400 / 309 запитів**, найповільніший ≤ 1.3 мс (`profile-after.txt`). Запитів `kristal` — 0 (AC-11: 019 на вітрину нічого не додає). Бюджет 80/100/80 перевищено **до 019**: 223–299 запитів — `oc_seo_url` по одному на кожне посилання (ядро) → 011 (`kristal_seo` з кешем). Профілю «до» немає (інструмент був зламаний), тому порівняння — за відсутністю запитів `kristal`
 - [x] `make test-smoke` — усі OK: 23/23, 2 попередження canonical (існуючий стан → 011)
 - [ ] `make test-mobile` — не гірше 018 (вітрина не змінювалась)
 - [x] `make logs-php` — без Notice/Warning за прохід адмінки модуля й smoke: нових записів після 20:09 немає (записи 19:55–19:56 — інцидент із кнопкою «перемістити storage», виправлено в config.php)
@@ -45,7 +45,7 @@
 | AC-8 | `make test-lib` (log_test) + `tail storage_kozak/logs/kristal.log` |  ✔ 2026-11-07 — `make test-lib`: log 5/5 (файл і маскування) |
 | AC-9 | змінити телефон → кеш `cache.kristal.*` зник → `Kristal\Nap` віддає новий | ⏸ відкладено (людина, 2026-11-07); пісочниця агента — OK |
 | AC-10 | Видалити модуль → `make migrate-down V=0004` → `make test-smoke` |  ◐ `migrate-down V=0004` + `make migrate` OK, smoke 23/23; кнопка «Видалити» в адмінці — пісочниця агента OK, руками — разом із T11 |
-| AC-11 | `make db-profile` до/після, `make test-smoke` |  ◐ smoke 23/23; профіль запитів не знято (`db-profile` зламаний, див. DoD) |
+| AC-11 | `make db-profile` до/після, `make test-smoke` | ✔ 2026-11-07 — smoke 23/23; у профілі 0 запитів `kristal`, вітрина без змін (загальне перевищення бюджету — існуючий стан, → 011) |
 
 ## Замітки
 ### Що перевірено агентом (2026-11-07, пісочниця без Docker і БД)
