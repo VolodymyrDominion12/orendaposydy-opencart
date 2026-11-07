@@ -29,7 +29,7 @@
 - [ ] `make test-mobile` — не гірше стартового рівня
 - [x] `make logs-php` — без Fatal/Warning/Notice за прохід smoke (21:23 і 21:32: лише access-лог, коди 200/404 як очікується)
 - [ ] Тестове замовлення локально → Mailpit + Telegram (AC-5); Fondy тест (AC-6)
-- [ ] Відкат локально: `make migrate-down V=0002` + повернення файлів (AC-10)
+- [ ] Відкат локально (AC-10): `make migrate-down V=0003 && make migrate-down V=0002` → `make core-rollback BK=backups/core-018-20261106-205707.tar.gz APPLY=1` → `make clear-cache-all && make refresh-mods` → `make test-smoke` (3.0.3.2, без PHP-помилок; заглушка AddThis очікувана) → назад: `make core-apply APPLY=1 && make migrate && make clear-cache-all && make refresh-mods && make core-verify && make test-smoke` → `git status --short src` порожній
 
 ## Приймання
 | AC | Як перевірити | Результат |
@@ -43,7 +43,7 @@
 | AC-7 | `SELECT * FROM oc_event WHERE code='sms_alert'` → 0; файли зі списку відсутні | |
 | AC-8 | `make lint ALL=1` | ✔ 2026-11-06 — нашого PHP-коду поки немає |
 | AC-9 | прод: smoke, версія, PHP 7.3.33, замовлення «ТЕСТ 018» | |
-| AC-10 | відкат локально | |
+| AC-10 | відкат локально (послідовність — у «Перевірки (DoD)») | |
 
 ## Замітки
 ### Рішення по ручних правках ядра (2026-11-06, звіт з 3.0.3.2)
