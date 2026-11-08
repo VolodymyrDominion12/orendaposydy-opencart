@@ -1,0 +1,24 @@
+{{ header }}
+<div class="k-wrap k-page">
+  <nav aria-label="{{ k_crumbs }}">
+    <ol class="k-crumbs">
+      {% for breadcrumb in breadcrumbs %}
+      <li>{% if loop.last %}<span aria-current="page">{{ breadcrumb.text }}</span>{% else %}<a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a>{% endif %}</li>
+      {% endfor %}
+    </ol>
+  </nav>
+  {{ content_top }}
+  <div class="k-state">
+    <span class="k-state__code">404</span>
+    <h1 class="k-h1">{{ heading_title }}</h1>
+    <p class="k-lead">{{ k_404_lead }}</p>
+    <div class="k-btns">
+      <a class="k-btn k-btn--primary" href="{{ k_catalog_href }}">{{ k_404_catalog }}</a>
+      {% if k_phone_tel %}
+      <a class="k-btn k-btn--ghost" href="{{ k_phone_tel }}"><svg class="k-ico"><use href="#i-phone"/></svg><span class="k-mono">{{ k_phone_display }}</span></a>
+      {% endif %}
+    </div>
+  </div>
+  {{ content_bottom }}
+</div>
+{{ footer }}

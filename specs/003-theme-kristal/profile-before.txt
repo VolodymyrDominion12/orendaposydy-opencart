@@ -1,0 +1,145 @@
+########## /
+
+Профіль: http://localhost:8090/
+  HTTP 200 за 0.064999 с
+  Запитів до БД: 319   сумарно: 33.0 мс   найповільніший: 0.9 мс
+==> Найповільніші (мс):
+        0.92   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+        0.87   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+        0.74   SELECT * FROM oc_information i LEFT JOIN oc_information_description id ON (i.information_id = id.information_id) LEFT JOIN oc_information_t
+        0.69   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+        0.62   SELECT * FROM oc_information i LEFT JOIN oc_information_description id ON (i.information_id = id.information_id) LEFT JOIN oc_information_t
+        0.59   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+        0.58   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+        0.56   SELECT * FROM `oc_setting` WHERE store_id = '0' OR store_id = '0' ORDER BY store_id ASC;
+        0.49   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+        0.44   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+==> Найчастіші (кількість × шаблон) — десятки повторів = N+1:
+       231 × SELECT * FROM oc_seo_url WHERE `query` = ? AND store_id = ? AND language_id = ?;
+        25 × SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store cNs ON 
+        10 × SELECT * FROM oc_translation WHERE store_id = ? AND language_id = ? AND (route = ? OR route = ?);
+         9 × SELECT * FROM oc_theme WHERE store_id = ? AND theme = ? AND route = ?;
+         7 × SELECT * FROM oc_cart WHERE api_id = ? AND customer_id = ? AND session_id = ?;
+         6 × SELECT DISTINCT *, pd.name AS name, p.image, m.name AS manufacturer, (SELECT price FROM oc_product_discount pdN WHERE pdN.product_id = p.pr
+         3 × SELECT * FROM oc_module WHERE module_id = ?;
+         2 × SELECT trN.tax_class_id, trN.tax_rate_id, trN.name, trN.rate, trN.type, trN.priority FROM oc_tax_rule trN LEFT JOIN oc_tax_rate trN ON (trN
+         2 × SELECT * FROM oc_setting WHERE store_id = ? AND `code` = ?;
+         2 × SELECT * FROM oc_layout_route WHERE ? LIKE route AND store_id = ? ORDER BY route DESC LIMIT N;
+==> Найбільше переглянутих рядків (Rows_examined):
+         494   SELECT * FROM `oc_setting` WHERE store_id = '0' OR store_id = '0' ORDER BY store_id ASC;
+         265   SELECT * FROM oc_setting WHERE `key` = 'config_timezone' AND store_id = '0';
+         265   SELECT * FROM oc_setting WHERE store_id = '0' AND `code` = 'advertise_google';
+         265   SELECT * FROM oc_setting WHERE store_id = '0' AND `code` = 'advertise_google';
+          96   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+
+  ПОМИЛКА Запитів 319 > бюджету 100
+make: *** [make/quality.mk:51: db-profile] Error 1
+########## /posud/tarilky
+
+Профіль: http://localhost:8090/posud/tarilky
+  HTTP 200 за 0.085325 с
+  Запитів до БД: 400   сумарно: 43.9 мс   найповільніший: 0.8 мс
+==> Найповільніші (мс):
+        0.83   SELECT * FROM oc_information i LEFT JOIN oc_information_description id ON (i.information_id = id.information_id) LEFT JOIN oc_information_t
+        0.70   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+        0.66   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+        0.64   SELECT * FROM oc_information i LEFT JOIN oc_information_description id ON (i.information_id = id.information_id) LEFT JOIN oc_information_t
+        0.64   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+        0.63   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+        0.60   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+        0.58   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+        0.57   SELECT * FROM `oc_setting` WHERE store_id = '0' OR store_id = '0' ORDER BY store_id ASC;
+        0.56   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+==> Найчастіші (кількість × шаблон) — десятки повторів = N+1:
+       299 × SELECT * FROM oc_seo_url WHERE `query` = ? AND store_id = ? AND language_id = ?;
+        36 × SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store cNs ON 
+         9 × SELECT * FROM oc_translation WHERE store_id = ? AND language_id = ? AND (route = ? OR route = ?);
+         7 × SELECT * FROM oc_theme WHERE store_id = ? AND theme = ? AND route = ?;
+         7 × SELECT * FROM oc_cart WHERE api_id = ? AND customer_id = ? AND session_id = ?;
+         6 × SELECT DISTINCT *, pd.name AS name, p.image, m.name AS manufacturer, (SELECT price FROM oc_product_discount pdN WHERE pdN.product_id = p.pr
+         3 × SELECT DISTINCT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_stor
+         2 × SELECT trN.tax_class_id, trN.tax_rate_id, trN.name, trN.rate, trN.type, trN.priority FROM oc_tax_rule trN LEFT JOIN oc_tax_rate trN ON (trN
+         2 × SELECT * FROM oc_setting WHERE store_id = ? AND `code` = ?;
+         2 × SELECT * FROM oc_seo_url WHERE keyword = ? AND store_id = ?;
+==> Найбільше переглянутих рядків (Rows_examined):
+         494   SELECT * FROM `oc_setting` WHERE store_id = '0' OR store_id = '0' ORDER BY store_id ASC;
+         265   SELECT * FROM oc_setting WHERE store_id = '0' AND `code` = 'advertise_google';
+         265   SELECT * FROM oc_setting WHERE `key` = 'config_timezone' AND store_id = '0';
+         265   SELECT * FROM oc_setting WHERE store_id = '0' AND `code` = 'advertise_google';
+          96   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+
+  ПОМИЛКА Запитів 400 > бюджету 100
+make: *** [make/quality.mk:51: db-profile] Error 1
+########## /oplata
+
+Профіль: http://localhost:8090/oplata
+  HTTP 200 за 0.075278 с
+  Запитів до БД: 290   сумарно: 39.7 мс   найповільніший: 1.1 мс
+==> Найповільніші (мс):
+        1.07   SELECT * FROM oc_information i LEFT JOIN oc_information_description id ON (i.information_id = id.information_id) LEFT JOIN oc_information_t
+        0.99   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+        0.92   SELECT * FROM oc_information i LEFT JOIN oc_information_description id ON (i.information_id = id.information_id) LEFT JOIN oc_information_t
+        0.83   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+        0.75   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+        0.70   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+        0.67   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+        0.66   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+        0.65   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+        0.63   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+==> Найчастіші (кількість × шаблон) — десятки повторів = N+1:
+       213 × SELECT * FROM oc_seo_url WHERE `query` = ? AND store_id = ? AND language_id = ?;
+        24 × SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store cNs ON 
+         9 × SELECT * FROM oc_translation WHERE store_id = ? AND language_id = ? AND (route = ? OR route = ?);
+         7 × SELECT * FROM oc_theme WHERE store_id = ? AND theme = ? AND route = ?;
+         7 × SELECT * FROM oc_cart WHERE api_id = ? AND customer_id = ? AND session_id = ?;
+         2 × SELECT trN.tax_class_id, trN.tax_rate_id, trN.name, trN.rate, trN.type, trN.priority FROM oc_tax_rule trN LEFT JOIN oc_tax_rate trN ON (trN
+         2 × SELECT DISTINCT * FROM oc_information i LEFT JOIN oc_information_description id ON (i.information_id = id.information_id) LEFT JOIN oc_info
+         2 × SELECT * FROM oc_layout_route WHERE ? LIKE route AND store_id = ? ORDER BY route DESC LIMIT N;
+         2 × SELECT * FROM oc_layout_module WHERE layout_id = ? AND position = ? ORDER BY sort_order;
+         2 × SELECT * FROM oc_information_to_layout WHERE information_id = ? AND store_id = ?;
+==> Найбільше переглянутих рядків (Rows_examined):
+         494   SELECT * FROM `oc_setting` WHERE store_id = '0' OR store_id = '0' ORDER BY store_id ASC;
+         265   SELECT * FROM oc_setting WHERE store_id = '0' AND `code` = 'advertise_google';
+         265   SELECT * FROM oc_setting WHERE `key` = 'config_timezone' AND store_id = '0';
+          96   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+          96   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+
+  ПОМИЛКА Запитів 290 > бюджету 100
+make: *** [make/quality.mk:51: db-profile] Error 1
+########## /kristal-smoke-neisnuyucha-storinka
+
+Профіль: http://localhost:8090/kristal-smoke-neisnuyucha-storinka
+  HTTP 404 за 0.060524 с
+  Запитів до БД: 286   сумарно: 31.3 мс   найповільніший: 1.0 мс
+==> Найповільніші (мс):
+        0.99   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+        0.83   SELECT * FROM oc_information i LEFT JOIN oc_information_description id ON (i.information_id = id.information_id) LEFT JOIN oc_information_t
+        0.70   SELECT * FROM oc_information i LEFT JOIN oc_information_description id ON (i.information_id = id.information_id) LEFT JOIN oc_information_t
+        0.59   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+        0.58   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+        0.57   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+        0.55   SELECT * FROM `oc_setting` WHERE store_id = '0' OR store_id = '0' ORDER BY store_id ASC;
+        0.53   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+        0.53   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+        0.44   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+==> Найчастіші (кількість × шаблон) — десятки повторів = N+1:
+       212 × SELECT * FROM oc_seo_url WHERE `query` = ? AND store_id = ? AND language_id = ?;
+        24 × SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store cNs ON 
+         9 × SELECT * FROM oc_translation WHERE store_id = ? AND language_id = ? AND (route = ? OR route = ?);
+         7 × SELECT * FROM oc_theme WHERE store_id = ? AND theme = ? AND route = ?;
+         7 × SELECT * FROM oc_cart WHERE api_id = ? AND customer_id = ? AND session_id = ?;
+         2 × SELECT trN.tax_class_id, trN.tax_rate_id, trN.name, trN.rate, trN.type, trN.priority FROM oc_tax_rule trN LEFT JOIN oc_tax_rate trN ON (trN
+         2 × SELECT * FROM oc_layout_route WHERE ? LIKE route AND store_id = ? ORDER BY route DESC LIMIT N;
+         2 × SELECT * FROM oc_layout_module WHERE layout_id = ? AND position = ? ORDER BY sort_order;
+         2 × SELECT * FROM oc_information i LEFT JOIN oc_information_description id ON (i.information_id = id.information_id) LEFT JOIN oc_information_t
+         2 × SELECT * FROM oc_extension WHERE `type` = ?;
+==> Найбільше переглянутих рядків (Rows_examined):
+         494   SELECT * FROM `oc_setting` WHERE store_id = '0' OR store_id = '0' ORDER BY store_id ASC;
+         265   SELECT * FROM oc_setting WHERE `key` = 'config_timezone' AND store_id = '0';
+         265   SELECT * FROM oc_setting WHERE store_id = '0' AND `code` = 'advertise_google';
+          96   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+          96   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+
+  УВАГА Сторінка повернула HTTP 404
+  ПОМИЛКА Запитів 286 > бюджету 100
+make: *** [make/quality.mk:51: db-profile] Error 1

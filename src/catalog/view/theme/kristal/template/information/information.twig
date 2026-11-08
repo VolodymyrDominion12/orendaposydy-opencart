@@ -1,0 +1,17 @@
+{{ header }}
+<div class="k-wrap k-page">
+  <nav aria-label="{{ k_crumbs }}">
+    <ol class="k-crumbs">
+      {% for breadcrumb in breadcrumbs %}
+      <li>{% if loop.last %}<span aria-current="page">{{ breadcrumb.text }}</span>{% else %}<a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a>{% endif %}</li>
+      {% endfor %}
+    </ol>
+  </nav>
+  {{ content_top }}
+  <div class="k-page__head">
+    <h1 class="k-h1">{{ heading_title }}</h1>
+  </div>
+  <div class="k-prose">{{ description }}</div>
+  {{ content_bottom }}
+</div>
+{{ footer }}

@@ -1,0 +1,109 @@
+{{ header }}
+<div class="k-wrap k-page">
+  <nav aria-label="{{ k_crumbs }}">
+    <ol class="k-crumbs">
+      {% for breadcrumb in breadcrumbs %}
+      <li>{% if loop.last %}<span aria-current="page">{{ breadcrumb.text }}</span>{% else %}<a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a>{% endif %}</li>
+      {% endfor %}
+    </ol>
+  </nav>
+  <div class="k-page__head">
+    <span class="k-label k-label--gold">Тема kristal · лише локально</span>
+    <h1 class="k-h1">{{ heading_title }}</h1>
+    <p class="k-lead">HTML-зразки для сторінок 004–012. Класи з префіксом <code>k-</code>, кольори — лише токени брендбука.</p>
+  </div>
+
+  <div class="k-sg">
+    <section>
+      <h2 class="k-h2">Типографіка</h2>
+      <p class="k-display">Оренда посуду для подій</p>
+      <p class="k-h2">Заголовок розділу — Forum</p>
+      <p class="k-h3">Підзаголовок — Manrope 700</p>
+      <p>Основний текст 16 px. <span class="k-muted">Другорядний.</span> <span class="k-gold">Акцент золотом.</span></p>
+      <p><span class="k-label">Мітка</span> · <span class="k-label k-label--gold">Мітка золото</span> · <span class="k-mono">+38 067 827 70 07</span></p>
+      <p class="k-price">14 ₴ <small>/ доба</small></p>
+    </section>
+
+    <section>
+      <h2 class="k-h2">Кнопки</h2>
+      <div class="k-sg__row">
+        <a class="k-btn k-btn--primary" href="#">Розрахувати подію</a>
+        <a class="k-btn k-btn--secondary" href="#">Дивитись каталог</a>
+        <a class="k-btn k-btn--ghost" href="#"><svg class="k-ico"><use href="#i-phone"/></svg>Подзвонити</a>
+        <a class="k-btn k-btn--primary k-btn--sm" href="#">Мала</a>
+        <a class="k-link" href="#">Посилання <svg class="k-ico k-ico--sm"><use href="#i-arrow"/></svg></a>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="k-h2">Бейджі</h2>
+      <div class="k-sg__row">
+        <span class="k-badge k-badge--hit">Хіт</span>
+        <span class="k-badge k-badge--new">Новинка</span>
+        <span class="k-badge k-badge--stock">Є на складі</span>
+        <span class="k-badge k-badge--muted">Під замовлення</span>
+        <span class="k-mock">мок</span>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="k-h2">Поля форми</h2>
+      <form class="k-form k-panel k-panel--gold" action="#" onsubmit="return false">
+        <div class="k-form__row">
+          <label class="k-field"><span>Ім'я</span><input class="k-input" type="text" name="sg_name" autocomplete="name"></label>
+          <label class="k-field k-field--err"><span>Телефон</span><input class="k-input" type="tel" name="sg_phone" inputmode="tel" autocomplete="tel" value="067 12" aria-invalid="true" aria-describedby="sg-phone-err"><span class="k-field__err" id="sg-phone-err">Перевірте номер: потрібно 10 цифр</span></label>
+        </div>
+        <div class="k-form__row">
+          <label class="k-field"><span>Дата події</span><input class="k-input" type="date" name="sg_date"></label>
+          <label class="k-field"><span>Формат</span><select class="k-select" name="sg_format"><option>Банкет</option><option>Фуршет</option><option>Кава-брейк</option></select></label>
+        </div>
+        <label class="k-field"><span>Коментар</span><textarea class="k-textarea" name="sg_comment"></textarea><span class="k-hint">Можна додати меню або побажання</span></label>
+        <div class="k-qty"><button type="button" aria-label="Менше"><svg class="k-ico"><use href="#i-minus"/></svg></button><input type="number" name="sg_qty" value="50" min="1" aria-label="Кількість"><button type="button" aria-label="Більше"><svg class="k-ico"><use href="#i-plus"/></svg></button></div>
+        <button class="k-btn k-btn--primary" type="submit">Надіслати</button>
+      </form>
+    </section>
+
+    <section>
+      <h2 class="k-h2">Повідомлення</h2>
+      <div class="k-alert k-alert--ok" role="status"><svg class="k-ico"><use href="#i-check"/></svg><p>Заявку надіслано. Менеджер передзвонить протягом 15 хвилин.</p></div>
+      <div class="k-alert k-alert--err" role="alert"><svg class="k-ico"><use href="#i-close"/></svg><p>Не вдалося надіслати. Подзвоніть нам або спробуйте ще раз.</p></div>
+    </section>
+
+    <section>
+      <h2 class="k-h2">Картка товару</h2>
+      <div class="k-grid k-grid--4">
+        {% for i in 1..2 %}
+        <article class="k-card">
+          <div class="k-card__media"><span class="k-badge k-badge--hit">Хіт</span><div class="k-photo k-photo--sq"><svg class="k-ico"><use href="#i-plate"/></svg></div></div>
+          <div class="k-card__body">
+            <h3 class="k-card__name"><a href="#">Тарілка обідня біла 27 см</a></h3>
+            <p class="k-card__meta">мін. 20 шт · порцеляна</p>
+            <p class="k-price">14 ₴ <small>/ доба</small></p>
+            <p class="k-card__vol">від 100 шт — 12 ₴</p>
+            <div class="k-card__foot"><a class="k-btn k-btn--secondary k-btn--sm k-btn--block" href="#">До події</a></div>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section>
+      <h2 class="k-h2">Питання й відповіді</h2>
+      <div class="k-faq">
+        <details><summary>Чи треба мити посуд після події? <svg class="k-ico"><use href="#i-plus"/></svg></summary><p>Ні, миття входить у вартість оренди <span class="k-mock">мок</span>.</p></details>
+        <details><summary>Що буде, якщо щось розіб'ється? <svg class="k-ico"><use href="#i-plus"/></svg></summary><p>Сплачується вартість відшкодування, вказана в картці товару.</p></details>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="k-h2">Таблиця</h2>
+      <div class="k-table">
+        <table>
+          <thead><tr><th>Кількість</th><th>Ціна за добу</th><th>Відшкодування</th><th>Мінімум</th></tr></thead>
+          <tbody><tr><td>20–99 шт</td><td>14 ₴</td><td>120 ₴</td><td>20 шт</td></tr><tr><td>100–299 шт</td><td>12 ₴</td><td>120 ₴</td><td>20 шт</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>
+{{ footer }}

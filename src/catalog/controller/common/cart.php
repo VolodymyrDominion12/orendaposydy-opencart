@@ -58,7 +58,7 @@ class ControllerCommonCart extends Controller {
 			if ($product['image']) {
 				$image = $this->model_tool_image->resize($product['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_cart_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_cart_height'));
 			} else {
-				$image = '';
+				$image = $this->model_tool_image->resize('placeholder.png', $this->config->get('theme_' . $this->config->get('config_theme') . '_image_cart_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_cart_height'));
 			}
 
 			$option_data = array();
@@ -123,8 +123,6 @@ class ControllerCommonCart extends Controller {
 
 		$data['totals'] = array();
 
-        $data['cart_count'] = $this->cart->countProducts();
-
 		foreach ($totals as $total) {
 			$data['totals'][] = array(
 				'title' => $total['title'],
@@ -133,7 +131,7 @@ class ControllerCommonCart extends Controller {
 		}
 
 		$data['cart'] = $this->url->link('checkout/cart');
-		$data['checkout'] = $this->url->link('checkout/order', '', true);
+		$data['checkout'] = $this->url->link('checkout/checkout', '', true);
 
 		return $this->load->view('common/cart', $data);
 	}

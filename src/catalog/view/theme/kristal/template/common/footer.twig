@@ -1,0 +1,82 @@
+</main>
+
+<footer class="k-footer" id="contacts">
+  <div class="k-wrap">
+    <div class="k-footer__grid k-footer__grid--3">
+      <div>
+        <a class="k-logo k-footer__logo" href="{{ k_home }}" aria-label="{{ k_home_aria }}"><img src="{{ k_logo }}" width="44" height="44" alt="" loading="lazy"><span class="k-logo__word">{{ k_brand }}</span></a>
+        <p class="k-muted k-footer__tagline">{{ k_tagline }}</p>
+        {% for phone in k_nap.phones %}
+        <a class="k-footer__phone" href="{{ phone.tel }}">{{ phone.display }}</a>{% if phone.label %} <span class="k-muted k-small">{{ phone.label }}</span>{% endif %}
+        {% endfor %}
+        <div class="k-footer__contact">
+          {% if k_nap.address %}
+          <p><svg class="k-ico"><use href="#i-pin"/></svg><span>{% if k_nap.city %}{{ k_nap.city }}, {% endif %}{{ k_nap.address }} · {{ k_pickup }}</span></p>
+          {% endif %}
+          {% for line in k_hours %}
+          <p><svg class="k-ico"><use href="#i-clock"/></svg><span>{{ line }}</span></p>
+          {% endfor %}
+          {% if k_nap.email %}
+          <p><svg class="k-ico"><use href="#i-file"/></svg><a href="mailto:{{ k_nap.email }}">{{ k_nap.email }}</a></p>
+          {% endif %}
+        </div>
+        {% if k_map_embed %}
+        <div class="k-footer__map">
+          <button class="k-btn k-btn--ghost k-btn--sm" type="button" data-k-map="{{ k_map_embed }}" data-k-title="{{ k_map_show }}"><svg class="k-ico k-ico--sm"><use href="#i-pin"/></svg>{{ k_map_show }}</button>
+          <a class="k-link" href="{{ k_map_url }}" target="_blank" rel="noopener">{{ k_map_open }}</a>
+        </div>
+        {% endif %}
+        {% if k_social or k_viber or k_telegram %}
+        <div class="k-social">
+          {% if k_social.instagram %}<a href="{{ k_social.instagram }}" rel="noopener" aria-label="Instagram"><svg class="k-ico"><use href="#i-insta"/></svg></a>{% endif %}
+          {% if k_social.facebook %}<a href="{{ k_social.facebook }}" rel="noopener" aria-label="Facebook"><svg class="k-ico"><use href="#i-fb"/></svg></a>{% endif %}
+          {% if k_social.tiktok %}<a href="{{ k_social.tiktok }}" rel="noopener" aria-label="TikTok"><svg class="k-ico"><use href="#i-tiktok"/></svg></a>{% endif %}
+          {% if k_social.youtube %}<a href="{{ k_social.youtube }}" rel="noopener" aria-label="YouTube"><svg class="k-ico"><use href="#i-youtube"/></svg></a>{% endif %}
+          {% if k_viber %}<a href="{{ k_viber }}" aria-label="Viber"><svg class="k-ico"><use href="#i-viber"/></svg></a>{% endif %}
+          {% if k_telegram %}<a href="{{ k_telegram }}" rel="noopener" aria-label="Telegram"><svg class="k-ico"><use href="#i-telegram"/></svg></a>{% endif %}
+        </div>
+        {% endif %}
+      </div>
+      {% if k_cats %}
+      <div>
+        <h4>{{ k_catalog }}</h4>
+        <ul>
+          {% for top in k_cats %}
+          <li><a href="{{ top.href }}">{{ top.name }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+      {% if informations %}
+      <div>
+        <h4>{{ k_clients }}</h4>
+        <ul>
+          {% for information in informations %}
+          <li><a href="{{ information.href }}">{{ information.title }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+    </div>
+    <div class="k-footer__bottom">
+      <span>{{ k_copyright|format(k_year) }}{% if k_privacy_href %} · <a href="{{ k_privacy_href }}">{{ k_privacy }}</a>{% endif %}</span>
+      {% if k_fondy %}
+      <span class="k-pay" aria-label="{{ k_pay }}"><span>VISA</span><span>Mastercard</span><span>Apple Pay</span></span>
+      {% endif %}
+    </div>
+  </div>
+</footer>
+
+<nav class="k-tabbar" aria-label="{{ k_quick }}">
+  <a href="#menu" data-k-open="menu" aria-controls="menu" aria-expanded="false"><svg class="k-ico"><use href="#i-grid"/></svg>{{ k_catalog }}</a>
+  {% if k_phone %}<a href="{{ k_phone.tel }}" class="is-call"><svg class="k-ico"><use href="#i-phone"/></svg>{{ k_call_short }}</a>{% endif %}
+  {% if k_viber %}<a href="{{ k_viber }}"><svg class="k-ico"><use href="#i-viber"/></svg>Viber</a>{% endif %}
+  <a href="{{ k_cart_href }}"><svg class="k-ico"><use href="#i-bag"/></svg>{{ k_cart_short }}{% if k_cart_count %}<span class="k-count">{{ k_cart_count }}</span>{% endif %}</a>
+</nav>
+
+{% for script in scripts %}
+<script src="{{ script }}"></script>
+{% endfor %}
+<script src="{{ k_js }}" defer></script>
+</body>
+</html>

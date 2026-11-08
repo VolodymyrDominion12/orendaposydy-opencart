@@ -11,7 +11,7 @@ Copilot чи будь-хто інший. Якщо правило тут супе
 | Що | Значення |
 |---|---|
 | Сайт | «Крістал» — оренда посуду, меблів, текстилю, обладнання для подій, Львів |
-| CMS | **OpenCart 3.0.4.1** (Twig 3 у `DIR_STORAGE/vendor/`; прод — 3.0.3.2 до деплою 018), тема `sauco` (буде замінена на `kristal`). Частина файлів ядра лишається зміненою під `sauco` — перелік у `specs/018-platform-upgrade/core-keep.txt` |
+| CMS | **OpenCart 3.0.4.1** (Twig 3 у `DIR_STORAGE/vendor/`; прод — 3.0.3.2 до деплою 018), тема `kristal` (003; `sauco` лишається до запуску на проді). Частина файлів ядра лишається зміненою під `sauco` — перелік у `specs/018-platform-upgrade/core-keep.txt` |
 | PHP | **прод 7.3.33** (LiteSpeed), локально 7.4 → код пишемо під **7.3** і сумісним з **8.3** (перехід на PHP 8.x — фіча 026) |
 | БД | прод MariaDB 10.11, локально MariaDB 10.6; префікс `oc_`; `language_id = 2` (uk-ua), `store_id = 0` |
 | Деплой | лише FTP / phpMyAdmin через `make deploy*` (SSH закритий) |
@@ -81,7 +81,16 @@ spec.md  →  plan.md  →  tasks.md  →  реалізація  →  verify  �
   | JSON-LD | `\Kristal\Jsonld::localBusiness()`, `render()` |
   | Лог без персональних даних | `new \Kristal\Log()` → `storage/logs/kristal.log` (не реєструй як `log` — це ядровий логер) |
   | Скинути кеш наших модулів | `\Kristal\Cache_key::flush($this->cache)` |
+  | Дерево меню, графік текстом, іконка категорії (тема) | `\Kristal\Theme::menuTree()`, `hoursText()`, `icon()` |
   Новий клас бібліотеки — з тестом у `tests/lib/` (`make test-lib`).
+- **Тема `kristal`** (фіча 003) — `catalog/view/theme/kristal/`. Вмикається в адмінці: «Розширення → Теми → Тема за замовчуванням» → каталог `kristal`.
+  - Шапка/футер отримують дані подіями (`extension/kristal/theme`), ядро не чіпаємо: `k_nap`, `k_phone`, `k_viber`, `k_telegram`, `k_social`, `k_hours`, `k_cats` (меню з кешу `kristal.menu.*`), `k_cart_count`.
+    У шаблонах сторінок доступні `k_*` з мовного файлу `extension/kristal/theme` і `k_catalog_href`, `k_phone_tel`, `k_phone_display`.
+  - **Twig в OpenCart 3 рендерить без `include`/`import`/`extends`** (ArrayLoader) — макросів і спільних частин немає. HTML-зразки компонентів — у вітрині
+    `index.php?route=extension/kristal/styleguide` (лише локально), стилі — `stylesheet/kristal.css` (класи `k-`, лише токени).
+  - **Автоекранування вимкнене.** Дані з адмінки й БД ядро зберігає вже закодованими — виводимо як є; URL, які будуємо самі, кодуємо в PHP (`rawurlencode`). Введене користувачем — `|e`.
+  - Шаблон є в `kristal` → сторінка без jQuery. Немає → береться `default` (або `sauco`, якщо немає й там), а в `<head>` автоматично підключаються jQuery+Bootstrap (клас `k-compat`) — тимчасово до 004/005/010.
+  - Новий шаблон сторінки: `{{ header }}` → `<div class="k-wrap k-page">` + крихти `k-crumbs` + рівно один `h1` → `{{ footer }}`. Неіндексовані маршрути — у `ControllerExtensionKristalTheme::$noindex`.
 - Префікс усього нашого: **`kristal_`** (модулі, події, таблиці, налаштування, CSS-класи `k-`).
 - Доступ до БД — лише `$this->db->query()` з **`DB_PREFIX`**; числа через `(int)`/`(float)`, рядки через `$this->db->escape()`.
 - Повторні дані (меню, категорії, налаштування) кешуються `$this->cache->get/set` з ключем `kristal.*` і скидаються при зміні.
@@ -190,7 +199,7 @@ spec.md  →  plan.md  →  tasks.md  →  реалізація  →  verify  �
 
 ## 9. Безпека
 
-- Вхідні дані: `(int)` для id, `escape()` для рядків, вивід у twig — через автоекранування (без `|raw` для даних користувача).
+- Вхідні дані: `(int)` для id, `escape()` для рядків. **Автоекранування Twig в OpenCart 3 вимкнене** (`autoescape => false`): дані з `$this->request` ядро вже кодує `htmlspecialchars`, а все, що прийшло іншим шляхом (JSON, зовнішні API, сирий `$_GET`), — `|e` у шаблоні.
 - Форми з записом (заявки, калькулятор) — CSRF-токен або перевірка `HTTP_REFERER` + honeypot/ліміт частоти.
 - Адмін-маршрути перевіряють `$this->user->hasPermission('modify', ...)`.
 - Не логувати персональні дані клієнтів (телефон, email) у файли логів.

@@ -4,32 +4,34 @@
 # має коментар із номером фічі, яка його прибере.
 # Стан: після 001 (make migrate) — мок-каталог застосовано.
 
-# Загальні сторінки (тема sauco: логотип теж h1 → два h1, прибирає 003)
-/                                   200  allow=h1          # 003
-/oplata                             200  allow=h1          # 003
+# Загальні сторінки. З 003 (тема kristal) шапка без h1; сторінки зі старими шаблонами default
+# (головна, категорія) мають 0 h1 — їх переверстують 004/005
+/                                   200  allow=h1          # 004 (головна — шаблон default без h1)
+/oplata                             200                    # 003: інформаційна сторінка теми
+/success                            200                    # 003: «Дякуємо» (шаблон common/success теми)
 /order                              200  allow=h1,canonical # кошик: noindex, canonical не потрібен (011)
 /kristal-smoke-neisnuyucha-storinka 404
 
 # 001: нові категорії
-/posud                              200  allow=h1          # 003
-/posud/tarilky                      200  allow=h1          # 003
-/posud/ekskliuzyvnyi-posud          200  allow=h1          # 003
-/stolovi-prybory/vydelky            200  allow=h1          # 003
-/sklo-ta-kelykhy                    200  allow=h1          # 003
-/kukhonne-obladnannia/marmity       200  allow=h1          # 003
-/kavove-obladnannia                 200  allow=h1          # 003
-/barne-obladnannia/barni-stiiky     200  allow=h1          # 003
-/mebli                              200  allow=h1          # 003
-/mebli/stiltsi                      200  allow=h1          # 003
-/tekstyl/skatertyny                 200  allow=h1          # 003
-/shatry                             200  allow=h1          # 003
-/dekor                              200  allow=h1          # 003
-/ekoposud                           200  allow=h1          # 003
+/posud                              200  allow=h1          # 005 (шаблон default)
+/posud/tarilky                      200  allow=h1          # 005 (шаблон default)
+/posud/ekskliuzyvnyi-posud          200  allow=h1          # 005 (шаблон default)
+/stolovi-prybory/vydelky            200  allow=h1          # 005 (шаблон default)
+/sklo-ta-kelykhy                    200  allow=h1          # 005 (шаблон default)
+/kukhonne-obladnannia/marmity       200  allow=h1          # 005 (шаблон default)
+/kavove-obladnannia                 200  allow=h1          # 005 (шаблон default)
+/barne-obladnannia/barni-stiiky     200  allow=h1          # 005 (шаблон default)
+/mebli                              200  allow=h1          # 005 (шаблон default)
+/mebli/stiltsi                      200  allow=h1          # 005 (шаблон default)
+/tekstyl/skatertyny                 200  allow=h1          # 005 (шаблон default)
+/shatry                             200  allow=h1          # 005 (шаблон default)
+/dekor                              200  allow=h1          # 005 (шаблон default)
+/ekoposud                           200  allow=h1          # 005 (шаблон default)
 
 # 001: товари
-/tarilka-obidnia-bila-27-sm         200  allow=h1          # 003
-/stilets-chiavari-bilyi             200  allow=h1          # 003
-/shatro-5-10-m-na-50-hostei         200  allow=h1          # 003
+/tarilka-obidnia-bila-27-sm         200  allow=h1          # 005 (шаблон default)
+/stilets-chiavari-bilyi             200  allow=h1          # 005 (шаблон default)
+/shatro-5-10-m-na-50-hostei         200  allow=h1          # 005 (шаблон default)
 
 # 001: старі категорії приховані → 404. Фіча 002 замінить на 301 (tests/smoke/redirects.txt)
 /salati                             404

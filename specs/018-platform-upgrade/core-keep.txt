@@ -15,11 +15,7 @@ admin/view/template/sale/order_info.twig	ручна правка ядра 3.0.3.
 admin/view/template/sale/order_invoice.twig	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
 admin/view/template/sale/order_list.twig	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
 admin/view/template/setting/setting.twig	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
-catalog/controller/checkout/cart.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
-catalog/controller/common/cart.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
-catalog/controller/common/footer.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
-catalog/controller/common/header.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
-catalog/controller/common/home.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+catalog/controller/checkout/cart.php	кошик рендерить checkout/order (оформлення sauco/simple_order) — 003 лишила, бо без неї кошик не працює; замінює 010
 catalog/controller/extension/module/banner.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
 catalog/controller/extension/module/category.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
 catalog/controller/extension/module/featured.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
@@ -32,7 +28,7 @@ catalog/model/extension/shipping/flat.php	ручна правка ядра 3.0.3
 catalog/model/extension/shipping/free.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
 catalog/model/extension/shipping/pickup.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
 catalog/model/extension/total/shipping.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
-catalog/view/javascript/common.js	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
+catalog/view/javascript/common.js	правка «Русской сборки» для getURLVar на ЧПУ (/cart, /checkout) — потрібна default-JS на ЧПУ; 003 лишила, прибрати в 011 (kristal_seo)
 system/config/install.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
 catalog/controller/checkout/checkout.php	навмисно вимкнено на сайті (є _checkout.php) — не повертаємо
 catalog/controller/checkout/confirm.php	навмисно вимкнено на сайті (є _confirm.php) — не повертаємо
