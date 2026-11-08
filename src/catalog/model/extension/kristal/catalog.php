@@ -15,7 +15,7 @@ class ModelExtensionKristalCatalog extends Model {
 			return array();
 		}
 
-		$query = $this->db->query("SELECT p.product_id, p.sku, p.price, p.minimum, p.image, pd.description_excerpt,
+		$query = $this->db->query("SELECT p.product_id, p.sku, p.price, p.minimum, p.image, pd.name, pd.description_excerpt,
 				r.unit, r.deposit, r.breakage_price, r.washing_included, r.is_hit
 			FROM `" . DB_PREFIX . "product` p
 			LEFT JOIN `" . DB_PREFIX . "product_description` pd ON (pd.product_id = p.product_id AND pd.language_id = '" . (int)$this->config->get('config_language_id') . "')
@@ -92,6 +92,71 @@ class ModelExtensionKristalCatalog extends Model {
 		$this->cache->set($key, array('price' => $price));
 
 		return $price;
+	}
+
+	/** Товари з позначкою «Хіт» (увімкнені, у магазині), у порядку з адмінки. Кеш kristal.catalog.hits.<store>. */
+	public function getHitIds($limit = 8) {
+		$store_id = (int)$this->config->get('config_store_id');
+		$key = 'kristal.catalog.hits.' . $store_id;
+		$cached = $this->cache->get($key);
+
+		if (is_array($cached)) {
+			return array_slice($cached, 0, (int)$limit);
+		}
+
+		$query = $this->db->query("SELECT r.product_id
+			FROM `" . DB_PREFIX . "kristal_product_rental` r
+			JOIN `" . DB_PREFIX . "product` p ON (p.product_id = r.product_id)
+			JOIN `" . DB_PREFIX . "product_to_store` p2s ON (p2s.product_id = p.product_id AND p2s.store_id = '" . $store_id . "')
+			WHERE r.is_hit = '1' AND p.status = '1' AND p.date_available <= NOW()
+			ORDER BY p.sort_order, p.product_id
+			LIMIT 24");
+
+		$ids = array_map('intval', array_column($query->rows, 'product_id'));
+		$this->cache->set($key, $ids);
+
+		return array_slice($ids, 0, (int)$limit);
+	}
+
+	/**
+	 * Мінімальні ціни для кількох категорій одним запитом (з підкатегоріями), кеш на кожну — той самий ключ, що в getMinPrice().
+	 * @return array [category_id => price]
+	 */
+	public function getMinPrices($category_ids) {
+		$store_id = (int)$this->config->get('config_store_id');
+		$result = array();
+		$missing = array();
+
+		foreach ($this->ids($category_ids) as $id) {
+			$cached = $this->cache->get('kristal.catalog.min.' . $store_id . '.' . $id);
+
+			if (is_array($cached)) {
+				$result[$id] = $cached['price'];
+			} else {
+				$missing[] = $id;
+				$result[$id] = 0.0;
+			}
+		}
+
+		if ($missing) {
+			$query = $this->db->query("SELECT cp.path_id, MIN(p.price) AS price
+				FROM `" . DB_PREFIX . "category_path` cp
+				JOIN `" . DB_PREFIX . "product_to_category` p2c ON (p2c.category_id = cp.category_id)
+				JOIN `" . DB_PREFIX . "product` p ON (p.product_id = p2c.product_id)
+				JOIN `" . DB_PREFIX . "product_to_store` p2s ON (p2s.product_id = p.product_id AND p2s.store_id = '" . $store_id . "')
+				WHERE cp.path_id IN (" . implode(',', $missing) . ") AND p.status = '1' AND p.date_available <= NOW() AND p.price > '0'
+				GROUP BY cp.path_id");
+
+			foreach ($query->rows as $row) {
+				$result[(int)$row['path_id']] = (float)$row['price'];
+			}
+
+			foreach ($missing as $id) {
+				$this->cache->set('kristal.catalog.min.' . $store_id . '.' . $id, array('price' => $result[$id]));
+			}
+		}
+
+		return $result;
 	}
 
 	private function ids($product_ids) {

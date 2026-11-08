@@ -16,7 +16,6 @@ admin/view/template/sale/order_invoice.twig	ручна правка ядра 3.0
 admin/view/template/sale/order_list.twig	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
 admin/view/template/setting/setting.twig	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
 catalog/controller/checkout/cart.php	кошик рендерить checkout/order (оформлення sauco/simple_order) — 003 лишила, бо без неї кошик не працює; замінює 010
-catalog/controller/extension/module/banner.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
 catalog/controller/extension/module/category.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
 catalog/controller/startup/seo_url.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003
 catalog/model/extension/payment/cod.php	ручна правка ядра 3.0.3.2 (ймовірно під тему sauco) — до 003

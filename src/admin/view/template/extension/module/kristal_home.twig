@@ -1,0 +1,133 @@
+{# Фіча 004: «Крістал: головна». Автоекранування в OpenCart вимкнене — значення (декодовані в контролері) виводимо через |e. #}
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-kristal-home" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    {% if success %}
+    <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    <div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ text_note }}</div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_edit }}</h3>
+      </div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-kristal-home" class="form-horizontal">
+          <ul class="nav nav-tabs">
+            <li class="active"><a href="#tab-main" data-toggle="tab">{{ tab_main }}</a></li>
+            <li><a href="#tab-numbers" data-toggle="tab">{{ tab_numbers }}</a></li>
+            <li><a href="#tab-faq" data-toggle="tab">{{ tab_faq }}</a></li>
+            <li><a href="#tab-text" data-toggle="tab">{{ tab_text }}</a></li>
+          </ul>
+          <div class="tab-content">
+            <div class="tab-pane active" id="tab-main">
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
+                <div class="col-sm-10">
+                  <select name="status" id="input-status" class="form-control">
+                    <option value="1"{% if status %} selected="selected"{% endif %}>{{ text_enabled }}</option>
+                    <option value="0"{% if not status %} selected="selected"{% endif %}>{{ text_disabled }}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-h1">{{ entry_h1 }}</label>
+                <div class="col-sm-10"><input type="text" name="h1" value="{{ h1|e }}" id="input-h1" class="form-control" maxlength="160"></div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-lead">{{ entry_lead }}</label>
+                <div class="col-sm-10"><textarea name="lead" rows="3" id="input-lead" class="form-control" maxlength="400">{{ lead|e }}</textarea></div>
+              </div>
+              <div class="form-group{% if error.hero_image %} has-error{% endif %}">
+                <label class="col-sm-2 control-label"><span data-toggle="tooltip" title="{{ help_hero_image|e }}">{{ entry_hero_image }}</span></label>
+                <div class="col-sm-10">
+                  <a href="" id="thumb-image" data-toggle="image" class="img-thumbnail"><img src="{{ thumb }}" alt="" title="" data-placeholder="{{ placeholder }}"></a>
+                  <input type="hidden" name="hero_image" value="{{ hero_image|e }}" id="input-image">
+                  {% if error.hero_image %}<div class="text-danger">{{ error.hero_image }}</div>{% endif %}
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-meta-title"><span data-toggle="tooltip" title="{{ help_meta_title|e }}">{{ entry_meta_title }}</span></label>
+                <div class="col-sm-10">
+                  <input type="text" name="meta_title" value="{{ meta_title|e }}" id="input-meta-title" class="form-control" maxlength="120" data-k-count="60">
+                  <p class="help-block"><span data-k-counter="input-meta-title">0</span> / 60 {{ text_chars }}</p>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-meta-description"><span data-toggle="tooltip" title="{{ help_meta_description|e }}">{{ entry_meta_description }}</span></label>
+                <div class="col-sm-10">
+                  <textarea name="meta_description" rows="3" id="input-meta-description" class="form-control" maxlength="300" data-k-count="160">{{ meta_description|e }}</textarea>
+                  <p class="help-block"><span data-k-counter="input-meta-description">0</span> / 160 {{ text_chars }}</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-pane" id="tab-numbers">
+              {% for n in numbers %}
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-number-{{ loop.index0 }}">{{ entry_number_value }} {{ loop.index }}</label>
+                <div class="col-sm-3"><input type="text" name="numbers[{{ loop.index0 }}][value]" value="{{ n.value|e }}" id="input-number-{{ loop.index0 }}" class="form-control" maxlength="16" placeholder="5000+"></div>
+                <div class="col-sm-7"><input type="text" name="numbers[{{ loop.index0 }}][label]" value="{{ n.label|e }}" class="form-control" maxlength="64" placeholder="{{ entry_number_label }}" aria-label="{{ entry_number_label }} {{ loop.index }}"></div>
+              </div>
+              {% endfor %}
+            </div>
+
+            <div class="tab-pane" id="tab-faq">
+              {% for item in faq %}
+              <fieldset>
+                <legend>{{ entry_question }} {{ loop.index }}</legend>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="input-faq-q-{{ loop.index0 }}">{{ entry_question }}</label>
+                  <div class="col-sm-10"><input type="text" name="faq[{{ loop.index0 }}][q]" value="{{ item.q|e }}" id="input-faq-q-{{ loop.index0 }}" class="form-control" maxlength="200"></div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="input-faq-a-{{ loop.index0 }}">{{ entry_answer }}</label>
+                  <div class="col-sm-10"><textarea name="faq[{{ loop.index0 }}][a]" rows="3" id="input-faq-a-{{ loop.index0 }}" class="form-control" maxlength="1000">{{ item.a|e }}</textarea></div>
+                </div>
+              </fieldset>
+              {% endfor %}
+            </div>
+
+            <div class="tab-pane" id="tab-text">
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-seo-text">{{ entry_seo_text }}</label>
+                <div class="col-sm-10"><textarea name="seo_text" id="input-seo-text" data-toggle="summernote" data-lang="{{ summernote }}" class="form-control">{{ seo_text|e }}</textarea></div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="view/javascript/summernote/summernote.min.js"></script>
+<link href="view/javascript/summernote/summernote.min.css" rel="stylesheet">
+<script src="view/javascript/summernote/summernote-image-attributes.js"></script>
+<script src="view/javascript/summernote/opencart.js"></script>
+<script>
+document.querySelectorAll('[data-k-count]').forEach(function (field) {
+  var out = document.querySelector('[data-k-counter="' + field.id + '"]'), max = +field.getAttribute('data-k-count');
+  var upd = function () { out.textContent = field.value.length; out.parentNode.classList.toggle('text-danger', field.value.length > max); };
+  field.addEventListener('input', upd); upd();
+});
+</script>
+{{ footer }}

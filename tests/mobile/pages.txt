@@ -5,7 +5,7 @@
 #
 # Сторінки теми kristal (003) — без allow. Головна до 004 рендериться
 # старим шаблоном default + jQuery/Bootstrap (compat) — allow лишається з номером фічі.
-/                                   allow=all    # 004, 016
+/                                   # 004 — головна
 /posud/tarilky                      # 005 — категорія (мок 001)
 /tarilka-obidnia-bila-27-sm         # 005 — товар (мок 001); WebP — 020
 /oplata                             # 003 — інформаційна сторінка

@@ -127,6 +127,33 @@ class ControllerExtensionKristalCatalog extends Controller {
 		return null;
 	}
 
+	/**
+	 * Картки товарів для інших сторінок (головна 004, комплекти 007): $this->load->controller('extension/kristal/catalog/cards', $ids).
+	 * Той самий вигляд, що в категорії: [['product_id', 'name', 'href', 'k' => [...]], ...] у порядку $product_ids. 2 запити пакетом.
+	 */
+	public function cards($product_ids = array()) {
+		$this->load->language('extension/kristal/catalog');
+		$this->load->model('extension/kristal/catalog');
+		$this->load->model('extension/kristal/media');
+
+		$ids = array_values(array_filter(array_map('intval', (array)$product_ids)));
+		$rows = $this->model_extension_kristal_catalog->getProducts($ids);
+		$discounts = $this->model_extension_kristal_catalog->getDiscounts($ids);
+		$cards = array();
+
+		foreach ($ids as $id) {
+			if (!isset($rows[$id])) {
+				continue;
+			}
+
+			$product = array('product_id' => $id, 'name' => $rows[$id]['name'], 'href' => $this->url->link('product/product', 'product_id=' . $id));
+			$product['k'] = $this->card($product, $rows, $discounts, false);
+			$cards[] = $product;
+		}
+
+		return $cards;
+	}
+
 	/** JSON: кількість позицій у кошику для лічильників теми */
 	public function count() {
 		$query = $this->db->query("SELECT COUNT(*) AS total FROM `" . DB_PREFIX . "cart`

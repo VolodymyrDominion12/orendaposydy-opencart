@@ -6,22 +6,16 @@ class ControllerExtensionModuleBanner extends Controller {
 		$this->load->model('design/banner');
 		$this->load->model('tool/image');
 
-		$this->document->addStyle('catalog/view/theme/sauco/js/swiper/swiper.min.css');
-		$this->document->addScript('catalog/view/theme/sauco/js/swiper/swiper.min.js');
+		$this->document->addStyle('catalog/view/javascript/jquery/swiper/css/swiper.min.css');
+		$this->document->addStyle('catalog/view/javascript/jquery/swiper/css/opencart.css');
+		$this->document->addScript('catalog/view/javascript/jquery/swiper/js/swiper.jquery.min.js');
 
 		$data['banners'] = array();
 
 		$results = $this->model_design_banner->getBanner($setting['banner_id']);
 
-		foreach ($results as $key=>$result) {
-           if($setting['width'] < 1000){
-               $data['mobile'] = true;
-           }else {
-               $data['mobile'] = false;
-           }
+		foreach ($results as $result) {
 			if (is_file(DIR_IMAGE . $result['image'])) {
-
-
 				$data['banners'][] = array(
 					'title' => $result['title'],
 					'link'  => $result['link'],

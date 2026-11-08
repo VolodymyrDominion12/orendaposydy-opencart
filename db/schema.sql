@@ -551,6 +551,16 @@ CREATE TABLE `oc_information_to_store` (
   `store_id` int(11) NOT NULL,
   PRIMARY KEY (`information_id`,`store_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `oc_kristal_layout_backup` (
+  `layout_module_id` int(11) NOT NULL,
+  `layout_id` int(11) NOT NULL,
+  `code` varchar(64) NOT NULL,
+  `position` varchar(14) NOT NULL,
+  `sort_order` int(3) NOT NULL,
+  `migration` varchar(64) NOT NULL,
+  PRIMARY KEY (`layout_module_id`),
+  KEY `idx_migration` (`migration`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 CREATE TABLE `oc_kristal_migration` (
   `version` varchar(16) NOT NULL,
   `name` varchar(255) NOT NULL,

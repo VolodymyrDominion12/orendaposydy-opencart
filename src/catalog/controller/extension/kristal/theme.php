@@ -189,6 +189,7 @@ class ControllerExtensionKristalTheme extends Controller {
 		$this->language->set('k_phone_tel', $nap['primary_phone'] ? $nap['primary_phone']['tel'] : '');
 		$this->language->set('k_phone_display', $nap['primary_phone'] ? $nap['primary_phone']['display'] : '');
 		$this->language->set('k_viber_href', $viber);
+		$this->language->set('k_telegram_href', $telegram);
 		$this->language->set('k_cart_url', self::$shared['k_cart_href']);
 
 		return self::$shared;
