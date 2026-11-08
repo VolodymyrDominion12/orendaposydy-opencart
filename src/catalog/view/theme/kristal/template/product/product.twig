@@ -1,0 +1,146 @@
+{{ header }}
+<div class="k-wrap k-page">
+  <nav aria-label="{{ k_crumbs }}">
+    <ol class="k-crumbs">
+      {% for breadcrumb in breadcrumbs %}
+      <li>{% if loop.last %}<span aria-current="page">{{ breadcrumb.text }}</span>{% else %}<a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a>{% endif %}</li>
+      {% endfor %}
+    </ol>
+  </nav>
+  {{ content_top }}
+
+  <div class="k-product">
+    <div class="k-gallery" data-k-gallery>
+      <div class="k-gallery__main" aria-label="{{ kc_gallery }}" tabindex="0">
+        {% for image in kc.images %}
+        <img src="{{ image.main }}" width="{{ kc_main_size }}" height="{{ kc_main_size }}" alt="{{ heading_title }}{% if not loop.first %} — {{ kc_photo|format(loop.index) }}{% endif %}"{% if loop.first %} fetchpriority="high"{% else %} loading="lazy"{% endif %}>
+        {% endfor %}
+      </div>
+      {% if kc.images|length > 1 %}
+      <div class="k-gallery__thumbs">
+        {% for image in kc.images %}
+        <button type="button" data-k-thumb="{{ loop.index0 }}" aria-label="{{ kc_photo|format(loop.index) }}"{% if loop.first %} aria-current="true"{% endif %}><img src="{{ image.thumb }}" width="{{ kc_thumb_size }}" height="{{ kc_thumb_size }}" alt="" loading="lazy"></button>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="k-buy">
+      <div class="k-buy__top">
+        {% if kc.is_hit %}<span><span class="k-badge k-badge--hit">{{ kc_hit }}</span></span>{% endif %}
+        <h1 class="k-h1">{{ heading_title }}</h1>
+        {% if kc.sku %}<p class="k-buy__sku">{{ kc_sku }}: {{ kc.sku }}</p>{% endif %}
+        {% if kc.excerpt %}<p class="k-muted">{{ kc.excerpt }}</p>{% endif %}
+        {% if kc.price %}<p class="k-buy__price"><span class="k-price">{{ kc.price }}</span> <span class="k-buy__unit">{{ kc.per }}</span></p>{% endif %}
+      </div>
+
+      {% if kc.tiers|length > 1 %}
+      <div>
+        <p class="k-label">{{ kc_tiers }}</p>
+        <div class="k-tiers" data-k-tiers>
+          {% for tier in kc.tiers %}
+          <div data-k-from="{{ tier.from }}"{% if loop.first %} class="is-on"{% endif %}><span>{{ tier.label }}</span><b>{{ tier.price }}</b></div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <form class="k-buy__form" action="{{ k_cart_url }}" method="get" data-k-add data-k-buy data-k-min="{{ kc.minimum }}" data-k-hint="{{ kc.min_hint }}"
+            data-k-prices="{{ kc.tiers_json }}" data-k-unit="{{ kc.unit }}" data-k-event="{{ kc.is_event ? 1 : 0 }}">
+        <input type="hidden" name="product_id" value="{{ product_id }}">
+        <div class="k-buy__row">
+          <div class="k-qty">
+            <button type="button" data-k-step="-1" aria-label="{{ kc_less }}"><svg class="k-ico"><use href="#i-minus"/></svg></button>
+            <input type="number" name="quantity" value="{{ kc.minimum }}" min="{{ kc.minimum }}" inputmode="numeric" aria-label="{{ kc_qty }}" id="k-qty-main">
+            <button type="button" data-k-step="1" aria-label="{{ kc_more_qty }}"><svg class="k-ico"><use href="#i-plus"/></svg></button>
+          </div>
+          <button class="k-btn k-btn--primary" type="submit" data-k-main-add>{{ kc_add }}</button>
+        </div>
+        <p class="k-buy__hint" aria-live="polite"></p>
+        {% if kc.price %}<p class="k-buy__sum" data-k-sum aria-live="polite">{{ kc.sum }}</p>{% endif %}
+      </form>
+
+      <div class="k-facts">
+        {% if kc.min_text %}
+        <div class="k-fact"><svg class="k-ico"><use href="#i-box"/></svg><div><b>{{ kc_minimum }}</b><span>{{ kc.minimum }} {{ kc.unit }}</span></div></div>
+        {% endif %}
+        {% if kc.deposit %}
+        <div class="k-fact"><svg class="k-ico"><use href="#i-shield"/></svg><div><b>{{ kc_deposit }}: <span class="k-mono">{{ kc.deposit }}</span></b><span>{{ kc_deposit_note }}</span></div></div>
+        {% endif %}
+        {% if kc.breakage %}
+        <div class="k-fact"><svg class="k-ico"><use href="#i-file"/></svg><div><b>{{ kc_breakage }}: <span class="k-mono">{{ kc.breakage }}</span></b><span>{{ kc_breakage_note }}</span></div></div>
+        {% endif %}
+        {% if kc.washing %}
+        <div class="k-fact"><svg class="k-ico"><use href="#i-check"/></svg><div><b>{{ kc_washing }}</b><span>{{ kc_washing_note }}</span></div></div>
+        {% endif %}
+      </div>
+
+      {% if attribute_groups %}
+      <div>
+        <h2 class="k-h3">{{ kc_specs }}</h2>
+        <table class="k-specs">
+          {% for group in attribute_groups %}
+          {% for attribute in group.attribute %}
+          <tr><th scope="row">{{ attribute.name }}</th><td>{{ attribute.text }}</td></tr>
+          {% endfor %}
+          {% endfor %}
+        </table>
+      </div>
+      {% endif %}
+
+      <div class="k-terms">
+        <h2 class="k-h3">{{ kc_terms }}</h2>
+        <p>{{ kc_terms_text }}</p>
+        {% if kc_terms_href %}<p><a href="{{ kc_terms_href }}">{{ kc_terms_link }}</a></p>{% endif %}
+      </div>
+    </div>
+  </div>
+
+  {% if description %}
+  <section class="k-section-sm k-section--line">
+    <div class="k-prose">{{ description }}</div>
+  </section>
+  {% endif %}
+
+  {% if products %}
+  <section class="k-section-sm">
+    <h2 class="k-h2">{{ kc_related }}</h2>
+    <div class="k-grid k-grid--4">
+      {% for product in products|slice(0, 8) %}
+      <article class="k-card">
+        <a class="k-card__media" href="{{ product.href }}" tabindex="-1" aria-hidden="true">
+          {% if product.k.is_hit %}<span class="k-badge k-badge--hit">{{ kc_hit }}</span>{% endif %}
+          <img src="{{ product.k.image }}" width="{{ product.k.size }}" height="{{ product.k.size }}" alt="{{ product.name }}" loading="lazy">
+        </a>
+        <div class="k-card__body">
+          <h3 class="k-card__name"><a href="{{ product.href }}">{{ product.name }}</a></h3>
+          {% if product.k.price %}<p class="k-card__price"><span class="k-price">{{ product.k.price }}</span> <span class="k-buy__unit">{{ product.k.per }}</span></p>{% endif %}
+          {% if product.k.min_text %}<p class="k-card__meta">{{ product.k.min_text }}</p>{% endif %}
+          {% if product.k.best %}<p class="k-card__vol">{{ product.k.best }}</p>{% endif %}
+          <form class="k-card__foot" action="{{ product.href }}" method="get" data-k-add data-k-min="{{ product.k.minimum }}" data-k-hint="{{ product.k.min_hint }}">
+            <input type="hidden" name="product_id" value="{{ product.product_id }}">
+            <div class="k-qty">
+              <button type="button" data-k-step="-1" aria-label="{{ kc_less }}"><svg class="k-ico"><use href="#i-minus"/></svg></button>
+              <input type="number" name="quantity" value="{{ product.k.minimum }}" min="{{ product.k.minimum }}" inputmode="numeric" aria-label="{{ kc_qty }}: {{ product.name }}">
+              <button type="button" data-k-step="1" aria-label="{{ kc_more_qty }}"><svg class="k-ico"><use href="#i-plus"/></svg></button>
+            </div>
+            <button class="k-btn k-btn--secondary k-btn--sm" type="submit">{{ kc_add }}</button>
+            <p class="k-card__hint" aria-live="polite"></p>
+          </form>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+  {{ content_bottom }}
+</div>
+
+{% if kc.price %}
+<div class="k-sticky-buy" data-k-sticky aria-hidden="true">
+  <div><span class="k-price">{{ kc.price }}</span> <span class="k-buy__unit">{{ kc.per }}</span></div>
+  <button class="k-btn k-btn--primary k-btn--sm" type="button" data-k-sticky-add tabindex="-1">{{ kc_add }}</button>
+</div>
+{% endif %}
+<div class="k-toast" role="status" aria-live="polite" data-k-toast data-k-ok="{{ kc_added }}" data-k-err="{{ kc_add_error }}" hidden><span data-k-toast-text></span><a href="{{ k_cart_url }}">{{ kc_go_cart }}</a></div>
+{{ footer }}

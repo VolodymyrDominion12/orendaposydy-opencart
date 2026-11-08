@@ -129,3 +129,208 @@
     });
   });
 })();
+
+/* ---------- 005: каталог і картка товару ----------
+   «−/+» з мінімумом, AJAX «До події» (checkout/cart/add ядра) і лічильники, «Показати ще», сортування,
+   сума за порогами (та сама логіка, що Kristal\Rental::unitPrice і кошик ядра), галерея, липка панель. */
+(function () {
+  'use strict';
+
+  var doc = document;
+
+  function fmt(n) {
+    var r = Math.round(n * 100) / 100, whole = Math.abs(r - Math.round(r)) < 0.005;
+    var s = whole ? String(Math.round(r)) : r.toFixed(2).replace('.', ',');
+    return s.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ₴';
+  }
+
+  function minOf(form) { return Math.max(1, parseInt(form.getAttribute('data-k-min'), 10) || 1); }
+
+  // Кількість не менша за мінімум: виправляємо й пояснюємо
+  function clamp(form) {
+    var input = form.querySelector('input[name="quantity"]'), hint = form.querySelector('.k-card__hint, .k-buy__hint');
+    var min = minOf(form), val = parseInt(input.value, 10);
+    if (!(val >= min)) {
+      input.value = min;
+      if (hint) hint.textContent = form.getAttribute('data-k-hint') || '';
+    }
+    return parseInt(input.value, 10);
+  }
+
+  // ---------- Сума й активний поріг (картка товару) ----------
+  function updateSum(form) {
+    if (!form.hasAttribute('data-k-buy')) return;
+    var prices, qty = parseInt(form.querySelector('input[name="quantity"]').value, 10) || minOf(form);
+    try { prices = JSON.parse(form.getAttribute('data-k-prices') || '[]'); } catch (e) { prices = []; }
+    if (!prices.length) return;
+    var price = prices[0][1], from = prices[0][0];
+    prices.forEach(function (t) { if (qty >= t[0]) { price = t[1]; from = t[0]; } });
+    var sum = doc.querySelector('[data-k-sum]');
+    if (sum) {
+      sum.innerHTML = form.getAttribute('data-k-event') === '1'
+        ? qty + ' × ' + fmt(price) + ' = <b>' + fmt(qty * price) + '</b>'
+        : qty + ' ' + form.getAttribute('data-k-unit') + ' × ' + fmt(price) + ' = <b>' + fmt(qty * price) + '</b> / доба';
+    }
+    doc.querySelectorAll('[data-k-tiers] [data-k-from]').forEach(function (cell) {
+      cell.classList.toggle('is-on', parseInt(cell.getAttribute('data-k-from'), 10) === from);
+    });
+  }
+
+  doc.addEventListener('click', function (e) {
+    var step = e.target.closest('[data-k-step]');
+    if (!step) return;
+    var form = step.closest('form'), input = form.querySelector('input[name="quantity"]');
+    var min = minOf(form), val = (parseInt(input.value, 10) || min) + parseInt(step.getAttribute('data-k-step'), 10);
+    input.value = Math.max(min, val);
+    clamp(form);
+    updateSum(form);
+  });
+
+  doc.addEventListener('input', function (e) {
+    if (e.target.name === 'quantity') {
+      var form = e.target.closest('form'), hint = form ? form.querySelector('.k-card__hint, .k-buy__hint') : null;
+      if (hint) hint.textContent = '';
+      if (form) updateSum(form);
+    }
+  });
+
+  doc.addEventListener('change', function (e) {
+    if (e.target.name === 'quantity') {
+      var form = e.target.closest('form');
+      if (form) { clamp(form); updateSum(form); }
+    }
+    if (e.target.matches && e.target.matches('[data-k-sort]')) location.href = e.target.value;
+  });
+
+  // ---------- «До події» ----------
+  var toast = doc.querySelector('[data-k-toast]'), toastTimer = null;
+
+  function say(ok) {
+    if (!toast) return;
+    toast.querySelector('[data-k-toast-text]').textContent = toast.getAttribute(ok ? 'data-k-ok' : 'data-k-err');
+    toast.classList.toggle('is-err', !ok);
+    toast.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toast.hidden = true; }, 5000);
+  }
+
+  function setCount(n) {
+    var head = doc.querySelector('.k-header__cart'), tab = doc.querySelector('.k-tabbar a:last-child');
+    if (head) {
+      var m = head.querySelector('.k-mono');
+      if (!m) { m = doc.createElement('span'); m.className = 'k-mono'; head.appendChild(doc.createTextNode(' ')); head.appendChild(m); }
+      m.textContent = '(' + n + ')';
+    }
+    if (tab) {
+      var c = tab.querySelector('.k-count');
+      if (!c) { c = doc.createElement('span'); c.className = 'k-count'; tab.appendChild(c); }
+      c.textContent = n;
+    }
+  }
+
+  function add(form) {
+    var qty = clamp(form);
+    var body = new URLSearchParams();
+    body.append('product_id', form.querySelector('input[name="product_id"]').value);
+    body.append('quantity', qty);
+    var btn = form.querySelector('[type="submit"]');
+    if (btn) btn.disabled = true;
+
+    fetch('index.php?route=checkout/cart/add', {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest' },
+      body: body.toString()
+    }).then(function (r) { return r.json(); }).then(function (json) {
+      if (!json || !json.success) throw new Error('cart');
+      say(true);
+      return fetch('index.php?route=extension/kristal/catalog/count', { credentials: 'same-origin' })
+        .then(function (r) { return r.json(); }).then(function (c) { setCount(c.count); });
+    }).catch(function () { say(false); }).then(function () { if (btn) btn.disabled = false; });
+  }
+
+  doc.addEventListener('submit', function (e) {
+    var form = e.target.closest('[data-k-add]');
+    if (!form || !window.fetch) return;
+    e.preventDefault();
+    add(form);
+  });
+
+  // ---------- Сортування без кнопки ----------
+  // (обробник change вище; без JS — посилання в <noscript>)
+
+  // ---------- «Показати ще» ----------
+  var more = doc.querySelector('[data-k-more]'), grid = doc.querySelector('[data-k-grid]'), pager = doc.querySelector('[data-k-pager]');
+
+  function nextHref(root) {
+    var active = root ? root.querySelector('li.active') : null, next = active ? active.nextElementSibling : null;
+    var a = next ? next.querySelector('a') : null;
+    return a ? a.href : '';
+  }
+
+  if (more && grid && pager && window.fetch && window.DOMParser) {
+    var href = nextHref(pager);
+    if (href) { more.href = href; more.hidden = false; }
+
+    more.addEventListener('click', function (e) {
+      e.preventDefault();
+      var url = more.href;
+      more.setAttribute('aria-busy', 'true');
+      fetch(url, { credentials: 'same-origin' }).then(function (r) { return r.text(); }).then(function (html) {
+        var page = new DOMParser().parseFromString(html, 'text/html');
+        var cards = page.querySelectorAll('[data-k-grid] > .k-card');
+        var first = null;
+        cards.forEach(function (card) {
+          var node = doc.importNode(card, true);
+          node.querySelectorAll('img').forEach(function (img) { img.setAttribute('loading', 'lazy'); });
+          grid.appendChild(node);
+          if (!first) first = node;
+        });
+        var newPager = page.querySelector('[data-k-pager]');
+        if (newPager) pager.innerHTML = newPager.innerHTML;
+        var next = nextHref(pager);
+        if (next) { more.href = next; } else { more.hidden = true; }
+        if (history.replaceState) history.replaceState(null, '', url);
+        if (first) { var link = first.querySelector('.k-card__name a'); if (link) link.focus({ preventScroll: true }); }
+      }).catch(function () { location.href = url; }).then(function () { more.removeAttribute('aria-busy'); });
+    });
+  }
+
+  // ---------- Галерея ----------
+  var gallery = doc.querySelector('[data-k-gallery]');
+  if (gallery) {
+    var main = gallery.querySelector('.k-gallery__main'), thumbs = gallery.querySelectorAll('[data-k-thumb]');
+    var mark = function (i) { thumbs.forEach(function (t, n) { if (n === i) t.setAttribute('aria-current', 'true'); else t.removeAttribute('aria-current'); }); };
+    thumbs.forEach(function (t) {
+      t.addEventListener('click', function () {
+        var i = parseInt(t.getAttribute('data-k-thumb'), 10);
+        main.scrollTo({ left: main.clientWidth * i, behavior: 'smooth' });
+        mark(i);
+      });
+    });
+    main.addEventListener('scroll', function () { mark(Math.round(main.scrollLeft / Math.max(1, main.clientWidth))); }, { passive: true });
+    main.addEventListener('keydown', function (e) {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      e.preventDefault();
+      main.scrollBy({ left: (e.key === 'ArrowRight' ? 1 : -1) * main.clientWidth, behavior: 'smooth' });
+    });
+  }
+
+  // ---------- Липка панель картки (мобільний) ----------
+  var sticky = doc.querySelector('[data-k-sticky]'), mainAdd = doc.querySelector('[data-k-main-add]');
+  if (sticky && mainAdd && 'IntersectionObserver' in window) {
+    doc.body.classList.add('has-sticky');
+    new IntersectionObserver(function (entries) {
+      var below = !entries[0].isIntersecting && entries[0].boundingClientRect.top < 0;
+      sticky.classList.toggle('is-on', below);
+      sticky.setAttribute('aria-hidden', below ? 'false' : 'true');
+      sticky.querySelector('button').tabIndex = below ? 0 : -1;
+    }).observe(mainAdd);
+    sticky.querySelector('[data-k-sticky-add]').addEventListener('click', function () {
+      var form = mainAdd.closest('form');
+      if (form && window.fetch) add(form); else if (form) form.submit();
+    });
+  }
+
+  var buy = doc.querySelector('[data-k-buy]');
+  if (buy) updateSum(buy);
+})();

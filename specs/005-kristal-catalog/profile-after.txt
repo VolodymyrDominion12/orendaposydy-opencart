@@ -1,0 +1,180 @@
+########## /posud/tarilky
+
+Профіль: http://localhost:8090/posud/tarilky
+  HTTP 200 за 0.034739 с
+  Запитів до БД: 171   сумарно: 14.2 мс   найповільніший: 0.8 мс
+==> Найповільніші (мс):
+        0.76   SELECT * FROM oc_information i LEFT JOIN oc_information_description id ON (i.information_id = id.information_id) LEFT JOIN oc_information_t
+        0.59   SELECT * FROM `oc_setting` WHERE store_id = '0' OR store_id = '0' ORDER BY store_id ASC;
+        0.39   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+        0.38   SELECT p.product_id, (SELECT AVG(rating) AS total FROM oc_review r1 WHERE r1.product_id = p.product_id AND r1.status = '1' GROUP BY r1.prod
+        0.34   SELECT DISTINCT *, pd.name AS name, p.image, m.name AS manufacturer, (SELECT price FROM oc_product_discount pd2 WHERE pd2.product_id = p.pr
+        0.30   SELECT DISTINCT *, pd.name AS name, p.image, m.name AS manufacturer, (SELECT price FROM oc_product_discount pd2 WHERE pd2.product_id = p.pr
+        0.26   SELECT DISTINCT *, pd.name AS name, p.image, m.name AS manufacturer, (SELECT price FROM oc_product_discount pd2 WHERE pd2.product_id = p.pr
+        0.26   SELECT DISTINCT *, pd.name AS name, p.image, m.name AS manufacturer, (SELECT price FROM oc_product_discount pd2 WHERE pd2.product_id = p.pr
+        0.26   SELECT DISTINCT * FROM oc_information i LEFT JOIN oc_information_description id ON (i.information_id = id.information_id) LEFT JOIN oc_info
+        0.25   SELECT DISTINCT *, pd.name AS name, p.image, m.name AS manufacturer, (SELECT price FROM oc_product_discount pd2 WHERE pd2.product_id = p.pr
+==> Найчастіші (кількість × шаблон) — десятки повторів = N+1:
+       118 × SELECT * FROM oc_seo_url WHERE `query` = ? AND store_id = ? AND language_id = ?;
+         6 × SELECT DISTINCT *, pd.name AS name, p.image, m.name AS manufacturer, (SELECT price FROM oc_product_discount pdN WHERE pdN.product_id = p.pr
+         6 × SELECT * FROM oc_translation WHERE store_id = ? AND language_id = ? AND (route = ? OR route = ?);
+         5 × SELECT * FROM oc_theme WHERE store_id = ? AND theme = ? AND route = ?;
+         2 × SELECT trN.tax_class_id, trN.tax_rate_id, trN.name, trN.rate, trN.type, trN.priority FROM oc_tax_rule trN LEFT JOIN oc_tax_rate trN ON (trN
+         2 × SELECT DISTINCT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_stor
+         2 × SELECT * FROM oc_setting WHERE store_id = ? AND `code` = ?;
+         2 × SELECT * FROM oc_seo_url WHERE keyword = ? AND store_id = ?;
+         2 × SELECT * FROM oc_layout_route WHERE ? LIKE route AND store_id = ? ORDER BY route DESC LIMIT N;
+         2 × SELECT * FROM oc_layout_module WHERE layout_id = ? AND position = ? ORDER BY sort_order;
+==> Найбільше переглянутих рядків (Rows_examined):
+         494   SELECT * FROM `oc_setting` WHERE store_id = '0' OR store_id = '0' ORDER BY store_id ASC;
+         265   SELECT * FROM oc_setting WHERE `key` = 'config_timezone' AND store_id = '0';
+         265   SELECT * FROM oc_setting WHERE store_id = '0' AND `code` = 'advertise_google';
+         265   SELECT * FROM oc_setting WHERE store_id = '0' AND `code` = 'advertise_google';
+         102   SELECT * FROM `oc_event` WHERE `trigger` LIKE 'catalog/%' AND status = '1' ORDER BY `sort_order` ASC;
+
+  ПОМИЛКА Запитів 171 > бюджету 100
+make: *** [make/quality.mk:51: db-profile] Error 1
+########## /mebli
+
+Профіль: http://localhost:8090/mebli
+  HTTP 200 за 0.037042 с
+  Запитів до БД: 178   сумарно: 16.0 мс   найповільніший: 0.7 мс
+==> Найповільніші (мс):
+        0.74   SELECT * FROM oc_information i LEFT JOIN oc_information_description id ON (i.information_id = id.information_id) LEFT JOIN oc_information_t
+        0.63   SELECT * FROM `oc_setting` WHERE store_id = '0' OR store_id = '0' ORDER BY store_id ASC;
+        0.45   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+        0.43   SELECT p.product_id, (SELECT AVG(rating) AS total FROM oc_review r1 WHERE r1.product_id = p.product_id AND r1.status = '1' GROUP BY r1.prod
+        0.31   SELECT DISTINCT *, pd.name AS name, p.image, m.name AS manufacturer, (SELECT price FROM oc_product_discount pd2 WHERE pd2.product_id = p.pr
+        0.30   SELECT DISTINCT *, pd.name AS name, p.image, m.name AS manufacturer, (SELECT price FROM oc_product_discount pd2 WHERE pd2.product_id = p.pr
+        0.29   SELECT DISTINCT *, pd.name AS name, p.image, m.name AS manufacturer, (SELECT price FROM oc_product_discount pd2 WHERE pd2.product_id = p.pr
+        0.29   SELECT DISTINCT *, pd.name AS name, p.image, m.name AS manufacturer, (SELECT price FROM oc_product_discount pd2 WHERE pd2.product_id = p.pr
+        0.27   SELECT DISTINCT *, pd.name AS name, p.image, m.name AS manufacturer, (SELECT price FROM oc_product_discount pd2 WHERE pd2.product_id = p.pr
+        0.27   SELECT DISTINCT *, pd.name AS name, p.image, m.name AS manufacturer, (SELECT price FROM oc_product_discount pd2 WHERE pd2.product_id = p.pr
+==> Найчастіші (кількість × шаблон) — десятки повторів = N+1:
+       121 × SELECT * FROM oc_seo_url WHERE `query` = ? AND store_id = ? AND language_id = ?;
+        12 × SELECT DISTINCT *, pd.name AS name, p.image, m.name AS manufacturer, (SELECT price FROM oc_product_discount pdN WHERE pdN.product_id = p.pr
+         6 × SELECT * FROM oc_translation WHERE store_id = ? AND language_id = ? AND (route = ? OR route = ?);
+         5 × SELECT * FROM oc_theme WHERE store_id = ? AND theme = ? AND route = ?;
+         2 × SELECT trN.tax_class_id, trN.tax_rate_id, trN.name, trN.rate, trN.type, trN.priority FROM oc_tax_rule trN LEFT JOIN oc_tax_rate trN ON (trN
+         2 × SELECT * FROM oc_setting WHERE store_id = ? AND `code` = ?;
+         2 × SELECT * FROM oc_layout_route WHERE ? LIKE route AND store_id = ? ORDER BY route DESC LIMIT N;
+         2 × SELECT * FROM oc_layout_module WHERE layout_id = ? AND position = ? ORDER BY sort_order;
+         2 × SELECT * FROM oc_category_to_layout WHERE category_id = ? AND store_id = ?;
+         1 × SET time_zone = ?;
+==> Найбільше переглянутих рядків (Rows_examined):
+         494   SELECT * FROM `oc_setting` WHERE store_id = '0' OR store_id = '0' ORDER BY store_id ASC;
+         265   SELECT * FROM oc_setting WHERE `key` = 'config_timezone' AND store_id = '0';
+         265   SELECT * FROM oc_setting WHERE store_id = '0' AND `code` = 'advertise_google';
+         265   SELECT * FROM oc_setting WHERE store_id = '0' AND `code` = 'advertise_google';
+         102   SELECT * FROM `oc_event` WHERE `trigger` LIKE 'catalog/%' AND status = '1' ORDER BY `sort_order` ASC;
+
+  ПОМИЛКА Запитів 178 > бюджету 100
+make: *** [make/quality.mk:51: db-profile] Error 1
+########## /tarilka-obidnia-bila-27-sm
+
+Профіль: http://localhost:8090/tarilka-obidnia-bila-27-sm
+  HTTP 200 за 0.025112 с
+  Запитів до БД: 106   сумарно: 8.4 мс   найповільніший: 0.7 мс
+==> Найповільніші (мс):
+        0.70   SELECT * FROM oc_information i LEFT JOIN oc_information_description id ON (i.information_id = id.information_id) LEFT JOIN oc_information_t
+        0.54   SELECT * FROM `oc_setting` WHERE store_id = '0' OR store_id = '0' ORDER BY store_id ASC;
+        0.38   SELECT a.attribute_id, ad.name, pa.text FROM oc_product_attribute pa LEFT JOIN oc_attribute a ON (pa.attribute_id = a.attribute_id) LEFT JO
+        0.34   SELECT DISTINCT *, pd.name AS name, p.image, m.name AS manufacturer, (SELECT price FROM oc_product_discount pd2 WHERE pd2.product_id = p.pr
+        0.26   SELECT DISTINCT * FROM oc_information i LEFT JOIN oc_information_description id ON (i.information_id = id.information_id) LEFT JOIN oc_info
+        0.15   SELECT * FROM oc_setting WHERE `key` = 'config_timezone' AND store_id = '0';
+        0.14   SELECT ag.attribute_group_id, agd.name FROM oc_product_attribute pa LEFT JOIN oc_attribute a ON (pa.attribute_id = a.attribute_id) LEFT JOI
+        0.14   SELECT * FROM `oc_event` WHERE `trigger` LIKE 'catalog/%' AND status = '1' ORDER BY `sort_order` ASC;
+        0.12   REPLACE INTO `oc_session` SET `session_id` = '77db4e1e94a97016631848587d', `data` = '{\"language\":\"uk-ua\",\"currency\":\"UAH\"}', `expir
+        0.11   SELECT p.product_id, p.sku, p.price, p.minimum, p.image, pd.description_excerpt, r.unit, r.deposit, r.breakage_price, r.washing_included, r
+==> Найчастіші (кількість × шаблон) — десятки повторів = N+1:
+        55 × SELECT * FROM oc_seo_url WHERE `query` = ? AND store_id = ? AND language_id = ?;
+         6 × SELECT * FROM oc_translation WHERE store_id = ? AND language_id = ? AND (route = ? OR route = ?);
+         5 × SELECT * FROM oc_theme WHERE store_id = ? AND theme = ? AND route = ?;
+         2 × SELECT trN.tax_class_id, trN.tax_rate_id, trN.name, trN.rate, trN.type, trN.priority FROM oc_tax_rule trN LEFT JOIN oc_tax_rate trN ON (trN
+         2 × SELECT * FROM oc_setting WHERE store_id = ? AND `code` = ?;
+         2 × SELECT * FROM oc_product_to_layout WHERE product_id = ? AND store_id = ?;
+         2 × SELECT * FROM oc_layout_route WHERE ? LIKE route AND store_id = ? ORDER BY route DESC LIMIT N;
+         2 × SELECT * FROM oc_layout_module WHERE layout_id = ? AND position = ? ORDER BY sort_order;
+         1 × UPDATE oc_product SET viewed = (viewed + N) WHERE product_id = ?;
+         1 × SET time_zone = ?;
+==> Найбільше переглянутих рядків (Rows_examined):
+         494   SELECT * FROM `oc_setting` WHERE store_id = '0' OR store_id = '0' ORDER BY store_id ASC;
+         265   SELECT * FROM oc_setting WHERE `key` = 'config_timezone' AND store_id = '0';
+         265   SELECT * FROM oc_setting WHERE store_id = '0' AND `code` = 'advertise_google';
+         265   SELECT * FROM oc_setting WHERE store_id = '0' AND `code` = 'advertise_google';
+         102   SELECT * FROM `oc_event` WHERE `trigger` LIKE 'catalog/%' AND status = '1' ORDER BY `sort_order` ASC;
+
+  ПОМИЛКА Запитів 106 > бюджету 100
+make: *** [make/quality.mk:51: db-profile] Error 1
+########## /posud?limit=6
+
+Профіль: http://localhost:8090/posud?limit=6
+  HTTP 200 за 0.035696 с
+  Запитів до БД: 159   сумарно: 15.0 мс   найповільніший: 0.8 мс
+==> Найповільніші (мс):
+        0.79   SELECT * FROM oc_information i LEFT JOIN oc_information_description id ON (i.information_id = id.information_id) LEFT JOIN oc_information_t
+        0.61   SELECT * FROM `oc_setting` WHERE store_id = '0' OR store_id = '0' ORDER BY store_id ASC;
+        0.55   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+        0.50   SELECT p.product_id, (SELECT AVG(rating) AS total FROM oc_review r1 WHERE r1.product_id = p.product_id AND r1.status = '1' GROUP BY r1.prod
+        0.41   SELECT DISTINCT *, pd.name AS name, p.image, m.name AS manufacturer, (SELECT price FROM oc_product_discount pd2 WHERE pd2.product_id = p.pr
+        0.40   SELECT DISTINCT *, pd.name AS name, p.image, m.name AS manufacturer, (SELECT price FROM oc_product_discount pd2 WHERE pd2.product_id = p.pr
+        0.37   SELECT DISTINCT *, pd.name AS name, p.image, m.name AS manufacturer, (SELECT price FROM oc_product_discount pd2 WHERE pd2.product_id = p.pr
+        0.34   SELECT DISTINCT *, pd.name AS name, p.image, m.name AS manufacturer, (SELECT price FROM oc_product_discount pd2 WHERE pd2.product_id = p.pr
+        0.32   SELECT DISTINCT *, pd.name AS name, p.image, m.name AS manufacturer, (SELECT price FROM oc_product_discount pd2 WHERE pd2.product_id = p.pr
+        0.32   SELECT DISTINCT *, pd.name AS name, p.image, m.name AS manufacturer, (SELECT price FROM oc_product_discount pd2 WHERE pd2.product_id = p.pr
+==> Найчастіші (кількість × шаблон) — десятки повторів = N+1:
+       108 × SELECT * FROM oc_seo_url WHERE `query` = ? AND store_id = ? AND language_id = ?;
+         6 × SELECT DISTINCT *, pd.name AS name, p.image, m.name AS manufacturer, (SELECT price FROM oc_product_discount pdN WHERE pdN.product_id = p.pr
+         6 × SELECT * FROM oc_translation WHERE store_id = ? AND language_id = ? AND (route = ? OR route = ?);
+         5 × SELECT * FROM oc_theme WHERE store_id = ? AND theme = ? AND route = ?;
+         2 × SELECT trN.tax_class_id, trN.tax_rate_id, trN.name, trN.rate, trN.type, trN.priority FROM oc_tax_rule trN LEFT JOIN oc_tax_rate trN ON (trN
+         2 × SELECT * FROM oc_setting WHERE store_id = ? AND `code` = ?;
+         2 × SELECT * FROM oc_layout_route WHERE ? LIKE route AND store_id = ? ORDER BY route DESC LIMIT N;
+         2 × SELECT * FROM oc_layout_module WHERE layout_id = ? AND position = ? ORDER BY sort_order;
+         2 × SELECT * FROM oc_category_to_layout WHERE category_id = ? AND store_id = ?;
+         1 × SET time_zone = ?;
+==> Найбільше переглянутих рядків (Rows_examined):
+         494   SELECT * FROM `oc_setting` WHERE store_id = '0' OR store_id = '0' ORDER BY store_id ASC;
+         265   SELECT * FROM oc_setting WHERE `key` = 'config_timezone' AND store_id = '0';
+         265   SELECT * FROM oc_setting WHERE store_id = '0' AND `code` = 'advertise_google';
+         265   SELECT * FROM oc_setting WHERE store_id = '0' AND `code` = 'advertise_google';
+         105   SELECT p.product_id, (SELECT AVG(rating) AS total FROM oc_review r1 WHERE r1.product_id = p.product_id AND r1.status = '1' GROUP BY r1.prod
+
+  ПОМИЛКА Запитів 159 > бюджету 100
+make: *** [make/quality.mk:51: db-profile] Error 1
+########## /posud?limit=24
+
+Профіль: http://localhost:8090/posud?limit=24
+  HTTP 200 за 0.043060 с
+  Запитів до БД: 205   сумарно: 19.1 мс   найповільніший: 0.7 мс
+==> Найповільніші (мс):
+        0.75   SELECT * FROM oc_information i LEFT JOIN oc_information_description id ON (i.information_id = id.information_id) LEFT JOIN oc_information_t
+        0.55   SELECT * FROM `oc_setting` WHERE store_id = '0' OR store_id = '0' ORDER BY store_id ASC;
+        0.54   SELECT p.product_id, (SELECT AVG(rating) AS total FROM oc_review r1 WHERE r1.product_id = p.product_id AND r1.status = '1' GROUP BY r1.prod
+        0.48   SELECT * FROM oc_category c LEFT JOIN oc_category_description cd ON (c.category_id = cd.category_id) LEFT JOIN oc_category_to_store c2s ON 
+        0.34   SELECT DISTINCT *, pd.name AS name, p.image, m.name AS manufacturer, (SELECT price FROM oc_product_discount pd2 WHERE pd2.product_id = p.pr
+        0.29   SELECT DISTINCT *, pd.name AS name, p.image, m.name AS manufacturer, (SELECT price FROM oc_product_discount pd2 WHERE pd2.product_id = p.pr
+        0.28   SELECT DISTINCT *, pd.name AS name, p.image, m.name AS manufacturer, (SELECT price FROM oc_product_discount pd2 WHERE pd2.product_id = p.pr
+        0.28   SELECT DISTINCT *, pd.name AS name, p.image, m.name AS manufacturer, (SELECT price FROM oc_product_discount pd2 WHERE pd2.product_id = p.pr
+        0.28   SELECT DISTINCT *, pd.name AS name, p.image, m.name AS manufacturer, (SELECT price FROM oc_product_discount pd2 WHERE pd2.product_id = p.pr
+        0.27   SELECT DISTINCT * FROM oc_information i LEFT JOIN oc_information_description id ON (i.information_id = id.information_id) LEFT JOIN oc_info
+==> Найчастіші (кількість × шаблон) — десятки повторів = N+1:
+       142 × SELECT * FROM oc_seo_url WHERE `query` = ? AND store_id = ? AND language_id = ?;
+        18 × SELECT DISTINCT *, pd.name AS name, p.image, m.name AS manufacturer, (SELECT price FROM oc_product_discount pdN WHERE pdN.product_id = p.pr
+         6 × SELECT * FROM oc_translation WHERE store_id = ? AND language_id = ? AND (route = ? OR route = ?);
+         5 × SELECT * FROM oc_theme WHERE store_id = ? AND theme = ? AND route = ?;
+         2 × SELECT trN.tax_class_id, trN.tax_rate_id, trN.name, trN.rate, trN.type, trN.priority FROM oc_tax_rule trN LEFT JOIN oc_tax_rate trN ON (trN
+         2 × SELECT * FROM oc_setting WHERE store_id = ? AND `code` = ?;
+         2 × SELECT * FROM oc_layout_route WHERE ? LIKE route AND store_id = ? ORDER BY route DESC LIMIT N;
+         2 × SELECT * FROM oc_layout_module WHERE layout_id = ? AND position = ? ORDER BY sort_order;
+         2 × SELECT * FROM oc_category_to_layout WHERE category_id = ? AND store_id = ?;
+         1 × SET time_zone = ?;
+==> Найбільше переглянутих рядків (Rows_examined):
+         494   SELECT * FROM `oc_setting` WHERE store_id = '0' OR store_id = '0' ORDER BY store_id ASC;
+         265   SELECT * FROM oc_setting WHERE `key` = 'config_timezone' AND store_id = '0';
+         265   SELECT * FROM oc_setting WHERE store_id = '0' AND `code` = 'advertise_google';
+         265   SELECT * FROM oc_setting WHERE store_id = '0' AND `code` = 'advertise_google';
+         117   SELECT p.product_id, (SELECT AVG(rating) AS total FROM oc_review r1 WHERE r1.product_id = p.product_id AND r1.status = '1' GROUP BY r1.prod
+
+  ПОМИЛКА Запитів 205 > бюджету 100
+make: *** [make/quality.mk:51: db-profile] Error 1

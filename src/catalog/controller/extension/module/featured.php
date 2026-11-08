@@ -7,9 +7,6 @@ class ControllerExtensionModuleFeatured extends Controller {
 
 		$this->load->model('tool/image');
 
-        $this->document->addStyle('catalog/view/theme/sauco/js/swiper/swiper.min.css');
-        $this->document->addScript('catalog/view/theme/sauco/js/swiper/swiper.min.js');
-
 		$data['products'] = array();
 
 		if (!$setting['limit']) {
@@ -35,14 +32,16 @@ class ControllerExtensionModuleFeatured extends Controller {
 						$price = false;
 					}
 
-					if ((float)$product_info['special']) {
+					if (!is_null($product_info['special']) && (float)$product_info['special'] >= 0) {
 						$special = $this->currency->format($this->tax->calculate($product_info['special'], $product_info['tax_class_id'], $this->config->get('config_tax')), $this->session->data['currency']);
+						$tax_price = (float)$product_info['special'];
 					} else {
 						$special = false;
+						$tax_price = (float)$product_info['price'];
 					}
-
+		
 					if ($this->config->get('config_tax')) {
-						$tax = $this->currency->format((float)$product_info['special'] ? $product_info['special'] : $product_info['price'], $this->session->data['currency']);
+						$tax = $this->currency->format($tax_price, $this->session->data['currency']);
 					} else {
 						$tax = false;
 					}
@@ -57,8 +56,7 @@ class ControllerExtensionModuleFeatured extends Controller {
 						'product_id'  => $product_info['product_id'],
 						'thumb'       => $image,
 						'name'        => $product_info['name'],
-						'description' => utf8_substr(strip_tags(html_entity_decode($product_info['description_excerpt'], ENT_QUOTES, 'UTF-8')), 0, $this->config->get('theme_' . $this->config->get('config_theme') . '_product_description_length')),
-						'description_add' => $product_info['description_add'],
+						'description' => utf8_substr(strip_tags(html_entity_decode($product_info['description'], ENT_QUOTES, 'UTF-8')), 0, $this->config->get('theme_' . $this->config->get('config_theme') . '_product_description_length')) . '..',
 						'price'       => $price,
 						'special'     => $special,
 						'tax'         => $tax,

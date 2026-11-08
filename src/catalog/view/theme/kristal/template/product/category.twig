@@ -1,0 +1,101 @@
+{{ header }}
+<div class="k-wrap k-page">
+  <nav aria-label="{{ k_crumbs }}">
+    <ol class="k-crumbs">
+      {% for breadcrumb in breadcrumbs %}
+      <li>{% if loop.last %}<span aria-current="page">{{ breadcrumb.text }}</span>{% else %}<a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a>{% endif %}</li>
+      {% endfor %}
+    </ol>
+  </nav>
+  {{ content_top }}
+
+  <div class="k-cathead">
+    <h1 class="k-h1">{{ heading_title }}</h1>
+    {% if kc_min_price %}<p class="k-cathead__price">{{ kc_min_price }} <span class="k-muted">/ доба</span></p>{% endif %}
+    {% if kc_chips %}
+    <nav class="k-chips" aria-label="{{ kc_subcats }}">
+      {% for chip in kc_chips %}
+      <a class="k-chip" href="{{ chip.href }}"{% if chip.current %} aria-current="page"{% endif %}>{{ chip.name }}</a>
+      {% endfor %}
+    </nav>
+    {% endif %}
+  </div>
+
+  {% if products %}
+  <div class="k-toolbar">
+    <p class="k-results">{{ results }}</p>
+    {% if kc_sorts %}
+    <form class="k-toolbar__sort" action="" method="get">
+      <label class="k-sr" for="k-sort">{{ kc_sort }}</label>
+      <select class="k-select" id="k-sort" data-k-sort>
+        {% for sort in kc_sorts %}
+        <option value="{{ sort.href }}"{% if sort.selected %} selected{% endif %}>{{ sort.text }}</option>
+        {% endfor %}
+      </select>
+      <noscript>
+        {% for sort in kc_sorts %}<a class="k-link" href="{{ sort.href }}">{{ sort.text }}</a> {% endfor %}
+      </noscript>
+    </form>
+    {% endif %}
+  </div>
+
+  <div class="k-grid k-grid--4" data-k-grid>
+    {% for product in products %}
+    <article class="k-card">
+      <a class="k-card__media" href="{{ product.href }}" tabindex="-1" aria-hidden="true">
+        {% if product.k.is_hit %}<span class="k-badge k-badge--hit">{{ kc_hit }}</span>{% endif %}
+        <img src="{{ product.k.image }}" width="{{ product.k.size }}" height="{{ product.k.size }}" alt="{{ product.name }}"{% if not product.k.eager %} loading="lazy"{% endif %}>
+      </a>
+      <div class="k-card__body">
+        <h2 class="k-card__name"><a href="{{ product.href }}">{{ product.name }}</a></h2>
+        {% if product.k.excerpt %}<p class="k-card__excerpt">{{ product.k.excerpt }}</p>{% endif %}
+        {% if product.k.price %}<p class="k-card__price"><span class="k-price">{{ product.k.price }}</span> <span class="k-buy__unit">{{ product.k.per }}</span></p>{% endif %}
+        {% if product.k.min_text %}<p class="k-card__meta">{{ product.k.min_text }}</p>{% endif %}
+        {% if product.k.best %}<p class="k-card__vol">{{ product.k.best }}</p>{% endif %}
+        <form class="k-card__foot" action="{{ product.href }}" method="get" data-k-add data-k-min="{{ product.k.minimum }}" data-k-hint="{{ product.k.min_hint }}">
+          <input type="hidden" name="product_id" value="{{ product.product_id }}">
+          <div class="k-qty">
+            <button type="button" data-k-step="-1" aria-label="{{ kc_less }}"><svg class="k-ico"><use href="#i-minus"/></svg></button>
+            <input type="number" name="quantity" value="{{ product.k.minimum }}" min="{{ product.k.minimum }}" inputmode="numeric" aria-label="{{ kc_qty }}: {{ product.name }}">
+            <button type="button" data-k-step="1" aria-label="{{ kc_more_qty }}"><svg class="k-ico"><use href="#i-plus"/></svg></button>
+          </div>
+          <button class="k-btn k-btn--secondary k-btn--sm" type="submit">{{ kc_add }}</button>
+          <p class="k-card__hint" aria-live="polite"></p>
+        </form>
+      </div>
+    </article>
+    {% if loop.index == 6 or (loop.last and loop.length < 6) %}
+    <aside class="k-promo">
+      <div>
+        <span class="k-label">{{ kc_promo_label }}</span>
+        <p class="k-h2">{{ kc_promo_title }}</p>
+        <p>{{ kc_promo_text }}</p>
+      </div>
+      <div class="k-btns">
+        {% if k_phone_tel %}<a class="k-btn k-btn--primary" href="{{ k_phone_tel }}"><svg class="k-ico"><use href="#i-phone"/></svg><span class="k-mono">{{ k_phone_display }}</span></a>{% endif %}
+        {% if k_viber_href %}<a class="k-btn k-btn--ghost" href="{{ k_viber_href }}"><svg class="k-ico"><use href="#i-viber"/></svg>Viber</a>{% endif %}
+      </div>
+    </aside>
+    {% endif %}
+    {% endfor %}
+  </div>
+
+  {% if pagination %}
+  <div class="k-grid__end">
+    <a class="k-btn k-btn--ghost k-more" href="#" data-k-more hidden>{{ kc_load_more }}</a>
+    <nav class="k-pager" aria-label="{{ heading_title }}" data-k-pager>{{ pagination }}</nav>
+  </div>
+  {% endif %}
+  {% else %}
+  <p class="k-lead">{{ kc_empty }}</p>
+  {% endif %}
+
+  {% if description %}
+  <section class="k-section-sm">
+    <div class="k-prose">{{ description }}</div>
+  </section>
+  {% endif %}
+  {{ content_bottom }}
+</div>
+<div class="k-toast" role="status" aria-live="polite" data-k-toast data-k-ok="{{ kc_added }}" data-k-err="{{ kc_add_error }}" hidden><span data-k-toast-text></span><a href="{{ k_cart_url }}">{{ kc_go_cart }}</a></div>
+{{ footer }}

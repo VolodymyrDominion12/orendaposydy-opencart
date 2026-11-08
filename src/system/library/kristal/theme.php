@@ -22,6 +22,15 @@ class Theme {
 		'ekoposud'             => 'leaf'
 	);
 
+	/** Чи вибрано тему kristal (каталог теми «Тема за замовчуванням» або окрема тема). $config — \Config ядра або будь-що з get(). */
+	public static function active($config) {
+		if ($config->get('config_theme') === 'default') {
+			return $config->get('theme_default_directory') === 'kristal';
+		}
+
+		return $config->get('config_theme') === 'kristal';
+	}
+
 	/**
 	 * Дворівневе дерево меню.
 	 *

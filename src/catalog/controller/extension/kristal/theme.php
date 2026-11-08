@@ -105,6 +105,12 @@ class ControllerExtensionKristalTheme extends Controller {
 			$output = str_replace('<body class="k-body">', '<body class="k-body k-compat">', $output);
 		}
 
+		// Сторінка з шаблону kristal: прибрати скрипти/стилі jQuery-плагінів, які контролери ядра додають у document
+		// (напр. datetimepicker у product/product) — без jQuery вони лише падають і важать
+		if ($this->config->get('template_directory') === 'kristal/template/') {
+			$output = preg_replace('#<(?:script src|link href)="catalog/view/javascript/jquery/[^"]*"[^>]*>(?:</script>)?\s*#', '', $output);
+		}
+
 		$output = str_replace(self::PLACEHOLDER, implode("\n", $head), $output);
 
 		return null;
@@ -182,6 +188,8 @@ class ControllerExtensionKristalTheme extends Controller {
 		$this->language->set('k_catalog_href', $cats ? $cats[0]['href'] : self::$shared['k_home']);
 		$this->language->set('k_phone_tel', $nap['primary_phone'] ? $nap['primary_phone']['tel'] : '');
 		$this->language->set('k_phone_display', $nap['primary_phone'] ? $nap['primary_phone']['display'] : '');
+		$this->language->set('k_viber_href', $viber);
+		$this->language->set('k_cart_url', self::$shared['k_cart_href']);
 
 		return self::$shared;
 	}

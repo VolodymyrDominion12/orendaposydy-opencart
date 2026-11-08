@@ -1,6 +1,6 @@
 # 005 — План реалізації
 
-Посилання: `spec.md`. **Чернетка** разом зі spec (варіант «пропозиції агента» з відкритих питань 1–6); після `Approved` уточнюється.
+Посилання: `spec.md`. Погоджено 2026-11-08 (пропозиції агента + «Показати ще»). Розділ «Відхилення» внизу — що змінилось під час реалізації.
 
 ## Підхід
 Шаблони `product/category.twig` і `product/product.twig` з'являються в темі `kristal` — compat 003 для цих маршрутів вимикається сам.
@@ -23,7 +23,9 @@
 | `catalog/language/uk-ua/extension/kristal/catalog.php` | новий | тексти |
 | `admin/controller/extension/kristal/catalog.php` + `admin/language/uk-ua/extension/kristal/catalog.php` | новий | вкладка «Оренда» (подія view after), збереження (події model after), скидання кешу |
 | `admin/model/extension/kristal/catalog.php` | новий | get/save/delete рядка оренди |
-| `catalog/controller/product/{category,product}.php` | **повернення до 3.0.4.1** | питання 4; `core-keep.txt` |
+| `catalog/controller/product/{category,product}.php`, `catalog/model/catalog/product.php`, `catalog/controller/extension/module/featured.php` | **повернення до 3.0.4.1** | питання 4; модель — бо в ній не було `checkProductCategory()` (фатальна помилка з повернутим контролером) і загублена ініціалізація `$product_data`; `featured` читав прибрані з моделі поля `sauco`; `core-keep.txt` |
+| `catalog/controller/extension/kristal/theme.php` | зміна | `k_viber_href`, `k_cart_url` у мовних даних; прибирання скриптів jQuery-плагінів ядра зі сторінок теми |
+| `system/library/kristal/theme.php` | зміна | `Theme::active($config)` |
 | `db/migrations/0006_kristal_product_rental.*` | новий | таблиця + події + ліміт 24 (з бекапом налаштування) |
 | `db/migrations/0007_mock_rental.*` | новий | мок: оренда для 95 MOCK-товарів з атрибутів 505/506, 8 «Хітів»; атрибути 505/506 — у бекап |
 | `tests/smoke/urls.txt`, `tests/mobile/pages.txt` | зміна | категорія й картка без `allow` |
@@ -46,9 +48,10 @@
 ## Запити та індекси
 | Де | Запит (скорочено) | Індекс | EXPLAIN (очікується) |
 |---|---|---|---|
-| подія категорії/товару | `SELECT r.*, pd.description_excerpt FROM kristal_product_rental r RIGHT JOIN … WHERE product_id IN (…)` | PK `product_id` | range/eq_ref, rows = кількість карток |
-| подія категорії/товару | `SELECT product_id, quantity, price FROM product_discount WHERE product_id IN (…) AND customer_group_id = ? AND quantity > 1 AND ((date_start = '0000-00-00' OR date_start < NOW()) AND (date_end …)) ORDER BY product_id, quantity` | `product_id` (ядро) | range |
-| «від N ₴» (кеш `kristal.catalog.min.<cat>`) | `SELECT MIN(p.price) FROM product p JOIN product_to_category p2c … JOIN category_path cp … WHERE cp.path_id = ? AND p.status = 1 AND p.price > 0` | `category_path` PK, `product_to_category` PK | перевірити `make db-explain` |
+| подія категорії/товару | `SELECT p.…, pd.description_excerpt, r.… FROM product p LEFT JOIN product_description pd LEFT JOIN kristal_product_rental r WHERE p.product_id IN (…)` | PK усіх трьох | ✔ p range (PK), pd eq_ref, r eq_ref; rows = кількість карток |
+| подія категорії/товару | `SELECT product_id, quantity, price FROM product_discount WHERE product_id IN (…) AND customer_group_id = ? AND quantity > 1 AND ((date_start = '0000-00-00' OR date_start < NOW()) AND (date_end …)) ORDER BY product_id, quantity` | `product_id` (ядро) | ✔ range за `product_id` + `Using filesort` — сортування кількох рядків знижок; допустимо |
+| «від N ₴» (кеш `kristal.catalog.min.<cat>`) | `SELECT MIN(p.price) FROM product p JOIN product_to_category p2c … JOIN category_path cp … WHERE cp.path_id = ? AND p.status = 1 AND p.price > 0` | — | ✔ p2s `index` 144 рядки → p, p2c, cp за PK. PK `category_path` (category_id, path_id) не має індексу з `path_id` першим, тому оптимізатор іде від `product_to_store`. Допустимо зараз (кеш на годину, 144 товари); при імпорті прайсу (022) перевірити на реальному обсязі |
+| картка товару | `SELECT image FROM product_image WHERE product_id = ? ORDER BY sort_order LIMIT 12` | `product_id` | ✔ ref + `Using filesort` по фото одного товару — допустимо |
 | лічильник після «До події» | як у 003 (`cart_id`) | `cart_id` | ref |
 
 ## Кешування
@@ -69,3 +72,14 @@
 | Мінімум не перевіряється ядром при додаванні | висока (так у 3.0) | клієнтська перевірка + 010 перевіряє в кошику |
 
 Відкат: `make migrate-down V=0007 && make migrate-down V=0006`, `git revert`, `make clear-cache`.
+
+## Відхилення від чернетки (2026-11-08)
+- **Модель товару й модуль `featured` теж повернуто до 3.0.4.1** (див. «Файли»). Поля `sauco` `description_excerpt`/`description_add` лишились у БД і адмінці;
+  короткий опис вітрина бере власним запитом. Залежність від колонки `description_excerpt` — записано в беклог (прибрати разом з полями `sauco`).
+- **Пагінація** — HTML ядра (`ul.pagination`), стилізований під `k-pager`; «Показати ще» бере наступну сторінку з нього й довантажує картки (`fetch` + `DOMParser`).
+- **Липка панель** — ціна й «До події» без окремого поля кількості (кількість з основної форми).
+- **Лічильник після «До події»** — маршрут `extension/kristal/catalog/count` (JSON), бо відповідь `checkout/cart/add` дає суму штук, а не позицій.
+- **Скрипти jQuery-плагінів ядра** (datetimepicker у `product/product`) на сторінках теми прибирає подія `page()` теми — інакше JS-помилки й зайва вага.
+- **Копіювання товару**: `copyProduct()` ядра не повертає новий id — беремо найновіший товар з тим самим `model`+`sku`.
+- **`db-check`**: службова мок-таблиця `kristal_mock_attr_backup` має складений PK (product_id, attribute_id, language_id), тож `attribute_id`/`language_id` не мають власних індексів. Читається лише за повним PK у мок-міграції — прийнято (`make db-check UPDATE=1`).
+- **N+1 ядра в списку товарів** лишається: `model_catalog_product->getProducts()` робить `getProduct()` на кожен товар (+1 запит на картку) і `oc_seo_url` на кожне посилання. 005 не додає запитів на товар (перевірено 6 vs 18 товарів). Записано в беклог → 011/016.

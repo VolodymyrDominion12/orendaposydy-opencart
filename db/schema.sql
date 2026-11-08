@@ -558,12 +558,29 @@ CREATE TABLE `oc_kristal_migration` (
   `applied_at` datetime NOT NULL,
   PRIMARY KEY (`version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `oc_kristal_mock_attr_backup` (
+  `product_id` int(11) NOT NULL,
+  `attribute_id` int(11) NOT NULL,
+  `language_id` int(11) NOT NULL,
+  `text` text NOT NULL,
+  PRIMARY KEY (`product_id`,`attribute_id`,`language_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 CREATE TABLE `oc_kristal_mock_backup` (
   `entity` varchar(32) NOT NULL,
   `entity_id` int(11) NOT NULL,
   `field` varchar(64) NOT NULL,
   `value` text NOT NULL,
   PRIMARY KEY (`entity`,`entity_id`,`field`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `oc_kristal_product_rental` (
+  `product_id` int(11) NOT NULL,
+  `unit` varchar(16) NOT NULL DEFAULT 'pcs',
+  `deposit` decimal(15,4) NOT NULL DEFAULT 0.0000,
+  `breakage_price` decimal(15,4) NOT NULL DEFAULT 0.0000,
+  `washing_included` tinyint(1) NOT NULL DEFAULT 0,
+  `is_hit` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`product_id`),
+  KEY `idx_is_hit` (`is_hit`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 CREATE TABLE `oc_kristal_rate_limit` (
   `key_hash` char(40) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,

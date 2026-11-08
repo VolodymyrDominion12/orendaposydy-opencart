@@ -68,3 +68,12 @@ test('графік: порядок днів нормалізується, пор
 	);
 	assert_same(array('Пн–Пт 09:00–18:00'), Theme::hoursText($hours, $GLOBALS['__day_names']));
 });
+
+test('тема активна: каталог kristal у темі за замовчуванням', function () {
+	$c = new \Config();
+	$c->set('config_theme', 'default');
+	$c->set('theme_default_directory', 'kristal');
+	assert_true(Theme::active($c));
+	$c->set('theme_default_directory', 'sauco');
+	assert_false(Theme::active($c));
+});

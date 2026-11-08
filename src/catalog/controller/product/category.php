@@ -28,12 +28,12 @@ class ControllerProductCategory extends Controller {
 		}
 
 		if (isset($this->request->get['page'])) {
-			$page = $this->request->get['page'];
+			$page = (int)$this->request->get['page'];
 		} else {
 			$page = 1;
 		}
 
-		if (isset($this->request->get['limit'])) {
+		if (isset($this->request->get['limit']) && (int)$this->request->get['limit'] > 0) {
 			$limit = (int)$this->request->get['limit'];
 		} else {
 			$limit = $this->config->get('theme_' . $this->config->get('config_theme') . '_product_limit');
@@ -133,73 +133,19 @@ class ControllerProductCategory extends Controller {
 
 			$data['categories'] = array();
 
-			$categories = $this->model_catalog_category->getCategories();
+			$results = $this->model_catalog_category->getCategories($category_id);
 
+			foreach ($results as $result) {
+				$filter_data = array(
+					'filter_category_id'  => $result['category_id'],
+					'filter_sub_category' => true
+				);
 
-
-            $category = $this->model_catalog_category->getCategory($category_id);
-
-            if($category['parent_id'] != 0){
-                $parent_cat = $category['parent_id'];
-
-                foreach ($categories as $category) {
-
-                    if($parent_cat == $category['category_id']){
-                        $data['categories'][] = array(
-                            'name' =>  $this->language->get('text_all'),
-                            'current' => $category_id == $category['category_id']? true : false,
-                            'href' => $this->url->link('product/category', 'path=' . $category['category_id'] . $url)
-                        );
-                    }
-
-                    $sub_cat = $this->model_catalog_category->getCategories($category['category_id']);
-
-                    foreach ($sub_cat as $item) {
-
-                        if($parent_cat == $category['category_id']) {
-                            $data['categories'][] = array(
-                                'name' => $item['name'],
-                                'current' => $category_id == $item['category_id']? true : false,
-                                'href' => $this->url->link('product/category', 'path=' . $parent_cat . '_' . $item['category_id'] . $url)
-                            );
-                        }
-                    }
-                }
-            } else {
-                foreach ($categories as $category) {
-
-                    if($category_id == $category['category_id']){
-                        $data['categories'][] = array(
-                            'name' => $this->language->get('text_all'),
-                            'current' => $category_id == $category['category_id']? true : false,
-                            'href' => $this->url->link('product/category', 'path=' . $this->request->get['path'] . '_' . $category['category_id'] . $url)
-                        );
-                    }
-
-                    $sub_cat = $this->model_catalog_category->getCategories($category['category_id']);
-
-                    foreach ($sub_cat as $item) {
-
-                        if($category_id == $category['category_id']) {
-                            $data['categories'][] = array(
-                                'name' => $item['name'],
-                                'current' => $category_id == $item['category_id']? true : false,
-                                'href' => $this->url->link('product/category', 'path=' . $this->request->get['path'] . '_' . $item['category_id'] . $url)
-                            );
-                        }
-                    }
-                }
-            }
-
-            if(count($data['categories']) > 2){
-                $this->document->addStyle('catalog/view/theme/sauco/js/swiper/swiper.min.css');
-                $this->document->addScript('catalog/view/theme/sauco/js/swiper/swiper.min.js');
-                $data['swiper'] = true;
-            } else {
-                $data['swiper'] = false;
-            }
-
-
+				$data['categories'][] = array(
+					'name' => $result['name'] . ($this->config->get('config_product_count') ? ' (' . $this->model_catalog_product->getTotalProducts($filter_data) . ')' : ''),
+					'href' => $this->url->link('product/category', 'path=' . $this->request->get['path'] . '_' . $result['category_id'] . $url)
+				);
+			}
 
 			$data['products'] = array();
 
@@ -229,14 +175,16 @@ class ControllerProductCategory extends Controller {
 					$price = false;
 				}
 
-				if ((float)$result['special']) {
+				if (!is_null($result['special']) && (float)$result['special'] >= 0) {
 					$special = $this->currency->format($this->tax->calculate($result['special'], $result['tax_class_id'], $this->config->get('config_tax')), $this->session->data['currency']);
+					$tax_price = (float)$result['special'];
 				} else {
 					$special = false;
+					$tax_price = (float)$result['price'];
 				}
-
+	
 				if ($this->config->get('config_tax')) {
-					$tax = $this->currency->format((float)$result['special'] ? $result['special'] : $result['price'], $this->session->data['currency']);
+					$tax = $this->currency->format($tax_price, $this->session->data['currency']);
 				} else {
 					$tax = false;
 				}
@@ -251,9 +199,8 @@ class ControllerProductCategory extends Controller {
 					'product_id'  => $result['product_id'],
 					'thumb'       => $image,
 					'name'        => $result['name'],
-					'description' => utf8_substr(trim(strip_tags(html_entity_decode($result['description_excerpt'], ENT_QUOTES, 'UTF-8'))), 0, $this->config->get('theme_' . $this->config->get('config_theme') . '_product_description_length')),
+					'description' => utf8_substr(trim(strip_tags(html_entity_decode($result['description'], ENT_QUOTES, 'UTF-8'))), 0, $this->config->get('theme_' . $this->config->get('config_theme') . '_product_description_length')) . '..',
 					'price'       => $price,
-					'description_add'       => $result['description_add'],
 					'special'     => $special,
 					'tax'         => $tax,
 					'minimum'     => $result['minimum'] > 0 ? $result['minimum'] : 1,
