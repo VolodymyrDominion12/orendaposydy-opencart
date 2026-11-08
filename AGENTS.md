@@ -83,6 +83,7 @@ spec.md  →  plan.md  →  tasks.md  →  реалізація  →  verify  �
   | Скинути кеш наших модулів | `\Kristal\Cache_key::flush($this->cache)` |
   | Дерево меню, графік текстом, іконка категорії (тема) | `\Kristal\Theme::menuTree()`, `hoursText()`, `icon()` |
   | Оренда: одиниці, «14 ₴», ціна за порогами знижок (як у кошику), рядки таблиці знижок | `\Kristal\Rental::money()`, `unitPrice()`, `tierRows()`, `unit()` |
+  | Зображення вітрини: WebP, обрізання по центру, без збільшення, кеш `image/cache/kristal/` | `\Kristal\Image::make()`; у контролері — `model extension/kristal/media->image($file, ModelExtensionKristalMedia::CARD)` → `src`, `srcset`, `width`, `height` |
   Новий клас бібліотеки — з тестом у `tests/lib/` (`make test-lib`).
 - **Тема `kristal`** (фіча 003) — `catalog/view/theme/kristal/`. Вмикається в адмінці: «Розширення → Теми → Тема за замовчуванням» → каталог `kristal`.
   - Шапка/футер отримують дані подіями (`extension/kristal/theme`), ядро не чіпаємо: `k_nap`, `k_phone`, `k_viber`, `k_telegram`, `k_social`, `k_hours`, `k_cats` (меню з кешу `kristal.menu.*`), `k_cart_count`.
@@ -92,6 +93,7 @@ spec.md  →  plan.md  →  tasks.md  →  реалізація  →  verify  �
   - **Автоекранування вимкнене.** Дані з адмінки й БД ядро зберігає вже закодованими — виводимо як є; URL, які будуємо самі, кодуємо в PHP (`rawurlencode`). Введене користувачем — `|e`.
   - Шаблон є в `kristal` → сторінка без jQuery. Немає → береться `default` (або `sauco`, якщо немає й там), а в `<head>` автоматично підключаються jQuery+Bootstrap (клас `k-compat`) — тимчасово до 004/005/010.
   - **Каталог (005):** умови оренди — таблиця `kristal_product_rental` (вкладка «Оренда» в адмінці подією); дані для карток — подіями `view/product/{category,product}/before` (`extension/kristal/catalog`), пакетом `IN (...)`. Картку товару в новому місці (головна, комплекти) рендерити тим самим HTML `k-card` з `data-k-add`, дані — `ModelExtensionKristalCatalog::getProducts()/getDiscounts()`.
+  - **Зображення (020):** не `model/tool/image->resize()`, а `extension/kristal/media` (WebP + `srcset` 1×/2×). У шаблоні: `<img src srcset sizes width height alt>`; перше зображення екрана — `fetchpriority="high"`, решта — `loading="lazy"`. Після масового імпорту — `make images-warm`.
   - Новий шаблон сторінки: `{{ header }}` → `<div class="k-wrap k-page">` + крихти `k-crumbs` + рівно один `h1` → `{{ footer }}`. Неіндексовані маршрути — у `ControllerExtensionKristalTheme::$noindex`.
 - Префікс усього нашого: **`kristal_`** (модулі, події, таблиці, налаштування, CSS-класи `k-`).
 - Доступ до БД — лише `$this->db->query()` з **`DB_PREFIX`**; числа через `(int)`/`(float)`, рядки через `$this->db->escape()`.

@@ -9,11 +9,9 @@
  *   extension/kristal/catalog/count             JSON {count} — позицій у кошику (лічильники після «До події»)
  *
  * Запити: 2 на сторінку (оренда+зображення+опис, знижки) пакетом IN (...) + 1 для фото товару; «від N ₴» — з кешу.
+ * Зображення — WebP з srcset через model extension/kristal/media (фіча 020), без запитів.
  */
 class ControllerExtensionKristalCatalog extends Controller {
-	const CARD_IMAGE = 360;
-	const MAIN_IMAGE = 720;
-	const THUMB_IMAGE = 120;
 
 	public function category(&$route, &$data) {
 		if (!\Kristal\Theme::active($this->config) || empty($data['heading_title'])) {
@@ -22,7 +20,7 @@ class ControllerExtensionKristalCatalog extends Controller {
 
 		$this->load->language('extension/kristal/catalog');
 		$this->load->model('extension/kristal/catalog');
-		$this->load->model('tool/image');
+		$this->load->model('extension/kristal/media');
 
 		$products = isset($data['products']) ? $data['products'] : array();
 		$ids = array_column($products, 'product_id');
@@ -52,7 +50,7 @@ class ControllerExtensionKristalCatalog extends Controller {
 
 		$this->load->language('extension/kristal/catalog');
 		$this->load->model('extension/kristal/catalog');
-		$this->load->model('tool/image');
+		$this->load->model('extension/kristal/media');
 
 		$product_id = (int)$data['product_id'];
 		$related = isset($data['products']) ? $data['products'] : array();
@@ -107,20 +105,20 @@ class ControllerExtensionKristalCatalog extends Controller {
 		$k['images'] = array();
 		$files = array_merge(array($row['image']), $this->model_extension_kristal_catalog->getImages($product_id));
 
-		foreach (array_values(array_unique(array_filter($files))) as $file) {
+		$files = array_values(array_unique(array_filter($files)));
+
+		if (!$files) {
+			$files = array('');
+		}
+
+		foreach ($files as $file) {
 			$k['images'][] = array(
-				'main'  => $this->image($file, self::MAIN_IMAGE),
-				'thumb' => $this->image($file, self::THUMB_IMAGE)
+				'main'  => $this->model_extension_kristal_media->image($file, ModelExtensionKristalMedia::MAIN),
+				'thumb' => $this->model_extension_kristal_media->image($file, ModelExtensionKristalMedia::THUMB)
 			);
 		}
 
-		if (!$k['images']) {
-			$k['images'][] = array('main' => $this->image('', self::MAIN_IMAGE), 'thumb' => $this->image('', self::THUMB_IMAGE));
-		}
-
 		$data['kc'] = $k;
-		$data['kc_main_size'] = self::MAIN_IMAGE;
-		$data['kc_thumb_size'] = self::THUMB_IMAGE;
 
 		// «Умови оренди»: сторінка з налаштування «Умови оформлення» (config_checkout_id); до 012 може бути будь-яка
 		$terms_id = (int)$this->config->get('config_checkout_id');
@@ -170,8 +168,7 @@ class ControllerExtensionKristalCatalog extends Controller {
 			'best'      => $best ? sprintf($this->language->get('kc_best'), $best['from'], $unit, \Kristal\Rental::money($best['price'])) : '',
 			'is_hit'    => $rental['is_hit'],
 			'excerpt'   => htmlspecialchars($excerpt, ENT_QUOTES, 'UTF-8'),
-			'image'     => $this->image($row ? $row['image'] : '', self::CARD_IMAGE),
-			'size'      => self::CARD_IMAGE,
+			'img'       => $this->model_extension_kristal_media->image($row ? $row['image'] : '', ModelExtensionKristalMedia::CARD),
 			'eager'     => $eager
 		);
 	}
@@ -184,14 +181,6 @@ class ControllerExtensionKristalCatalog extends Controller {
 		}
 
 		return sprintf($this->language->get('kc_sum'), $quantity, \Kristal\Rental::unit($unit_code), \Kristal\Rental::money($unit_price), \Kristal\Rental::money($quantity * $unit_price));
-	}
-
-	private function image($file, $size) {
-		if ($file && is_file(DIR_IMAGE . $file)) {
-			return $this->model_tool_image->resize($file, $size, $size);
-		}
-
-		return $this->model_tool_image->resize('placeholder.png', $size, $size);
 	}
 
 	/** Чипи: діти поточної категорії, а якщо їх немає — сусіди (з кешованого меню теми, 0 запитів) */

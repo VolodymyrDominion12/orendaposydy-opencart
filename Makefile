@@ -18,7 +18,7 @@ N := \033[0m
 .PHONY: help init up down destroy restart build ps logs logs-php logs-db shell db-shell \
         config localize-htaccess localize localize-admin login-admin \
         import dump db-tables \
-        clear-cache clear-cache-all refresh-mods \
+        clear-cache clear-cache-all refresh-mods images-warm \
         deploy deploy-apply deploy-sql deploy-rollback package backup-list \
         check php-version url
 
@@ -133,6 +133,9 @@ clear-cache: ## Скинути кеш OpenCart (Twig + дані + прев'ю)
 clear-cache-all: ## Скинути кеш + кеш OCMOD (потім обов'язково make refresh-mods!)
 	@bash tools/clear-cache.sh --modifications --logs
 	@printf '\n  Модифікації стерто. Повернути на місце:  make refresh-mods\n'
+
+images-warm: ## 020: згенерувати WebP усіх розмірів теми для товарів і категорій (локально/staging)
+	@bash tools/images-warm.sh
 
 refresh-mods: ## Застосувати OCMOD-модифікації (те саме, що «Оновити» в адмінці)
 	@bash tools/refresh-modifications.sh

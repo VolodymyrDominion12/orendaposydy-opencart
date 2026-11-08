@@ -44,7 +44,7 @@
     <article class="k-card">
       <a class="k-card__media" href="{{ product.href }}" tabindex="-1" aria-hidden="true">
         {% if product.k.is_hit %}<span class="k-badge k-badge--hit">{{ kc_hit }}</span>{% endif %}
-        <img src="{{ product.k.image }}" width="{{ product.k.size }}" height="{{ product.k.size }}" alt="{{ product.name }}"{% if not product.k.eager %} loading="lazy"{% endif %}>
+        <img src="{{ product.k.img.src }}"{% if product.k.img.srcset %} srcset="{{ product.k.img.srcset }}" sizes="(min-width: 1280px) 290px, (min-width: 1024px) 23vw, (min-width: 768px) 31vw, 47vw"{% endif %} width="{{ product.k.img.width }}" height="{{ product.k.img.height }}" alt="{{ product.name }}"{% if not product.k.eager %} loading="lazy"{% endif %}>
       </a>
       <div class="k-card__body">
         <h2 class="k-card__name"><a href="{{ product.href }}">{{ product.name }}</a></h2>

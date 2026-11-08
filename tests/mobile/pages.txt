@@ -7,7 +7,7 @@
 # старим шаблоном default + jQuery/Bootstrap (compat) — allow лишається з номером фічі.
 /                                   allow=all    # 004, 016
 /posud/tarilky                      # 005 — категорія (мок 001)
-/tarilka-obidnia-bila-27-sm         allow=img_legacy  # 005 — товар (мок 001); PNG-заглушка 720 px > 20 КБ — WebP у 020
+/tarilka-obidnia-bila-27-sm         # 005 — товар (мок 001); WebP — 020
 /oplata                             # 003 — інформаційна сторінка
 /kristal-smoke-neisnuyucha-storinka # 003 — 404
 /success                            # 003 — «Дякуємо»

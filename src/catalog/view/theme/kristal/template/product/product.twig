@@ -13,13 +13,13 @@
     <div class="k-gallery" data-k-gallery>
       <div class="k-gallery__main" aria-label="{{ kc_gallery }}" tabindex="0">
         {% for image in kc.images %}
-        <img src="{{ image.main }}" width="{{ kc_main_size }}" height="{{ kc_main_size }}" alt="{{ heading_title }}{% if not loop.first %} — {{ kc_photo|format(loop.index) }}{% endif %}"{% if loop.first %} fetchpriority="high"{% else %} loading="lazy"{% endif %}>
+        <img src="{{ image.main.src }}"{% if image.main.srcset %} srcset="{{ image.main.srcset }}" sizes="(min-width: 1280px) 640px, (min-width: 1024px) 52vw, 100vw"{% endif %} width="{{ image.main.width }}" height="{{ image.main.height }}" alt="{{ heading_title }}{% if not loop.first %} — {{ kc_photo|format(loop.index) }}{% endif %}"{% if loop.first %} fetchpriority="high"{% else %} loading="lazy"{% endif %}>
         {% endfor %}
       </div>
       {% if kc.images|length > 1 %}
       <div class="k-gallery__thumbs">
         {% for image in kc.images %}
-        <button type="button" data-k-thumb="{{ loop.index0 }}" aria-label="{{ kc_photo|format(loop.index) }}"{% if loop.first %} aria-current="true"{% endif %}><img src="{{ image.thumb }}" width="{{ kc_thumb_size }}" height="{{ kc_thumb_size }}" alt="" loading="lazy"></button>
+        <button type="button" data-k-thumb="{{ loop.index0 }}" aria-label="{{ kc_photo|format(loop.index) }}"{% if loop.first %} aria-current="true"{% endif %}><img src="{{ image.thumb.src }}"{% if image.thumb.srcset %} srcset="{{ image.thumb.srcset }}" sizes="120px"{% endif %} width="{{ image.thumb.width }}" height="{{ image.thumb.height }}" alt="" loading="lazy"></button>
         {% endfor %}
       </div>
       {% endif %}
@@ -110,7 +110,7 @@
       <article class="k-card">
         <a class="k-card__media" href="{{ product.href }}" tabindex="-1" aria-hidden="true">
           {% if product.k.is_hit %}<span class="k-badge k-badge--hit">{{ kc_hit }}</span>{% endif %}
-          <img src="{{ product.k.image }}" width="{{ product.k.size }}" height="{{ product.k.size }}" alt="{{ product.name }}" loading="lazy">
+          <img src="{{ product.k.img.src }}"{% if product.k.img.srcset %} srcset="{{ product.k.img.srcset }}" sizes="(min-width: 1280px) 290px, (min-width: 1024px) 23vw, (min-width: 768px) 31vw, 47vw"{% endif %} width="{{ product.k.img.width }}" height="{{ product.k.img.height }}" alt="{{ product.name }}" loading="lazy">
         </a>
         <div class="k-card__body">
           <h3 class="k-card__name"><a href="{{ product.href }}">{{ product.name }}</a></h3>
