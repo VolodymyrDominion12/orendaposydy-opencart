@@ -9,6 +9,7 @@
  *   view/* /after                   → page()      заповнює <!--kristal:head--> у шапці: compat (jQuery/Bootstrap) для чужих шаблонів, noindex
  *   controller/common/menu/before   → skip()      меню ядра не будуємо (N+1) — у темі власне з кешу
  *   controller/common/cart/before   → skip()      випадний кошик ядра не потрібен (рахує підсумки) — у темі лише лічильник
+ * Пошук (027): k_search_* — адреса сторінки, маршрут підказок, ліниве підключення kristal-search.js.
  *
  * Усе вмикається лише коли вибрано каталог теми `kristal`; з `sauco` ці події нічого не роблять.
  */
@@ -16,7 +17,7 @@ class ControllerExtensionKristalTheme extends Controller {
 	const PLACEHOLDER = '<!--kristal:head-->';
 
 	/** Маршрути шаблонів, які не індексуються */
-	private static $noindex = array('error/not_found', 'kristal/styleguide');
+	private static $noindex = array('error/not_found', 'kristal/styleguide', 'extension/kristal/search');
 
 	/** Спільні дані шапки/футера за запит (контролер створюється заново на кожну подію) */
 	private static $shared = null;
@@ -182,6 +183,22 @@ class ControllerExtensionKristalTheme extends Controller {
 			'k_cart_href'  => $this->url->link('checkout/cart'),
 			'k_cart_count' => $this->cartPositions()
 		);
+
+		// Пошук (027): адреса з кешу (без запиту oc_seo_url на кожній сторінці); без ЧПУ — route прихованим полем форми
+		$this->load->model('extension/kristal/search');
+		$search = $this->model_extension_kristal_search->href();
+		$hidden = array();
+		parse_str((string)parse_url($search, PHP_URL_QUERY), $hidden);
+
+		self::$shared['k_search_href'] = $search;
+		self::$shared['k_search_route'] = isset($hidden['route']) && is_string($hidden['route']) ? $hidden['route'] : '';
+		self::$shared['k_search_js'] = $this->asset('js/kristal-search.js');
+		self::$shared['k_search_suggest'] = 'index.php?route=extension/kristal/search/suggest';
+		self::$shared['k_search_q'] = '';
+
+		if (isset($this->request->get['route']) && $this->request->get['route'] === 'extension/kristal/search' && isset($this->request->get['q']) && is_scalar($this->request->get['q'])) {
+			self::$shared['k_search_q'] = \Kristal\Search::cut(html_entity_decode((string)$this->request->get['q'], ENT_QUOTES, 'UTF-8'));
+		}
 
 		// Шаблонам сторінок (404, «Дякуємо») — через мовні дані: event/language ядра додає їх у кожен view
 		$cats = self::$shared['k_cats'];

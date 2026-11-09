@@ -81,17 +81,17 @@ kristal_search_log
 - [x] `0010_kristal_search.{up,down}.sql`, `{{PREFIX}}`, ідемпотентно (`IF NOT EXISTS`, `DELETE` перед `INSERT`, `NOT EXISTS` для ЧПУ).
 - [x] InnoDB, utf8mb4, PK, `kristal_*`; `item_id INT(11)` як `product_id` ядра; без FOREIGN KEY.
 - [x] Індекси: PK `(word, type, item_id)` — префіксний пошук; `idx_item_type` — видалення; `idx_last_at` — журнал. Ключ PK: 32×4+1+4 = 133 байти < 3072.
-- [ ] `make migrate`, `make db-check`, `make db-schema-diff`, `make db-explain`, `make migrate-down V=0010 && make migrate`, `make db-schema-snapshot`.
+- [x] `make migrate`, `make db-check` (після `idx_item_type`), `make db-schema-diff` (= 2 таблиці), `make db-explain`, `make migrate-down V=0011 && make migrate-down V=0010 && make migrate`, `make db-schema-snapshot`.
 
 ## Запити та індекси
 | Де викликається | Запит (скорочено) | Індекс | EXPLAIN type / rows |
 |---|---|---|---|
-| `find()` — підказки й сторінка (кеш на запит) | `SELECT m.item_id, pd.name, p.price, p.image, p.sort_order, r.unit, r.is_hit, su.keyword FROM (SELECT item_id FROM kristal_search_word WHERE type='p' AND (word LIKE 'тарі%' OR word LIKE 'біла%') GROUP BY item_id HAVING COUNT(DISTINCT CASE …) = 2 LIMIT 500) m JOIN product p … JOIN product_to_store … JOIN product_description … LEFT JOIN kristal_product_rental … LEFT JOIN seo_url su ON su.query = CONCAT('product_id=', p.product_id) …` | PK `kristal_search_word` (range); PK ядра для join; `seo_url.query` | заповнюється в T5 |
+| `find()` — підказки й сторінка (кеш на запит) | `SELECT p.product_id, pd.name, p.price, p.image, r.unit, r.is_hit, su.keyword FROM (SELECT item_id FROM kristal_search_word w WHERE type='p' AND ((word LIKE 'біла%') OR (word LIKE 'тарі%' OR word LIKE <синонім>%)) GROUP BY item_id HAVING MAX(умова 1) = 1 AND MAX(умова 2) = 1 LIMIT 2000) m JOIN product p … JOIN product_to_store … JOIN product_description … LEFT JOIN kristal_product_rental … LEFT JOIN seo_url su ON su.query = CONCAT('product_id=', p.product_id) …` | PK `kristal_search_word` (range); PK ядра для join; `seo_url.query` | ✔ `w` — `range` PRIMARY, 23 рядки («біла тарі»), *Using temporary; Using filesort* — це `GROUP BY item_id` лише по рядках, що збіглися (не по всій таблиці; на 5000 товарів — сотні рядків), результат у кеші; `p`, `r`, `p2s`, `pd` — `eq_ref`; `su` — `ref` по `query` |
 | `log()` — нуль результатів на сторінці | `INSERT … ON DUPLICATE KEY UPDATE hits = hits + 1, last_at = NOW()`; 1 з 100 — `DELETE WHERE last_at < NOW() - INTERVAL 90 DAY` | PK, `idx_last_at` | — |
 | `suggest()` — промах кешу | `Kristal\Rate_limit::hit()` (019): INSERT + SELECT за PK | PK `kristal_rate_limit` | (019) |
-| Адмінка: журнал | `SELECT query, hits, last_at FROM kristal_search_log WHERE last_at > NOW() - INTERVAL 90 DAY ORDER BY hits DESC LIMIT 50` | `idx_last_at` (range) + filesort по hits — таблиця мала, лише адмінка | заповнюється в T5 |
-| Адмінка: індекс товару | `DELETE FROM kristal_search_word WHERE type='p' AND item_id=?`; `SELECT pd.name, p.sku …`; `INSERT … VALUES (…),(…)` | `idx_item_type` | заповнюється в T5 |
-| Адмінка: повна перебудова | `TRUNCATE`; `SELECT product_id, name, sku` (усі мови) пачками; `INSERT` по 500 рядків | — | разова дія |
+| Адмінка: журнал | `SELECT query, hits, last_at FROM kristal_search_log WHERE last_at > NOW() - INTERVAL 90 DAY ORDER BY hits DESC LIMIT 50` | `idx_last_at` (range) + filesort по hits — таблиця мала, лише адмінка | ✔ локально `ALL` по 3 рядках (оптимізатор не бере індекс на крихітній таблиці) + filesort; лише адмінка, до кількох тисяч рядків за 90 днів |
+| Адмінка: індекс товару | `DELETE FROM kristal_search_word WHERE type='p' AND item_id=?`; `SELECT pd.name, p.sku …`; `INSERT … VALUES (…),(…)` | `idx_item_type` | ✔ DELETE — `range` `idx_item_type`, 7 рядків |
+| Адмінка: повна перебудова | `DELETE FROM kristal_search_word` (не `TRUNCATE` — на спільному хостингу потрібне право DROP); `SELECT product_id, name, sku` (усі мови) пачками по 1000 товарів; `INSERT IGNORE` по 500 рядків | PK `product` (range) | разова дія |
 
 ## Кешування
 - `kristal.search.q.<store>.<lang>.<md5(нормалізований запит)>` — результат `find()`: впорядковані id, рядки для підказок (назва, ціна, фото, посилання), категорії, прапорець розкладки. Обмеження 500 id.
@@ -108,6 +108,7 @@ kristal_search_log
 - 360 px: панель пошуку — під шапкою на всю ширину, список до 60vh з прокруткою; на ≥ 1024 — випадна під лупою, 480 px.
 
 До (2026-11-09, після відновлення локальної бази): `/` — 75 запитів, `/posud/tarilky` — 171.
+Після: `/` — 75 (не змінилось), `/poshuk?q=тарілка` — 72, `/poshuk?q=см&page=2` — 72, `/poshuk?q=zzzzqq` — 70; підказки — 18 базових ядра + 3 власні (новий запит) / + 0 (повтор).
 
 ## Ризики і відкат
 | Ризик | Ймовірність | Що робимо |

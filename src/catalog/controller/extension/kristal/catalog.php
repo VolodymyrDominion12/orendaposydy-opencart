@@ -130,11 +130,22 @@ class ControllerExtensionKristalCatalog extends Controller {
 	/**
 	 * Картки товарів для інших сторінок (головна 004, комплекти 007): $this->load->controller('extension/kristal/catalog/cards', $ids).
 	 * Той самий вигляд, що в категорії: [['product_id', 'name', 'href', 'k' => [...]], ...] у порядку $product_ids. 2 запити пакетом.
+	 * Або ['ids' => [...], 'hrefs' => [id => url], 'eager' => N] — готові посилання (пошук 027), без url->link() (запит oc_seo_url)
+	 * на кожну картку; перші N зображень без lazy (перший екран).
 	 */
 	public function cards($product_ids = array()) {
 		$this->load->language('extension/kristal/catalog');
 		$this->load->model('extension/kristal/catalog');
 		$this->load->model('extension/kristal/media');
+
+		$hrefs = array();
+		$eager = 0;
+
+		if (is_array($product_ids) && isset($product_ids['ids'])) {
+			$hrefs = isset($product_ids['hrefs']) ? (array)$product_ids['hrefs'] : array();
+			$eager = isset($product_ids['eager']) ? (int)$product_ids['eager'] : 0;
+			$product_ids = $product_ids['ids'];
+		}
 
 		$ids = array_values(array_filter(array_map('intval', (array)$product_ids)));
 		$rows = $this->model_extension_kristal_catalog->getProducts($ids);
@@ -146,8 +157,9 @@ class ControllerExtensionKristalCatalog extends Controller {
 				continue;
 			}
 
-			$product = array('product_id' => $id, 'name' => $rows[$id]['name'], 'href' => $this->url->link('product/product', 'product_id=' . $id));
-			$product['k'] = $this->card($product, $rows, $discounts, false);
+			$href = isset($hrefs[$id]) ? $hrefs[$id] : $this->url->link('product/product', 'product_id=' . $id);
+			$product = array('product_id' => $id, 'name' => $rows[$id]['name'], 'href' => $href);
+			$product['k'] = $this->card($product, $rows, $discounts, count($cards) < $eager);
 			$cards[] = $product;
 		}
 

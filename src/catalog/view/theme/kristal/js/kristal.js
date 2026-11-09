@@ -334,3 +334,65 @@
   var buy = doc.querySelector('[data-k-buy]');
   if (buy) updateSum(buy);
 })();
+
+/* ---------- 027: панель пошуку ----------
+   Лупа відкриває панель під шапкою й ставить фокус у поле; Esc / «×» / тап поза панеллю — закриває.
+   Підказки (kristal-search.js) підключаються лише при першому відкритті чи фокусі поля — до того сторінка їх не вантажить.
+   Без JS лупа — звичайне посилання на сторінку пошуку. */
+(function () {
+  'use strict';
+
+  var doc = document, panel = doc.querySelector('[data-k-search]');
+  if (!panel) return;
+
+  var form = panel.querySelector('[data-k-search-form]'), input = form.querySelector('input[name="q"]');
+  var openers = doc.querySelectorAll('[data-k-search-open]'), opener = null, loaded = false;
+
+  function load() {
+    if (loaded || !window.fetch) return;
+    loaded = true;
+    var s = doc.createElement('script');
+    s.src = form.getAttribute('data-js');
+    s.async = true;
+    doc.head.appendChild(s);
+  }
+
+  function setExpanded(state) {
+    openers.forEach(function (b) { b.setAttribute('aria-expanded', state ? 'true' : 'false'); });
+  }
+
+  function open(trigger) {
+    opener = trigger || null;
+    panel.hidden = false;
+    setExpanded(true);
+    load();
+    input.focus();
+    var v = input.value; input.value = ''; input.value = v; // курсор у кінець
+  }
+
+  function close(restore) {
+    if (panel.hidden) return;
+    panel.hidden = true;
+    setExpanded(false);
+    doc.dispatchEvent(new CustomEvent('k-search-close'));
+    if (restore && opener && opener.focus) opener.focus();
+  }
+
+  openers.forEach(function (b) {
+    b.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (panel.hidden) open(b); else close(true);
+    });
+  });
+
+  panel.querySelector('[data-k-search-close]').addEventListener('click', function () { close(true); });
+  input.addEventListener('focus', load);
+
+  doc.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !panel.hidden) close(true);
+  });
+
+  doc.addEventListener('click', function (e) {
+    if (!panel.hidden && !panel.contains(e.target) && !e.target.closest('[data-k-search-open]')) close(false);
+  });
+})();

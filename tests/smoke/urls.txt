@@ -35,3 +35,9 @@
 # 001: старі категорії приховані → 404. Фіча 002 замінить на 301 (tests/smoke/redirects.txt)
 /salati                             404
 /orenda-prokat-mebliv               404
+
+# 027: пошук (noindex — canonical не ставиться навмисно)
+/poshuk                                                  200  allow=canonical # 027: порожній запит — поле й популярні розділи
+/poshuk?q=%D1%82%D0%B0%D1%80%D1%96%D0%BB%D0%BA%D0%B0     200  allow=canonical # 027: «тарілка» — результати
+/poshuk?q=%D1%81%D0%BC&page=2                            200  allow=canonical # 027: друга сторінка результатів
+/poshuk?q=zzzzqq                                         200  allow=canonical # 027: нічого не знайдено

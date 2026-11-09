@@ -1,0 +1,110 @@
+{# Фіча 027: сторінка результатів пошуку. ks_q — сирий текст клієнта → лише через |e (AC-10). Картки — як у категорії 005. #}
+{{ header }}
+<div class="k-wrap k-page">
+  <nav aria-label="{{ k_crumbs }}">
+    <ol class="k-crumbs">
+      {% for breadcrumb in breadcrumbs %}
+      <li>{% if loop.last %}<span aria-current="page">{{ breadcrumb.text }}</span>{% else %}<a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a>{% endif %}</li>
+      {% endfor %}
+    </ol>
+  </nav>
+
+  <div class="k-cathead">
+    <h1 class="k-h1">{% if ks_searched %}{{ ks_h1|format(ks_q|e) }}{% else %}{{ ks_h1_empty }}{% endif %}</h1>
+    <form class="k-searchpage__form" action="{{ ks_action }}" method="get" role="search">
+      {% for field in ks_hidden %}<input type="hidden" name="{{ field.name|e }}" value="{{ field.value|e }}">{% endfor %}
+      <label class="k-sr" for="k-searchpage-q">{{ ks_label }}</label>
+      <input class="k-input" id="k-searchpage-q" type="search" name="q" value="{{ ks_q|e }}" placeholder="{{ ks_placeholder }}" maxlength="64" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="search" enterkeyhint="search">
+      <button class="k-btn k-btn--primary" type="submit"><svg class="k-ico"><use href="#i-search"/></svg>{{ ks_submit }}</button>
+    </form>
+    {% if ks_layout %}<p class="k-muted">{{ ks_layout_text|format(ks_layout|e) }}</p>{% endif %}
+    {% if ks_categories %}
+    <nav class="k-chips" aria-label="{{ ks_categories_label }}">
+      {% for category in ks_categories %}
+      <a class="k-chip" href="{{ category.href }}">{{ category.name }}</a>
+      {% endfor %}
+    </nav>
+    {% endif %}
+  </div>
+
+  {% if products %}
+  <div class="k-toolbar">
+    <p class="k-results" role="status">{{ ks_found_text }}</p>
+  </div>
+
+  <div class="k-grid k-grid--4" data-k-grid>
+    {% for product in products %}
+    <article class="k-card">
+      <a class="k-card__media" href="{{ product.href }}" tabindex="-1" aria-hidden="true">
+        {% if product.k.is_hit %}<span class="k-badge k-badge--hit">{{ kc_hit }}</span>{% endif %}
+        <img src="{{ product.k.img.src }}"{% if product.k.img.srcset %} srcset="{{ product.k.img.srcset }}" sizes="(min-width: 1280px) 290px, (min-width: 1024px) 23vw, (min-width: 768px) 31vw, 47vw"{% endif %} width="{{ product.k.img.width }}" height="{{ product.k.img.height }}" alt="{{ product.name }}"{% if not product.k.eager %} loading="lazy"{% endif %}>
+      </a>
+      <div class="k-card__body">
+        <h2 class="k-card__name"><a href="{{ product.href }}">{{ product.name }}</a></h2>
+        {% if product.k.excerpt %}<p class="k-card__excerpt">{{ product.k.excerpt }}</p>{% endif %}
+        {% if product.k.price %}<p class="k-card__price"><span class="k-price">{{ product.k.price }}</span> <span class="k-buy__unit">{{ product.k.per }}</span></p>{% endif %}
+        {% if product.k.min_text %}<p class="k-card__meta">{{ product.k.min_text }}</p>{% endif %}
+        {% if product.k.best %}<p class="k-card__vol">{{ product.k.best }}</p>{% endif %}
+        <form class="k-card__foot" action="{{ product.href }}" method="get" data-k-add data-k-min="{{ product.k.minimum }}" data-k-hint="{{ product.k.min_hint }}">
+          <input type="hidden" name="product_id" value="{{ product.product_id }}">
+          <div class="k-qty">
+            <button type="button" data-k-step="-1" aria-label="{{ kc_less }}"><svg class="k-ico"><use href="#i-minus"/></svg></button>
+            <input type="number" name="quantity" value="{{ product.k.minimum }}" min="{{ product.k.minimum }}" inputmode="numeric" aria-label="{{ kc_qty }}: {{ product.name }}">
+            <button type="button" data-k-step="1" aria-label="{{ kc_more_qty }}"><svg class="k-ico"><use href="#i-plus"/></svg></button>
+          </div>
+          <button class="k-btn k-btn--secondary k-btn--sm" type="submit">{{ kc_add }}</button>
+          <p class="k-card__hint" aria-live="polite"></p>
+        </form>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+
+  {% if pagination %}
+  <div class="k-grid__end">
+    <a class="k-btn k-btn--ghost k-more" href="#" data-k-more hidden>{{ kc_load_more }}</a>
+    <nav class="k-pager" aria-label="{{ ks_crumb }}" data-k-pager>{{ pagination }}</nav>
+  </div>
+  {% endif %}
+
+  {% else %}
+  <div class="k-searchpage__none">
+    {% if ks_searched %}
+    <p class="k-h2" role="status">{{ ks_none|format(ks_q|e) }}</p>
+    <p class="k-lead">{{ ks_none_hint }}</p>
+    {% else %}
+    <p class="k-lead">{{ ks_short }}</p>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% if ks_popular %}
+  <section class="k-section-sm" aria-labelledby="k-popular">
+    <h2 class="k-h2" id="k-popular">{{ ks_popular_title }}</h2>
+    <div class="k-cats">
+      {% for cat in ks_popular %}
+      <a class="k-cat" href="{{ cat.href }}">
+        <svg class="k-ico"><use href="#i-{{ cat.icon }}"/></svg>
+        <span class="k-cat__name">{{ cat.name }}</span>
+        {% if cat.price %}<span class="k-cat__price">{{ cat.price }}</span>{% endif %}
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+
+  <aside class="k-leadbox k-searchpage__help">
+    <div>
+      <span class="k-label k-label--gold">{{ ks_help_label }}</span>
+      <p class="k-h2">{{ ks_help_title }}</p>
+      <p>{{ ks_help_text }}</p>
+    </div>
+    <div class="k-messengers">
+      {% if k_phone_tel %}<a class="k-btn k-btn--primary" href="{{ k_phone_tel }}"><svg class="k-ico"><use href="#i-phone"/></svg><span class="k-mono">{{ k_phone_display }}</span></a>{% endif %}
+      {% if k_viber_href %}<a class="k-btn k-btn--ghost" href="{{ k_viber_href }}"><svg class="k-ico"><use href="#i-viber"/></svg>Viber</a>{% endif %}
+      {% if k_telegram_href %}<a class="k-btn k-btn--ghost" href="{{ k_telegram_href }}" rel="noopener"><svg class="k-ico"><use href="#i-telegram"/></svg>Telegram</a>{% endif %}
+    </div>
+  </aside>
+  {% endif %}
+</div>
+<div class="k-toast" role="status" aria-live="polite" data-k-toast data-k-ok="{{ kc_added }}" data-k-err="{{ kc_add_error }}" hidden><span data-k-toast-text></span><a href="{{ k_cart_url }}">{{ kc_go_cart }}</a></div>
+{{ footer }}

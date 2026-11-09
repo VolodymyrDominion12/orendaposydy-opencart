@@ -81,6 +81,7 @@ spec.md  →  plan.md  →  tasks.md  →  реалізація  →  verify  �
   | JSON-LD | `\Kristal\Jsonld::localBusiness()`, `render()` |
   | Лог без персональних даних | `new \Kristal\Log()` → `storage/logs/kristal.log` (не реєструй як `log` — це ядровий логер) |
   | Скинути кеш наших модулів | `\Kristal\Cache_key::flush($this->cache)` |
+  | Пошук: нормалізація тексту, слова для індексу, префікси запиту, англ. розкладка, синоніми, ранжування | `\Kristal\Search` |
   | Дерево меню, графік текстом, іконка категорії (тема) | `\Kristal\Theme::menuTree()`, `hoursText()`, `icon()` |
   | Оренда: одиниці, «14 ₴», ціна за порогами знижок (як у кошику), рядки таблиці знижок | `\Kristal\Rental::money()`, `unitPrice()`, `tierRows()`, `unit()` |
   | Зображення вітрини: WebP, обрізання по центру, без збільшення, кеш `image/cache/kristal/` | `\Kristal\Image::make()`; у контролері — `model extension/kristal/media->image($file, ModelExtensionKristalMedia::CARD)` → `src`, `srcset`, `width`, `height` |
@@ -95,6 +96,9 @@ spec.md  →  plan.md  →  tasks.md  →  реалізація  →  verify  �
   - **Каталог (005):** умови оренди — таблиця `kristal_product_rental` (вкладка «Оренда» в адмінці подією); дані для карток — подіями `view/product/{category,product}/before` (`extension/kristal/catalog`), пакетом `IN (...)`. Картку товару в новому місці (головна, комплекти) рендерити тим самим HTML `k-card` з `data-k-add`, дані — `ModelExtensionKristalCatalog::getProducts()/getDiscounts()`.
   - **Зображення (020):** не `model/tool/image->resize()`, а `extension/kristal/media` (WebP + `srcset` 1×/2×). У шаблоні: `<img src srcset sizes width height alt>`; перше зображення екрана — `fetchpriority="high"`, решта — `loading="lazy"`. Після масового імпорту — `make images-warm`.
   - **Головна (004):** тексти — «Модулі → Крістал: головна» (`module_kristal_home_*`); дані — подія `view/common/home/before` (`extension/kristal/home`); title головної — подія `controller/common/header/before`. Картки товарів на будь-якій сторінці: `$this->load->controller('extension/kristal/catalog/cards', $ids)`.
+  - **Пошук (027):** `/poshuk?q=…` — `extension/kristal/search` (noindex), підказки — `extension/kristal/search/suggest` (JSON). Слова — `\Kristal\Search`,
+    індекс — таблиця `kristal_search_word`, оновлюється подіями адмінки на товар/категорію. **Після прямого SQL-імпорту товарів (мок-міграції, 022) —
+    «Модулі → Крістал: пошук» → «Перебудувати індекс»** (модель адмінки `extension/kristal/search`). Синоніми — там само. Адреса пошуку в шаблонах — `k_search_href`.
   - Новий шаблон сторінки: `{{ header }}` → `<div class="k-wrap k-page">` + крихти `k-crumbs` + рівно один `h1` → `{{ footer }}`. Неіндексовані маршрути — у `ControllerExtensionKristalTheme::$noindex`.
 - Префікс усього нашого: **`kristal_`** (модулі, події, таблиці, налаштування, CSS-класи `k-`).
 - Доступ до БД — лише `$this->db->query()` з **`DB_PREFIX`**; числа через `(int)`/`(float)`, рядки через `$this->db->escape()`.

@@ -116,6 +116,7 @@
       {% endif %}
       <li><a class="k-nav__a" href="#contacts">{{ k_contacts }}</a></li>
     </ul>
+    <a class="k-iconbtn k-header__search" href="{{ k_search_href }}" data-k-search-open aria-controls="k-search" aria-expanded="false" aria-label="{{ k_search_label }}"><svg class="k-ico"><use href="#i-search"/></svg></a>
     {% if k_phone %}
     <a class="k-header__phone" href="{{ k_phone.tel }}">{{ k_phone.display }}</a>
     <a class="k-iconbtn k-header__phone-m" href="{{ k_phone.tel }}" aria-label="{{ k_call }} {{ k_phone.display }}"><svg class="k-ico"><use href="#i-phone"/></svg></a>
@@ -125,12 +126,33 @@
   </div>
 </header>
 
+{# Пошук (027): панель під шапкою; підказки — kristal-search.js, підключається при першому відкритті. Без JS лупа веде на сторінку пошуку. #}
+<div class="k-search" id="k-search" data-k-search hidden>
+  <div class="k-wrap">
+    <form class="k-search__form" action="{{ k_search_href }}" method="get" role="search" data-k-search-form data-suggest="{{ k_search_suggest }}" data-js="{{ k_search_js }}" data-t-all="{{ k_search_all }}" data-t-none="{{ k_search_none }}" data-t-count="{{ k_search_count }}" data-t-cat="{{ k_search_cat }}">
+      {% if k_search_route %}<input type="hidden" name="route" value="{{ k_search_route|e }}">{% endif %}
+      <label class="k-sr" for="k-search-q">{{ k_search_label }}</label>
+      <svg class="k-ico k-search__ico" aria-hidden="true"><use href="#i-search"/></svg>
+      <input class="k-input k-search__input" id="k-search-q" type="search" name="q" value="{{ k_search_q|e }}" placeholder="{{ k_search_placeholder }}" maxlength="64" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="search" enterkeyhint="search" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="k-search-list">
+      <button class="k-iconbtn" type="button" data-k-search-close aria-label="{{ k_search_close }}"><svg class="k-ico"><use href="#i-close"/></svg></button>
+    </form>
+    <div class="k-search__list" id="k-search-list" role="listbox" aria-label="{{ k_search_results }}" hidden></div>
+    <p class="k-sr" aria-live="polite" data-k-search-status></p>
+  </div>
+</div>
+
 <div class="k-drawer" id="menu" role="dialog" aria-modal="true" aria-label="{{ k_menu }}">
   <div class="k-drawer__head">
     <a class="k-logo" href="{{ k_home }}" aria-label="{{ k_home_aria }}"><img src="{{ k_logo }}" width="44" height="44" alt="" loading="lazy"><span class="k-logo__word">{{ k_brand }}</span></a>
     <a class="k-iconbtn" href="#" data-k-close aria-label="{{ k_menu_close }}"><svg class="k-ico"><use href="#i-close"/></svg></a>
   </div>
   <nav aria-label="{{ k_menu }}">
+    <form class="k-drawer__search" action="{{ k_search_href }}" method="get" role="search">
+      {% if k_search_route %}<input type="hidden" name="route" value="{{ k_search_route|e }}">{% endif %}
+      <label class="k-sr" for="k-drawer-q">{{ k_search_label }}</label>
+      <input class="k-input" id="k-drawer-q" type="search" name="q" placeholder="{{ k_search_placeholder }}" maxlength="64" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="search" enterkeyhint="search">
+      <button class="k-iconbtn" type="submit" aria-label="{{ k_search_submit }}"><svg class="k-ico"><use href="#i-search"/></svg></button>
+    </form>
     {% if k_cats %}
     <p class="k-label k-drawer__label">{{ k_catalog }}</p>
     {% for top in k_cats %}
