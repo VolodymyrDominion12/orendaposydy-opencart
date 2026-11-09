@@ -600,6 +600,20 @@ CREATE TABLE `oc_kristal_rate_limit` (
   PRIMARY KEY (`key_hash`),
   KEY `idx_window_start` (`window_start`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `oc_kristal_search_log` (
+  `query` varchar(64) NOT NULL,
+  `hits` int(11) NOT NULL DEFAULT 1,
+  `last_at` datetime NOT NULL,
+  PRIMARY KEY (`query`),
+  KEY `idx_last_at` (`last_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `oc_kristal_search_word` (
+  `word` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `type` char(1) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
+  `item_id` int(11) NOT NULL,
+  PRIMARY KEY (`word`,`type`,`item_id`),
+  KEY `idx_item_type` (`item_id`,`type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 CREATE TABLE `oc_kristal_setting_backup` (
   `setting_id` int(11) NOT NULL,
   `store_id` int(11) NOT NULL,

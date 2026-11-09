@@ -64,7 +64,7 @@ kristal_search_word
   type     CHAR(1) ascii  — 'p' товар, 'c' категорія
   item_id  INT(11)
   PRIMARY KEY (word, type, item_id)        — пошук: діапазон word LIKE 'x%'
-  KEY idx_type_item (type, item_id)        — DELETE слів одного товару при збереженні
+  KEY idx_item_type (item_id, type)        — DELETE слів одного товару при збереженні
 
 kristal_search_log
   query    VARCHAR(64) utf8mb4_general_ci  — нормалізований запит (без IP і будь-чого про клієнта)
@@ -78,9 +78,9 @@ kristal_search_log
 - [x] У плані описано таблиці, індекси й запити.
 - [x] У ядрі немає словникового індексу (`product/search` ядра — `LIKE '%…%'`).
 - [x] Ядрові таблиці не змінюються (лише рядок у `oc_seo_url` і `oc_event`, `oc_setting` — дані).
-- [ ] `0010_kristal_search.{up,down}.sql`, `{{PREFIX}}`, ідемпотентно (`IF NOT EXISTS`, `DELETE` перед `INSERT`, `NOT EXISTS` для ЧПУ).
-- [ ] InnoDB, utf8mb4, PK, `kristal_*`; `item_id INT(11)` як `product_id` ядра; без FOREIGN KEY.
-- [ ] Індекси: PK `(word, type, item_id)` — префіксний пошук; `idx_type_item` — видалення; `idx_last_at` — журнал. Ключ PK: 32×4+1+4 = 133 байти < 3072.
+- [x] `0010_kristal_search.{up,down}.sql`, `{{PREFIX}}`, ідемпотентно (`IF NOT EXISTS`, `DELETE` перед `INSERT`, `NOT EXISTS` для ЧПУ).
+- [x] InnoDB, utf8mb4, PK, `kristal_*`; `item_id INT(11)` як `product_id` ядра; без FOREIGN KEY.
+- [x] Індекси: PK `(word, type, item_id)` — префіксний пошук; `idx_item_type` — видалення; `idx_last_at` — журнал. Ключ PK: 32×4+1+4 = 133 байти < 3072.
 - [ ] `make migrate`, `make db-check`, `make db-schema-diff`, `make db-explain`, `make migrate-down V=0010 && make migrate`, `make db-schema-snapshot`.
 
 ## Запити та індекси
@@ -90,7 +90,7 @@ kristal_search_log
 | `log()` — нуль результатів на сторінці | `INSERT … ON DUPLICATE KEY UPDATE hits = hits + 1, last_at = NOW()`; 1 з 100 — `DELETE WHERE last_at < NOW() - INTERVAL 90 DAY` | PK, `idx_last_at` | — |
 | `suggest()` — промах кешу | `Kristal\Rate_limit::hit()` (019): INSERT + SELECT за PK | PK `kristal_rate_limit` | (019) |
 | Адмінка: журнал | `SELECT query, hits, last_at FROM kristal_search_log WHERE last_at > NOW() - INTERVAL 90 DAY ORDER BY hits DESC LIMIT 50` | `idx_last_at` (range) + filesort по hits — таблиця мала, лише адмінка | заповнюється в T5 |
-| Адмінка: індекс товару | `DELETE FROM kristal_search_word WHERE type='p' AND item_id=?`; `SELECT pd.name, p.sku …`; `INSERT … VALUES (…),(…)` | `idx_type_item` | заповнюється в T5 |
+| Адмінка: індекс товару | `DELETE FROM kristal_search_word WHERE type='p' AND item_id=?`; `SELECT pd.name, p.sku …`; `INSERT … VALUES (…),(…)` | `idx_item_type` | заповнюється в T5 |
 | Адмінка: повна перебудова | `TRUNCATE`; `SELECT product_id, name, sku` (усі мови) пачками; `INSERT` по 500 рядків | — | разова дія |
 
 ## Кешування
