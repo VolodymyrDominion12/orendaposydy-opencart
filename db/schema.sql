@@ -551,6 +551,15 @@ CREATE TABLE `oc_information_to_store` (
   `store_id` int(11) NOT NULL,
   PRIMARY KEY (`information_id`,`store_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `oc_kristal_404_log` (
+  `path` varchar(255) NOT NULL,
+  `hits` int(11) NOT NULL DEFAULT 1,
+  `referer` varchar(255) NOT NULL DEFAULT '',
+  `last_at` datetime NOT NULL,
+  PRIMARY KEY (`path`),
+  KEY `idx_hits` (`hits`),
+  KEY `idx_last_at` (`last_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 CREATE TABLE `oc_kristal_calc_norm` (
   `norm_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `category_type` varchar(32) NOT NULL DEFAULT 'plates',
@@ -749,6 +758,18 @@ CREATE TABLE `oc_kristal_rate_limit` (
   `window_start` datetime NOT NULL,
   PRIMARY KEY (`key_hash`),
   KEY `idx_window_start` (`window_start`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `oc_kristal_redirect` (
+  `redirect_id` int(11) NOT NULL AUTO_INCREMENT,
+  `old_path` varchar(255) NOT NULL,
+  `new_path` varchar(255) NOT NULL,
+  `code` smallint(4) NOT NULL DEFAULT 301,
+  `status` tinyint(1) NOT NULL DEFAULT 1,
+  `hits` int(11) NOT NULL DEFAULT 0,
+  `last_hit_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`redirect_id`),
+  UNIQUE KEY `uq_old_path` (`old_path`),
+  KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 CREATE TABLE `oc_kristal_search_log` (
   `query` varchar(64) NOT NULL,

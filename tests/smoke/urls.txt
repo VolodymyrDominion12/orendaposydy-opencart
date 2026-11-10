@@ -35,9 +35,6 @@
 /stilets-chiavari-bilyi             200                    # 005: шаблон теми
 /shatro-5-10-m-na-50-hostei         200                    # 005: шаблон теми
 
-# 001: старі категорії приховані → 404. Фіча 002 замінить на 301 (tests/smoke/redirects.txt)
-/salati                             404
-/orenda-prokat-mebliv               404
 
 # 027: пошук (noindex — canonical не ставиться навмисно)
 /poshuk                                                  200  allow=canonical # 027: порожній запит — поле й популярні розділи

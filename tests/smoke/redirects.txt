@@ -1,8 +1,9 @@
 # 301-редиректи:  старий_шлях  новий_шлях
 # Заповнюється у фічі 002 з таблиці «URL і 301-редиректи» концепції.
-#
-# /salati/bilij-posud            /posud/tarilky
-# /orenda-prokat-mebliv          /mebli
+# 002: спадкові URL зі старого сайту
+/salati                             /stolovi-prybory
+/salati/bilij-posud                 /posud/tarilky
+/orenda-prokat-mebliv               /mebli
 
 # 021: фільтри — канонічна адреса й SEO-сторінки
 /posud?filter=kolir-bilyi_material-portseliana   /posud?filter=material-portseliana_kolir-bilyi

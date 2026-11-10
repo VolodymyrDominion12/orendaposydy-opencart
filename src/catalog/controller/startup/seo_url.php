@@ -21,6 +21,31 @@ class ControllerStartupSeoUrl extends Controller {
 			$this->url->addRewrite($this);
 		}
 
+		// 002: Перевірка 301-редиректів до декодування URL
+		$req_uri = isset($this->request->server['REQUEST_URI']) ? $this->request->server['REQUEST_URI'] : '';
+		$norm_path = \Kristal\Redirect::normalize($req_uri);
+		$rules = \Kristal\Redirect::getRules($this->db, $this->cache);
+
+		if (isset($rules[$norm_path])) {
+			$rule = $rules[$norm_path];
+			\Kristal\Redirect::recordHit($this->db, $rule['id']);
+
+			$target = $rule['new_path'];
+			if (strpos($target, 'http://') !== 0 && strpos($target, 'https://') !== 0) {
+				$base = isset($this->request->server['HTTPS']) && (($this->request->server['HTTPS'] == 'on') || ($this->request->server['HTTPS'] == '1')) ? HTTPS_SERVER : HTTP_SERVER;
+				$target = rtrim($base, '/') . '/' . ltrim($target, '/');
+			}
+
+			$query = parse_url($req_uri, PHP_URL_QUERY);
+			if ($query) {
+				$target .= (strpos($target, '?') !== false ? '&' : '?') . $query;
+			}
+
+			$code = $rule['code'] ? (int)$rule['code'] : 301;
+			$this->response->redirect($target, $code);
+			return;
+		}
+
 		// Decode URL
 		if (isset($this->request->get['_route_'])) {
 			$parts = explode('/', $this->request->get['_route_']);

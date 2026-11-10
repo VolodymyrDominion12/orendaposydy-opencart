@@ -1,0 +1,22 @@
+# 002 — Задачі реалізації
+
+- [x] **T1. Бібліотека `Kristal\Redirect` та юніт-тести**
+  - [x] Створити `src/system/library/kristal/redirect.php` з методами `normalize`, `getRules`, `recordHit`, `log404`.
+  - [x] Створити тести `tests/lib/redirect_test.php`.
+  - [x] Прогнати `make test-lib T=redirect`.
+- [x] **T2. Міграція бази даних `0021_kristal_redirect`**
+  - [x] Створити `db/migrations/0021_kristal_redirect.up.sql` (таблиці, подія, базові 301).
+  - [x] Створити `db/migrations/0021_kristal_redirect.down.sql`.
+  - [x] Виконати `make migrate`.
+  - [x] Перевірити `make db-check`, `make db-schema-diff` та `make db-schema-snapshot`.
+- [x] **T3. Вітрина: перехоплення 404 помилок та виконання 301**
+  - [x] Створити контролер `src/catalog/controller/extension/kristal/redirect.php`.
+  - [x] Перевірити обробку редиректів та запис 404 у лог.
+- [x] **T4. Адмінка: модуль керування редиректами та журналом 404**
+  - [x] Створити `src/admin/controller/extension/module/kristal_redirect.php`.
+  - [x] Створити `src/admin/model/extension/kristal/redirect.php`.
+  - [x] Створити `src/admin/view/template/extension/module/kristal_redirect.twig`.
+  - [x] Створити `src/admin/language/uk-ua/extension/module/kristal_redirect.php`.
+- [x] **T5. Smoke-тести та верифікація**
+  - [x] Оновити `tests/smoke/redirects.txt` та `tests/smoke/urls.txt`.
+  - [x] Запустити `make test-smoke`, `make lint`, `make verify`.
