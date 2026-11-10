@@ -126,7 +126,7 @@
   <section class="k-section k-section--line">
     <div class="k-wrap k-cols2">
       <div>
-        <span class="k-label">Відгуки молодят</span>
+        <span class="k-label">Відгуки клієнтів</span>
         <div style="display:grid;gap:var(--space-4);margin-top:var(--space-4)">
           <article class="k-review">
             <div class="k-stars" aria-label="5 з 5">
@@ -136,8 +136,8 @@
               <svg class="k-ico"><use href="#i-star"/></svg>
               <svg class="k-ico"><use href="#i-star"/></svg>
             </div>
-            <p>Замовляли посуд Royal та стільці Chiavari на весілля. Все приїхало ідеально чистим, у зручних боксах, вчасно. Менеджер дуже допоміг із розрахунком потрібної кількості келихів.</p>
-            <span class="k-review__who">Оксана і Тарас · весілля, 110 гостей</span>
+            <p>{{ review.text }}</p>
+            <span class="k-review__who">{{ review.author }}</span>
           </article>
         </div>
       </div>
@@ -156,6 +156,10 @@
     </div>
   </section>
 
+  {% if faq_schema_json %}
+  <script type="application/ld+json">{{ faq_schema_json|raw }}</script>
+  {% endif %}
+
   <!-- Форма розрахунку за 15 хв (kristal_lead) -->
   <section class="k-section k-section--sunken" id="lead">
     <div class="k-wrap k-leadbox">
@@ -171,7 +175,7 @@
       </div>
       <form class="k-panel k-panel--gold k-form" action="{{ k_lead_action }}" method="post" enctype="multipart/form-data" data-k-lead>
         <input type="hidden" name="type" value="calc_15m">
-        <input type="hidden" name="source_url" value="/vesillya">
+        <input type="hidden" name="source_url" value="{{ canonical }}">
         <input type="hidden" name="{{ k_antispam_token_name }}" value="{{ k_antispam_token }}">
         <div class="k-hp" aria-hidden="true"><input type="text" name="{{ k_antispam_hp_name }}" tabindex="-1" autocomplete="off"></div>
 
