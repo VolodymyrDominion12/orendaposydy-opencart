@@ -11,10 +11,17 @@ class ModelExtensionKristalSeo extends Model {
 				AND `language_id` = '" . (int)$language_id . "'
 				LIMIT 1";
 
-		$query = $this->db->query($sql);
+		try {
+			$query = $this->db->query($sql);
 
-		if ($query->num_rows) {
-			return $query->row;
+			if ($query->num_rows) {
+				return $query->row;
+			}
+		} catch (\Exception $e) {
+			return array(
+				'h1'       => '',
+				'seo_text' => ''
+			);
 		}
 
 		return array(

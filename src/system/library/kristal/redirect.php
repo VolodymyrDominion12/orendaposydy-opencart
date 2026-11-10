@@ -50,19 +50,23 @@ class Redirect {
 
 		$rules = array();
 
-		$query = $db->query("SELECT `redirect_id`, `old_path`, `new_path`, `code` FROM `" . DB_PREFIX . "kristal_redirect` WHERE `status` = '1'");
+		try {
+			$query = $db->query("SELECT `redirect_id`, `old_path`, `new_path`, `code` FROM `" . DB_PREFIX . "kristal_redirect` WHERE `status` = '1'");
 
-		foreach ($query->rows as $row) {
-			$norm_old = self::normalize($row['old_path']);
-			$rules[$norm_old] = array(
-				'id'       => (int)$row['redirect_id'],
-				'new_path' => (string)$row['new_path'],
-				'code'     => (int)$row['code']
-			);
-		}
+			foreach ($query->rows as $row) {
+				$norm_old = self::normalize($row['old_path']);
+				$rules[$norm_old] = array(
+					'id'       => (int)$row['redirect_id'],
+					'new_path' => (string)$row['new_path'],
+					'code'     => (int)$row['code']
+				);
+			}
 
-		if ($cache) {
-			$cache->set($cache_key, $rules);
+			if ($cache) {
+				$cache->set($cache_key, $rules);
+			}
+		} catch (\Exception $e) {
+			return array();
 		}
 
 		return $rules;
@@ -80,7 +84,9 @@ class Redirect {
 			return;
 		}
 
-		$db->query("UPDATE `" . DB_PREFIX . "kristal_redirect` SET `hits` = `hits` + 1, `last_hit_at` = NOW() WHERE `redirect_id` = '" . $redirect_id . "'");
+		try {
+			$db->query("UPDATE `" . DB_PREFIX . "kristal_redirect` SET `hits` = `hits` + 1, `last_hit_at` = NOW() WHERE `redirect_id` = '" . $redirect_id . "'");
+		} catch (\Exception $e) {}
 	}
 
 	/**
@@ -119,6 +125,8 @@ class Redirect {
 					`last_at` = NOW(),
 					`referer` = IF(VALUES(`referer`) != '', VALUES(`referer`), `referer`)";
 
-		$db->query($sql);
+		try {
+			$db->query($sql);
+		} catch (\Exception $e) {}
 	}
 }

@@ -15,7 +15,12 @@ class ModelExtensionKristalKit extends Model {
 			AND `status` = '1'
 			ORDER BY `sort_order` ASC";
 
-		$query = $this->db->query($sql);
+		try {
+			$query = $this->db->query($sql);
+		} catch (\Exception $e) {
+			return array();
+		}
+
 		$kits = array();
 
 		foreach ($query->rows as $row) {
