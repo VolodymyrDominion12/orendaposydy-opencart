@@ -4,6 +4,9 @@
 /salati                             /stolovi-prybory
 /salati/bilij-posud                 /posud/tarilky
 /orenda-prokat-mebliv               /mebli
+/oplata                             /dostavka-ta-oplata
+/dostavka                           /dostavka-ta-oplata
+/o-nas                              /pro-nas
 
 # 021: фільтри — канонічна адреса й SEO-сторінки
 /posud?filter=kolir-bilyi_material-portseliana   /posud?filter=material-portseliana_kolir-bilyi

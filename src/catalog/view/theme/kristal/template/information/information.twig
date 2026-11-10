@@ -1,17 +1,37 @@
 {{ header }}
-<div class="k-wrap k-page">
-  <nav aria-label="{{ k_crumbs }}">
+
+<main id="main" class="k-wrap k-page">
+  <nav aria-label="Навігація">
     <ol class="k-crumbs">
       {% for breadcrumb in breadcrumbs %}
       <li>{% if loop.last %}<span aria-current="page">{{ breadcrumb.text }}</span>{% else %}<a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a>{% endif %}</li>
       {% endfor %}
     </ol>
   </nav>
+
   {{ content_top }}
-  <div class="k-page__head">
+
+  <div class="k-page__head" style="margin-bottom:var(--space-6)">
     <h1 class="k-h1">{{ heading_title }}</h1>
   </div>
-  <div class="k-prose">{{ description }}</div>
+
+  <div class="k-prose" style="max-width:80ch;line-height:1.7;font-size:1.05rem">
+    {{ description }}
+  </div>
+
+  <!-- Блок швидкої дії внизу сторінки -->
+  <div class="k-panel k-panel--gold" style="margin-top:var(--space-8);padding:var(--space-6);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--space-4)">
+    <div>
+      <h3 class="k-h3" style="margin:0">Потрібна допомога з розрахунком посуду?</h3>
+      <p class="k-muted k-small" style="margin:var(--space-1) 0 0">Надішліть кількість гостей або меню — менеджер складе кошторис за 15 хвилин.</p>
+    </div>
+    <div class="k-btns">
+      <a href="tel:+380678277007" class="k-btn k-btn--primary"><svg class="k-ico"><use href="#i-phone"/></svg> +38 (067) 827-70-07</a>
+      <a href="{{ contact_url|default('/kontakty') }}" class="k-btn k-btn--secondary">Зв'язатися з нами</a>
+    </div>
+  </div>
+
   {{ content_bottom }}
-</div>
+</main>
+
 {{ footer }}
