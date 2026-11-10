@@ -1,0 +1,148 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <a href="{{ export }}" data-toggle="tooltip" title="{{ button_export }}" class="btn btn-success"><i class="fa fa-file-excel-o"></i> {{ button_export }}</a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-3 col-md-push-9 col-sm-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-filter"></i> {{ text_filter }}</h3>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label class="control-label" for="input-type">{{ entry_type }}</label>
+              <select name="filter_type" id="input-type" class="form-control">
+                <option value="">{{ text_all }}</option>
+                <option value="calc_15m"{% if filter_type == 'calc_15m' %} selected="selected"{% endif %}>{{ text_type_calc_15m }}</option>
+                <option value="quick_order"{% if filter_type == 'quick_order' %} selected="selected"{% endif %}>{{ text_type_quick_order }}</option>
+                <option value="callback"{% if filter_type == 'callback' %} selected="selected"{% endif %}>{{ text_type_callback }}</option>
+                <option value="b2b"{% if filter_type == 'b2b' %} selected="selected"{% endif %}>{{ text_type_b2b }}</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="control-label" for="input-status">{{ entry_status }}</label>
+              <select name="filter_status" id="input-status" class="form-control">
+                <option value="">{{ text_all }}</option>
+                <option value="new"{% if filter_status == 'new' %} selected="selected"{% endif %}>{{ text_status_new }}</option>
+                <option value="in_progress"{% if filter_status == 'in_progress' %} selected="selected"{% endif %}>{{ text_status_in_progress }}</option>
+                <option value="completed"{% if filter_status == 'completed' %} selected="selected"{% endif %}>{{ text_status_completed }}</option>
+                <option value="canceled"{% if filter_status == 'canceled' %} selected="selected"{% endif %}>{{ text_status_canceled }}</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="control-label" for="input-phone">{{ entry_phone }}</label>
+              <input type="text" name="filter_phone" value="{{ filter_phone }}" placeholder="+380..." id="input-phone" class="form-control" />
+            </div>
+            <div class="form-group">
+              <label class="control-label" for="input-date-added">{{ entry_date_added }}</label>
+              <div class="input-group date">
+                <input type="text" name="filter_date_added" value="{{ filter_date_added }}" placeholder="YYYY-MM-DD" data-date-format="YYYY-MM-DD" id="input-date-added" class="form-control" />
+                <span class="input-group-btn">
+                  <button type="button" class="btn btn-default"><i class="fa fa-calendar"></i></button>
+                </span>
+              </div>
+            </div>
+            <div class="form-group text-right">
+              <button type="button" id="button-filter" class="btn btn-default"><i class="fa fa-filter"></i> Застосувати</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-9 col-md-pull-3 col-sm-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-list"></i> {{ text_list }}</h3>
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover">
+                <thead>
+                  <tr>
+                    <td class="text-right">{{ column_id }}</td>
+                    <td class="text-left">{{ column_type }}</td>
+                    <td class="text-left">{{ column_status }}</td>
+                    <td class="text-left">{{ column_name }}</td>
+                    <td class="text-left">{{ column_phone }}</td>
+                    <td class="text-left">{{ column_channel }}</td>
+                    <td class="text-left">{{ column_event_date }}</td>
+                    <td class="text-right">{{ column_guests }}</td>
+                    <td class="text-left">{{ column_date_added }}</td>
+                    <td class="text-right">{{ column_action }}</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% if leads %}
+                  {% for lead in leads %}
+                  <tr>
+                    <td class="text-right">#{{ lead.lead_id }}</td>
+                    <td class="text-left"><span class="label label-info">{{ lead.type_text }}</span>{% if lead.has_files %} <i class="fa fa-paperclip text-primary" title="Прикріплено файл"></i>{% endif %}</td>
+                    <td class="text-left"><span class="label {{ lead.status_info.class }}">{{ lead.status_info.label }}</span></td>
+                    <td class="text-left">{{ lead.name ?: '—' }}</td>
+                    <td class="text-left"><a href="tel:{{ lead.phone }}">{{ lead.phone }}</a></td>
+                    <td class="text-left"><span class="label label-default">{{ lead.channel }}</span></td>
+                    <td class="text-left">{{ lead.event_date }}</td>
+                    <td class="text-right">{{ lead.guests }}</td>
+                    <td class="text-left">{{ lead.created_at }}</td>
+                    <td class="text-right">
+                      <a href="{{ lead.view }}" data-toggle="tooltip" title="Перегляд" class="btn btn-primary btn-sm"><i class="fa fa-eye"></i></a>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                  {% else %}
+                  <tr>
+                    <td class="text-center" colspan="10">{{ text_no_results }}</td>
+                  </tr>
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+            <div class="row">
+              <div class="col-sm-6 text-left">{{ pagination }}</div>
+              <div class="col-sm-6 text-right">{{ results }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript"><!--
+$('#button-filter').on('click', function() {
+	var url = 'index.php?route=extension/kristal/lead&user_token={{ user_token }}';
+
+	var filter_type = $('select[name=\'filter_type\']').val();
+	if (filter_type) {
+		url += '&filter_type=' + encodeURIComponent(filter_type);
+	}
+
+	var filter_status = $('select[name=\'filter_status\']').val();
+	if (filter_status) {
+		url += '&filter_status=' + encodeURIComponent(filter_status);
+	}
+
+	var filter_phone = $('input[name=\'filter_phone\']').val();
+	if (filter_phone) {
+		url += '&filter_phone=' + encodeURIComponent(filter_phone);
+	}
+
+	var filter_date_added = $('input[name=\'filter_date_added\']').val();
+	if (filter_date_added) {
+		url += '&filter_date_added=' + encodeURIComponent(filter_date_added);
+	}
+
+	location = url;
+});
+//--></script>
+{{ footer }}

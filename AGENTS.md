@@ -78,12 +78,19 @@ spec.md  →  plan.md  →  tasks.md  →  реалізація  →  verify  �
   | Телефон: нормалізація, `tel:`, показ, маска | `\Kristal\Phone` |
   | Захист форми (honeypot + токен + time-trap + ліміт IP) | `\Kristal\Antispam::fromConfig(...)` + `\Kristal\Rate_limit`; тексти — `catalog/language/*/extension/module/kristal_core.php` |
   | Telegram | `\Kristal\Telegram` (не кидає винятків, токен у помилках — `***`) |
+  | Сповіщення (Telegram, Email, Webhook HMAC, журнал) | `\Kristal\Notify` |
   | JSON-LD | `\Kristal\Jsonld::localBusiness()`, `render()` |
   | Лог без персональних даних | `new \Kristal\Log()` → `storage/logs/kristal.log` (не реєструй як `log` — це ядровий логер) |
   | Скинути кеш наших модулів | `\Kristal\Cache_key::flush($this->cache)` |
+  | Фільтри: розбір/канонічна адреса `filter`, відбір (АБО в групі, І між групами), лічильники, межі ціни, сортування як у ядра, розбір атрибутів | `\Kristal\Filter` |
+  | ЧПУ латиницею з назви (КМУ-2010) | `\Kristal\Slug` |
   | Пошук: нормалізація тексту, слова для індексу, префікси запиту, англ. розкладка, синоніми, ранжування | `\Kristal\Search` |
   | Дерево меню, графік текстом, іконка категорії (тема) | `\Kristal\Theme::menuTree()`, `hoursText()`, `icon()` |
   | Оренда: одиниці, «14 ₴», ціна за порогами знижок (як у кошику), рядки таблиці знижок | `\Kristal\Rental::money()`, `unitPrice()`, `tierRows()`, `unit()` |
+  | Прайс у CSV для Excel: кодування (UTF-8/Windows-1251), роздільник, числа з комою, так/ні, одиниці, знижки «100:12; 300:10,50», захист від формул | `\Kristal\Price_csv::read()`, `write()`, `number()`, `discounts()`… (022) |
+  | План імпорту прайсу: зіставлення ID → артикул, перевірки, диф, нові товари, попередження (без БД) | `\Kristal\Price_import::plan($read, $catalog)` (022) |
+  | ЧПУ з назви (КМУ-2010), унікальний | `\Kristal\Slug::make()`, `Slug::unique($text, $taken)` (022) |
+  | Кука сесії: HttpOnly, Secure, SameSite (подія `extension/kristal/security/cookie`, 017) | `\Kristal\Cookie::apply($name, \Kristal\Cookie::isHttps($server))`; свої куки з персональними даними не ставимо |
   | Зображення вітрини: WebP, обрізання по центру, без збільшення, кеш `image/cache/kristal/` | `\Kristal\Image::make()`; у контролері — `model extension/kristal/media->image($file, ModelExtensionKristalMedia::CARD)` → `src`, `srcset`, `width`, `height` |
   Новий клас бібліотеки — з тестом у `tests/lib/` (`make test-lib`).
 - **Тема `kristal`** (фіча 003) — `catalog/view/theme/kristal/`. Вмикається в адмінці: «Розширення → Теми → Тема за замовчуванням» → каталог `kristal`.
@@ -96,9 +103,14 @@ spec.md  →  plan.md  →  tasks.md  →  реалізація  →  verify  �
   - **Каталог (005):** умови оренди — таблиця `kristal_product_rental` (вкладка «Оренда» в адмінці подією); дані для карток — подіями `view/product/{category,product}/before` (`extension/kristal/catalog`), пакетом `IN (...)`. Картку товару в новому місці (головна, комплекти) рендерити тим самим HTML `k-card` з `data-k-add`, дані — `ModelExtensionKristalCatalog::getProducts()/getDiscounts()`.
   - **Зображення (020):** не `model/tool/image->resize()`, а `extension/kristal/media` (WebP + `srcset` 1×/2×). У шаблоні: `<img src srcset sizes width height alt>`; перше зображення екрана — `fetchpriority="high"`, решта — `loading="lazy"`. Після масового імпорту — `make images-warm`.
   - **Головна (004):** тексти — «Модулі → Крістал: головна» (`module_kristal_home_*`); дані — подія `view/common/home/before` (`extension/kristal/home`); title головної — подія `controller/common/header/before`. Картки товарів на будь-якій сторінці: `$this->load->controller('extension/kristal/catalog/cards', $ids)`.
+  - **Прайс (022):** ціни й умови оренди масово — «Каталог → Прайс (імпорт)» (`extension/module/kristal_import`): вивантаження CSV → перегляд змін → застосування, журнал `kristal_import_log` зі знімком старих значень і «Скасувати». Таблиці товарів ядра — MyISAM: запис без транзакцій, тому **спершу знімок, потім запис**. Масові зміни товарів з коду — через модель `extension/kristal/import`, а не прямим SQL. Нові товари — моделлю ядра `catalog/product` (події 005/027 спрацьовують самі).
   - **Пошук (027):** `/poshuk?q=…` — `extension/kristal/search` (noindex), підказки — `extension/kristal/search/suggest` (JSON). Слова — `\Kristal\Search`,
     індекс — таблиця `kristal_search_word`, оновлюється подіями адмінки на товар/категорію. **Після прямого SQL-імпорту товарів (мок-міграції, 022) —
     «Модулі → Крістал: пошук» → «Перебудувати індекс»** (модель адмінки `extension/kristal/search`). Синоніми — там само. Адреса пошуку в шаблонах — `k_search_href`.
+  - **Фільтри (021):** дані — фільтри ядра (`oc_filter*`, `oc_product_filter`; «Каталог → Фільтри», поле «Фільтри» у формі товару), «Модулі → Крістал: фільтри» — заповнення з атрибутів, масове призначення, SEO-сторінки (`kristal_filter_page`).
+    Адреса — параметр ядра `filter` (`kolir-bilyi_material-portseliana_tsina-10-40`), SEO-сторінка — `/категорія/keyword` (подія `controller/error/not_found/before`).
+    Відбір/лічильники — `\Kristal\Filter` по індексу категорії з кешу `kristal.filter.*` (`model extension/kristal/filter->getIndex()`); товари сторінки — подіями `getProducts/getTotalProducts/before`.
+    **Після прямого SQL-запису товарів чи фільтрів (міграції, 022) — `\Kristal\Cache_key::flush()`**, інакше фільтри покажуть старе до години. `noindex` сторінки — `$this->config->set('kristal_noindex', true)` (тема додає meta).
   - Новий шаблон сторінки: `{{ header }}` → `<div class="k-wrap k-page">` + крихти `k-crumbs` + рівно один `h1` → `{{ footer }}`. Неіндексовані маршрути — у `ControllerExtensionKristalTheme::$noindex`.
 - Префікс усього нашого: **`kristal_`** (модулі, події, таблиці, налаштування, CSS-класи `k-`).
 - Доступ до БД — лише `$this->db->query()` з **`DB_PREFIX`**; числа через `(int)`/`(float)`, рядки через `$this->db->escape()`.
@@ -164,6 +176,7 @@ spec.md  →  plan.md  →  tasks.md  →  реалізація  →  verify  �
 | План запиту | `make db-explain SQL=...` | кожен новий/змінений запит |
 | Профіль сторінки | `make db-profile URL=...` | зміни, що зачіпають вітрину |
 | Smoke вітрини | `make test-smoke` | перед кожним деплоєм і в кінці фічі |
+| Безпека (017) | `make test-security` (+ `BASE=https://orendaposudu.com` після деплою) | зміни `.htaccess`, кук, адмінки; після деплою |
 | Мобільний аудит | `make test-mobile` (один раз `make mobile-setup`) | кожна зміна вітрини |
 | Приймання | ручні пункти з `tasks.md` + реальний телефон | кінець фічі |
 | Усе разом | `make verify` | перед «готово» |
@@ -212,7 +225,10 @@ spec.md  →  plan.md  →  tasks.md  →  реалізація  →  verify  �
 - Форми з записом (заявки, калькулятор) — CSRF-токен або перевірка `HTTP_REFERER` + honeypot/ліміт частоти.
 - Адмін-маршрути перевіряють `$this->user->hasPermission('modify', ...)`.
 - Не логувати персональні дані клієнтів (телефон, email) у файли логів.
-- Тека `install/` на проді має бути видалена; `admin/` — перейменована (окрема задача з людиною).
+- Теки `install/` немає ні в репозиторії, ні на проді (017); `make deploy` зупиняється, якщо вона знову з'явилась.
+- Адмінка на проді — під випадковою назвою `REMOTE_ADMIN_DIR` з `.env` (017). **Назву не пишемо** в git, specs, коміти, звіти чи шаблони; локально — `src/admin/`, деплой підміняє шлях сам.
+- `src/.htaccess` — єдине джерело для локалу й проду: блок `kristal:prod` (301 з дзеркал на `https://orendaposudu.com`, заголовки безпеки) і закриття архівів/дампів/копій (`*.zip`, `*.sql`, `*.bak`…) → 403. Архів сайту чи копію конфігу в docroot не кладемо ніколи — на проді так злили `config.php` (017).
+- Стан проду: `make sec-status`; бекапи: `docs/04-backup-restore.md`.
 
 ---
 
@@ -230,8 +246,10 @@ spec.md  →  plan.md  →  tasks.md  →  реалізація  →  verify  �
 
 - Порядок: `make verify` → `make deploy` (dry-run) → показати людині список → `make deploy-apply` лише після «так».
 - SQL на прод — тільки через `make deploy-sql` і phpMyAdmin, після бекапу бази.
-- Ніколи не деплоїться: `config.php`, `admin/config.php`, `system/storage/`, `image/cache/`, `.htaccess`, `install/`, `*.sql` (захищено в `tools/lib.sh`).
-- Після деплою — `make test-smoke BASE=https://orendaposydy.com`.
+- Ніколи не деплоїться: `config.php`, `admin/config.php`, `system/storage/`, `image/cache/`, `install/`, `*.sql` (захищено в `tools/lib.sh`); `.htaccess` — лише явно: `make deploy-apply FILES=.htaccess HTACCESS=1`.
+- Файли `src/admin/…` їдуть у теку `REMOTE_ADMIN_DIR` на проді (`remote_rel` у `tools/lib.sh`) — нічого вручну не перейменовуємо.
+- Зміни на проді поза деплоєм (перенесення, перейменування) — лише через `tools/prod-security.sh` (dry-run → `APPLY=1` → `YES`), нічого не видаляємо, а переносимо в `~/kristal-trash/`.
+- Після деплою — `make test-smoke BASE=https://orendaposudu.com` і `make test-security BASE=https://orendaposudu.com`.
 
 ---
 

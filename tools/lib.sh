@@ -195,8 +195,30 @@ require_ftp() {
     command -v curl >/dev/null 2>&1 || die "Потрібен curl (встановіть: sudo apt install curl)"
 }
 
-# URL до файлу на FTP. FTP_REMOTE_DIR — тека відносно кореня FTP-акаунта.
+# --- 017: адмінка на проді перейменована --------------------------------------
+# Локально адмінка — src/admin/, на проді — тека REMOTE_ADMIN_DIR з .env (випадкова назва,
+# у git не потрапляє; виставляє tools/prod-security.sh rename-admin після перейменування).
+# Усі FTP-хелпери нижче (і все, що через них працює: deploy, deploy-rollback, бекап перед
+# деплоєм, ftp-rm, core-prod-remove) самі підміняють admin/… → $REMOTE_ADMIN_DIR/….
+#   remote_rel admin/controller/x.php  →  kr-panel-xxxx/controller/x.php
+remote_rel() {
+    local rel="${1#/}" dir="${REMOTE_ADMIN_DIR:-admin}"
+    dir="${dir#/}"; dir="${dir%/}"
+    [ -n "$dir" ] || dir="admin"
+    case "$rel" in
+        admin)   printf '%s' "$dir" ;;
+        admin/*) printf '%s/%s' "$dir" "${rel#admin/}" ;;
+        *)       printf '%s' "$rel" ;;
+    esac
+}
+
+# URL до файлу на FTP (шлях як у src/; admin/ підміняється). FTP_REMOTE_DIR — тека сайту.
 ftp_url() {
+    ftp_url_raw "$(remote_rel "$1")"
+}
+
+# Те саме без підміни admin/ — для tools/prod-security.sh (перейменування адмінки).
+ftp_url_raw() {
     local rel="${1#/}"
     local base="ftp://${FTP_HOST}:${FTP_PORT:-21}"
     if [ -n "${FTP_REMOTE_DIR:-}" ]; then
@@ -206,8 +228,12 @@ ftp_url() {
 }
 
 # Абсолютний шлях на сервері — потрібен для команд DELE / RMD / MKD,
-# які curl надсилає через -Q.
+# які curl надсилає через -Q. admin/ підміняється (див. remote_rel).
 ftp_abs() {
+    ftp_abs_raw "$(remote_rel "$1")"
+}
+
+ftp_abs_raw() {
     local rel="${1#/}"
     local dir="${FTP_REMOTE_DIR:-}"
     dir="${dir#/}"; dir="${dir%/}"
@@ -225,4 +251,15 @@ ftp_opts() {
     if [ "${FTP_TLS:-no}" = "yes" ]; then
         printf -- ' --ssl-reqd'
     fi
+}
+
+# URL від кореня FTP-акаунта (поза текою сайту): ~/kristal-backup/, ~/kristal-trash/ (017).
+ftp_root_url() {
+    printf 'ftp://%s:%s/%s' "$FTP_HOST" "${FTP_PORT:-21}" "${1#/}"
+}
+
+# Імена в корені теки сайту на проді (одне FTP-з'єднання). Порожньо — помилка FTP.
+ftp_site_names() {
+    # shellcheck disable=SC2046
+    curl $(ftp_opts) --fail --list-only "$(ftp_url_raw "")" 2>/dev/null | tr -d '\r'
 }

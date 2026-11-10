@@ -1,6 +1,6 @@
 # orendaposydy-opencart
 
-Локальне середовище й деплой для **https://orendaposydy.com/** (OpenCart
+Локальне середовище й деплой для **https://orendaposudu.com/** (основний домен; `www.` і `orendaposydy.com` — дзеркала з 301, фіча 017) (OpenCart
 **3.0.4.1**, шаблон `sauco`). Зроблено за тим самим принципом, що й
 `mrestus-opencart`: Docker локально, FTP на прод, жодних «залив через
 FileZilla і сподіваюсь».

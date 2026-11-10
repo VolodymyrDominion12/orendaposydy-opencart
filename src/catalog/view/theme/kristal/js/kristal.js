@@ -259,19 +259,28 @@
   // (обробник change вище; без JS — посилання в <noscript>)
 
   // ---------- «Показати ще» ----------
-  var more = doc.querySelector('[data-k-more]'), grid = doc.querySelector('[data-k-grid]'), pager = doc.querySelector('[data-k-pager]');
-
+  // Елементи шукаються під час кліку: фільтри (021) замінюють блок результатів без перезавантаження і кидають подію k:results
   function nextHref(root) {
     var active = root ? root.querySelector('li.active') : null, next = active ? active.nextElementSibling : null;
     var a = next ? next.querySelector('a') : null;
     return a ? a.href : '';
   }
 
-  if (more && grid && pager && window.fetch && window.DOMParser) {
+  function initMore() {
+    var more = doc.querySelector('[data-k-more]'), pager = doc.querySelector('[data-k-pager]');
+    if (!more || !pager || !doc.querySelector('[data-k-grid]')) return;
     var href = nextHref(pager);
     if (href) { more.href = href; more.hidden = false; }
+  }
 
-    more.addEventListener('click', function (e) {
+  if (window.fetch && window.DOMParser) {
+    initMore();
+    doc.addEventListener('k:results', initMore);
+
+    doc.addEventListener('click', function (e) {
+      var more = e.target.closest ? e.target.closest('[data-k-more]') : null;
+      var grid = doc.querySelector('[data-k-grid]'), pager = doc.querySelector('[data-k-pager]');
+      if (!more || !grid || !pager) return;
       e.preventDefault();
       var url = more.href;
       more.setAttribute('aria-busy', 'true');

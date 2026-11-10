@@ -74,9 +74,55 @@
   <a href="{{ k_cart_href }}"><svg class="k-ico"><use href="#i-bag"/></svg>{{ k_cart_short }}{% if k_cart_count %}<span class="k-count">{{ k_cart_count }}</span>{% endif %}</a>
 </nav>
 
+<div class="k-modal" id="k-lead-modal" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="k-modal__dialog">
+    <div class="k-modal__head">
+      <h3 class="k-h3" data-k-modal-title>Швидке замовлення</h3>
+      <button type="button" class="k-modal__close" data-k-modal-close aria-label="Закрити"><svg class="k-ico"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="k-modal__body">
+      <p class="k-modal__desc" data-k-modal-desc hidden></p>
+      <form class="k-form" action="{{ k_lead_action }}" method="post" data-k-lead>
+        <input type="hidden" name="type" value="quick_order">
+        <input type="hidden" name="product_id" value="">
+        {% if k_antispam_token_name %}
+        <input type="hidden" name="{{ k_antispam_token_name }}" value="{{ k_antispam_token }}">
+        <div class="k-hp" aria-hidden="true"><input type="text" name="{{ k_antispam_hp_name }}" tabindex="-1" autocomplete="off"></div>
+        {% elseif k_antispam %}
+        <input type="hidden" name="{{ k_antispam.token_name }}" value="{{ k_antispam.token }}">
+        <div class="k-hp" aria-hidden="true"><input type="text" name="{{ k_antispam.honeypot_name }}" tabindex="-1" autocomplete="off"></div>
+        {% endif %}
+
+        <label class="k-field">
+          <span>Номер телефону *</span>
+          <input class="k-input" type="tel" name="phone" placeholder="+380" autocomplete="tel" required>
+        </label>
+        <label class="k-field">
+          <span>Ваше ім'я</span>
+          <input class="k-input" type="text" name="name" autocomplete="name" placeholder="Як до вас звертатися">
+        </label>
+        <label class="k-field">
+          <span>Зручний канал зв'язку</span>
+          <select class="k-select" name="contact_channel">
+            <option value="viber">Viber</option>
+            <option value="telegram">Telegram</option>
+            <option value="phone">Телефонний дзвінок</option>
+          </select>
+        </label>
+        <label class="k-field">
+          <span>Коментар або бажана дата (необов'язково)</span>
+          <textarea class="k-input" name="comment" rows="2" placeholder="Наприклад, дата події або побажання"></textarea>
+        </label>
+        <button class="k-btn k-btn--primary k-btn--block" type="submit">Підтвердити</button>
+      </form>
+    </div>
+  </div>
+</div>
+
 {% for script in scripts %}
 <script src="{{ script }}"></script>
 {% endfor %}
 <script src="{{ k_js }}" defer></script>
+{% if k_lead_js %}<script src="{{ k_lead_js }}" defer></script>{% endif %}
 </body>
 </html>

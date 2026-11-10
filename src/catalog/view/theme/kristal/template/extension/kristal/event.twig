@@ -1,0 +1,200 @@
+{{ header }}
+
+<main id="main">
+  <!-- Hero події -->
+  <section class="k-ehero">
+    <div class="k-photo" style="background:linear-gradient(135deg,#1f1a1d 0%,#2d2427 100%)"></div>
+    <div class="k-wrap">
+      <ol class="k-crumbs" style="padding:0">
+        {% for crumb in breadcrumbs %}
+          {% if loop.last %}
+            <li aria-current="page">{{ crumb.text }}</li>
+          {% else %}
+            <li><a href="{{ crumb.href }}">{{ crumb.text }}</a></li>
+          {% endif %}
+        {% endfor %}
+      </ol>
+      <span class="k-label k-label--gold">{{ text_hero_label }}</span>
+      <h1 class="k-display" style="max-width:16ch">{{ text_hero_title }}</h1>
+      <p class="k-lead" style="color:var(--ink)">{{ text_hero_lead }}</p>
+      <div class="k-ehero__facts">
+        <span><svg class="k-ico"><use href="#i-users"/></svg>{{ text_fact_price }}</span>
+        <span><svg class="k-ico"><use href="#i-truck"/></svg>{{ text_fact_delivery }}</span>
+        <span><svg class="k-ico"><use href="#i-clock"/></svg>{{ text_fact_time }}</span>
+      </div>
+      <div class="k-btns">
+        <a class="k-btn k-btn--primary" href="#lead">{{ text_btn_calc }}</a>
+        <a class="k-btn k-btn--secondary" href="#sets">{{ text_btn_view_sets }}</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Блок готових комплектів -->
+  <section class="k-section" id="sets">
+    <div class="k-wrap">
+      <div class="k-section__head">
+        <div>
+          <span class="k-label">{{ text_sets_label }}</span>
+          <h2 class="k-h2">{{ text_sets_title }}</h2>
+        </div>
+      </div>
+      <div class="k-guests">
+        <span class="k-muted">{{ text_guests }}</span>
+        <div class="k-seg" role="radiogroup" aria-label="Кількість гостей">
+          <label><input type="radio" name="g" value="50"><span>50</span></label>
+          <label class="is-checked"><input type="radio" name="g" value="100" checked><span>100</span></label>
+          <label><input type="radio" name="g" value="200"><span>200</span></label>
+        </div>
+        <a class="k-link" href="#lead">{{ text_custom_guests }}</a>
+      </div>
+
+      <div class="k-sets">
+        {% for kit in kits %}
+          <article class="k-set{% if kit.tier == 'standard' %} k-set--best{% endif %}">
+            {% if kit.badge %}
+              <span class="k-badge k-badge--new">{{ kit.badge }}</span>
+            {% endif %}
+            <span class="k-label{% if kit.tier == 'standard' %} k-label--gold{% endif %}">{{ kit.name }}</span>
+            <div class="k-set__price">{{ kit.price_per_guest }} <small>{{ text_per_guest }}</small></div>
+            <div class="k-set__total" data-pp="{{ kit.price_per_guest_num }}">{{ kit.initial_total }} {{ kit.initial_guests_label }}</div>
+
+            {% if kit.features_list %}
+              <ul class="k-list">
+                {% for f in kit.features_list %}
+                  <li class="{% if not f.included %}is-off{% endif %}">
+                    {% if f.included %}
+                      <svg class="k-ico"><use href="#i-check"/></svg>
+                    {% else %}
+                      <svg class="k-ico"><use href="#i-minus"/></svg>
+                    {% endif %}
+                    {{ f.text }}
+                  </li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+
+            <button type="button" class="k-btn {% if kit.tier == 'standard' %}k-btn--primary{% else %}k-btn--ghost{% endif %} k-btn--block" data-k-add-kit data-kit-id="{{ kit.kit_id }}" data-action="{{ action_add_kit }}">
+              {{ text_btn_add_set }}
+            </button>
+          </article>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- Додаткові послуги («Все, крім гостей») -->
+  <section class="k-section k-section--sunken">
+    <div class="k-wrap">
+      <div class="k-section__head">
+        <div>
+          <span class="k-label">{{ text_addons_label }}</span>
+          <h2 class="k-h2">{{ text_addons_title }}</h2>
+        </div>
+      </div>
+      <div class="k-addons">
+        {% for addon in addons %}
+          <a class="k-addon" href="{{ addon.href }}">
+            <svg class="k-ico"><use href="#{{ addon.icon }}"/></svg>
+            <b>{{ addon.name }}</b>
+            <span class="k-muted k-small">{{ addon.desc }}{% if addon.price %}<span class="k-mono k-gold">{{ addon.price }}</span>{% endif %}</span>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- Галерея подій -->
+  <section class="k-section">
+    <div class="k-wrap">
+      <div class="k-section__head">
+        <div>
+          <span class="k-label">{{ text_gallery_label }}</span>
+          <h2 class="k-h2">{{ text_gallery_title }}</h2>
+        </div>
+      </div>
+      <div class="k-gallery-strip">
+        <div><div class="k-photo" style="background:#2d2427;min-height:200px;display:grid;place-items:center"><span class="k-photo__cap">головний стіл</span></div></div>
+        <div><div class="k-photo" style="background:#231c20;min-height:140px;display:grid;place-items:center"><span class="k-photo__cap">сервірування Royal</span></div></div>
+        <div><div class="k-photo" style="background:#1f191c;min-height:140px;display:grid;place-items:center"><span class="k-photo__cap">шатро ввечері</span></div></div>
+        <div><div class="k-photo" style="background:#281f23;min-height:140px;display:grid;place-items:center"><span class="k-photo__cap">келихи</span></div></div>
+        <div><div class="k-photo" style="background:#251d21;min-height:140px;display:grid;place-items:center"><span class="k-photo__cap">фуршетна зона</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Відгуки та FAQ -->
+  <section class="k-section k-section--line">
+    <div class="k-wrap k-cols2">
+      <div>
+        <span class="k-label">Відгуки молодят</span>
+        <div style="display:grid;gap:var(--space-4);margin-top:var(--space-4)">
+          <article class="k-review">
+            <div class="k-stars" aria-label="5 з 5">
+              <svg class="k-ico"><use href="#i-star"/></svg>
+              <svg class="k-ico"><use href="#i-star"/></svg>
+              <svg class="k-ico"><use href="#i-star"/></svg>
+              <svg class="k-ico"><use href="#i-star"/></svg>
+              <svg class="k-ico"><use href="#i-star"/></svg>
+            </div>
+            <p>Замовляли посуд Royal та стільці Chiavari на весілля. Все приїхало ідеально чистим, у зручних боксах, вчасно. Менеджер дуже допоміг із розрахунком потрібної кількості келихів.</p>
+            <span class="k-review__who">Оксана і Тарас · весілля, 110 гостей</span>
+          </article>
+        </div>
+      </div>
+      <div>
+        <span class="k-label">{{ text_faq_label }}</span>
+        <h2 class="k-h2" style="margin:var(--space-2) 0 var(--space-6)">{{ text_faq_title }}</h2>
+        <div class="k-faq">
+          {% for item in faq %}
+            <details{% if item.open %} open{% endif %}>
+              <summary>{{ item.q }} <svg class="k-ico"><use href="#i-plus"/></svg></summary>
+              <p>{{ item.a }}</p>
+            </details>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Форма розрахунку за 15 хв (kristal_lead) -->
+  <section class="k-section k-section--sunken" id="lead">
+    <div class="k-wrap k-leadbox">
+      <div class="k-leadbox__alt">
+        <span class="k-label k-label--gold">Розрахунок за 15 хвилин</span>
+        <h2 class="k-h2">Надішліть дату й кількість гостей — решту порахуємо ми</h2>
+        <p class="k-muted">Менеджер перевірить наявність на вашу дату, підбере посуд під меню й надішле кошторис у Viber, Telegram або на пошту. У робочий час — за 15 хвилин.</p>
+        <div class="k-messengers" style="margin-top:var(--space-4)">
+          <a class="k-btn k-btn--ghost" href="tel:+380678277007"><svg class="k-ico"><use href="#i-phone"/></svg><span class="k-mono">067 827 70 07</span></a>
+          <a class="k-btn k-btn--ghost" href="viber://chat?number=%2B380678277007"><svg class="k-ico"><use href="#i-viber"/></svg>Viber</a>
+          <a class="k-btn k-btn--ghost" href="https://t.me/"><svg class="k-ico"><use href="#i-telegram"/></svg>Telegram</a>
+        </div>
+      </div>
+      <form class="k-panel k-panel--gold k-form" action="{{ k_lead_action }}" method="post" enctype="multipart/form-data" data-k-lead>
+        <input type="hidden" name="type" value="calc_15m">
+        <input type="hidden" name="source_url" value="/vesillya">
+        <input type="hidden" name="{{ k_antispam_token_name }}" value="{{ k_antispam_token }}">
+        <div class="k-hp" aria-hidden="true"><input type="text" name="{{ k_antispam_hp_name }}" tabindex="-1" autocomplete="off"></div>
+
+        <div class="k-form__row">
+          <label class="k-field"><span>Дата події</span><input class="k-input" type="date" name="event_date" min="{{ min_event_date }}" required></label>
+          <label class="k-field"><span>Кількість гостей</span><input class="k-input" type="number" name="guests" inputmode="numeric" min="1" value="100" placeholder="Напр., 100" required></label>
+        </div>
+        <div class="k-form__row">
+          <label class="k-field"><span>Ваше ім'я</span><input class="k-input" type="text" name="name" autocomplete="name" placeholder="Олена"></label>
+          <label class="k-field"><span>Телефон</span><input class="k-input" type="tel" name="phone" autocomplete="tel" placeholder="+380" required></label>
+        </div>
+        <label class="k-file">
+          <svg class="k-ico"><use href="#i-file"/></svg>
+          <span class="k-file__name">Додати меню (PDF, фото) — підберемо посуд під страви</span>
+          <input type="file" name="menu_file" accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx">
+        </label>
+        <button class="k-btn k-btn--primary k-btn--block" type="submit">Отримати розрахунок</button>
+        <p class="k-hint">Розрахунок безкоштовний і ні до чого не зобов'язує. Натискаючи кнопку, ви погоджуєтеся з <a href="/politika-konfidenciynosti" style="text-decoration:underline">політикою конфіденційності</a>.</p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<script src="catalog/view/theme/kristal/js/kristal-kit.js" defer></script>
+
+{{ footer }}

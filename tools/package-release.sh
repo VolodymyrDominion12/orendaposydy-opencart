@@ -77,8 +77,22 @@ mkdir -p "$RELEASE_DIR"
 OUT="$RELEASE_DIR/release-${STAMP}.zip"
 
 # Пакуємо з тими самими відносними шляхами, як на сервері, тому архів можна
-# розпакувати прямо в корінь сайту.
-( cd "$SRC" && zip -q -9 "$OUT" -@ < "$FILTERED" )
+# розпакувати прямо в корінь сайту. 017: admin/… кладемо під бойовою назвою
+# адмінки (REMOTE_ADMIN_DIR, див. remote_rel у tools/lib.sh).
+ADMIN_REMOTE="$(remote_rel admin)"
+if [ "$ADMIN_REMOTE" = "admin" ] || ! grep -q '^admin/' "$FILTERED"; then
+    ( cd "$SRC" && zip -q -9 "$OUT" -@ < "$FILTERED" )
+else
+    STAGE="$(mktemp -d)"
+    while IFS= read -r rel; do
+        dst="$STAGE/$(remote_rel "$rel")"
+        mkdir -p "$(dirname "$dst")"
+        cp -p "$SRC/$rel" "$dst"
+    done < "$FILTERED"
+    ( cd "$STAGE" && find . -type f | sed 's|^\./||' | sort | zip -q -9 "$OUT" -@ )
+    rm -rf "$STAGE"
+    info "файли адмінки — у теці $ADMIN_REMOTE/ (REMOTE_ADMIN_DIR)"
+fi
 
 # Інструкція всередину архіву — щоб через місяць не згадувати, що це за файл.
 # Файл мусить мати СВОЮ назву: mktemp дає ім'я виду tmp.fLvYjQVv6z, і zip -j
@@ -106,11 +120,11 @@ cat > "$INSTR" <<EOF
 4. Скиньте кеш:
    Адмінка -> Панель стану -> шестерня вгорі справа -> «Оновити»
 
-5. Перевірте сайт: https://orendaposydy.com/
+5. Перевірте сайт: https://orendaposudu.com/
 
 ВМІСТ АРХІВУ
 -----------
-$(sed 's/^/  /' "$FILTERED")
+$(while IFS= read -r r; do printf '  %s\n' "$(remote_rel "$r")"; done < "$FILTERED")
 EOF
 
 ( cd "$(dirname "$INSTR")" && zip -q -j "$OUT" "$INSTR" )

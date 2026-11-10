@@ -1,57 +1,74 @@
 <?php
-
 // Heading
-$_['heading_title'] = 'Оформлення замовлення';
+$_['heading_title']         = 'Кошик події';
+$_['text_title']            = 'Кошик події | Крістал';
+$_['text_description']      = 'Кошик події: вибір дат оренди, способу доставки та оформлення заявки.';
 
-// Column
-$_['column_name']                    = 'Назва товару';
-$_['column_model']                   = 'Код товару';
-$_['column_quantity']                = 'Кількість';
-$_['column_price']                   = 'Ціна';
-$_['column_total']                   = 'Всього';
+// Breadcrumbs
+$_['text_home']             = 'Головна';
+$_['text_cart']             = 'Кошик події';
 
-$_['text_sum']                       = 'В кошику <span id="qty">%d</span> од.';
-$_['text_total_sum']                 = 'Разом: <span id="total">%s</span><span>%s</span>';
-$_['text_name']                      = 'Ім\'я:';
-$_['text_phone']                     = 'Телефон:';
-$_['text_comment']                   = 'Інформація про доставку';
-$_['text_address']                   = 'Адреса доставки або коментар';
-$_['text_order_title']               = 'Інформація про доставку';
-$_['text_checkout']                  = 'Оформити замовлення';
-$_['text_empty']                     = 'Кошик порожній';
-$_['text_fondy_done']                = 'Кошик порожній';
+// Blocks
+$_['text_step_items']       = 'Список';
+$_['text_step_dates']       = 'Дати й доставка';
+$_['text_step_contacts']    = 'Контакти';
+$_['text_step_booking']     = 'Оформлення';
 
+$_['text_block_items']      = 'Що берете';
+$_['text_block_dates']      = 'Дати й доставка';
+$_['text_block_contacts']   = 'Контакти';
+$_['text_block_booking']    = 'Бронювання та оплата';
 
-//error
-$_['error_name']                    = 'Заповніть ім\'я';
-$_['error_phone']                   = 'Заповніть телефон';
-$_['error_address']                 = 'Заповніть адресу';
-$_['error_jsname']                  = 'Заповніть ім\'я';
-$_['error_jsphone']                 = 'Заповніть телефон';
+// Form fields
+$_['entry_date_from']       = 'Отримання';
+$_['entry_date_to']         = 'Повернення';
+$_['entry_name']            = 'Ім\'я';
+$_['entry_phone']           = 'Телефон';
+$_['entry_email']           = 'Email (необов\'язково)';
+$_['entry_channel']         = 'Де зручніше отримати кошторис';
+$_['entry_comment']         = 'Коментар до події';
+$_['entry_delivery_address']= 'Адреса події';
 
-// Mail
-$_['text_subject']          = 'Замовлення';
-$_['text_greeting']         = 'Дякуємо за покупку в магазині %s. Ваше замовлення отримане і поступить в обробку найближчим часом.';
-$_['text_link']             = 'Для перегляду вашого замовлення перейдіть за посиланням:';
-$_['text_order_detail']     = 'Деталізація замовлення';
-$_['text_instruction']      = 'Інструкції';
-$_['text_order_id']         = '№ замовлення:';
-$_['text_date_added']       = 'Дата замовлення:';
-$_['text_order_status']     = 'Статус замовлення:';
-$_['text_payment_method']   = 'Спосіб оплати:';
-$_['text_shipping_method']  = 'Спосіб доставки:';
-$_['text_email']            = 'E-mail:';
-$_['text_telephone']        = 'Телефон:';
-$_['text_ip']               = 'IP-адрес:';
-$_['text_payment_address']  = 'Платіжна адреса';
-$_['text_shipping_address'] = 'Адреса доставки';
-$_['text_products']         = 'Товари';
-$_['text_product']          = 'Товар';
-$_['text_model']            = 'Код товару';
-$_['text_quantity']         = 'Кількість';
-$_['text_price']            = 'Ціна';
-$_['text_order_total']      = 'Всього';
-$_['text_total']            = 'Разом';
-$_['text_download']         = 'Після підтвердження оплати, товари для завантаження будуть доступні за посиланням:';
-$_['text_comment']          = 'Форма замовлення';
-$_['text_delivery']         = 'Доставка';
+$_['text_delivery']         = 'Доставка й вивезення';
+$_['text_delivery_sub']     = 'Львів і область · вартість у кошторисі';
+$_['text_pickup']           = 'Самовивіз';
+$_['text_pickup_sub']       = 'м. Львів, вул. Богдана Хмельницького, 106';
+
+$_['text_company_toggle']   = 'Потрібен рахунок для юрособи / ФОП';
+$_['entry_company_name']    = 'Назва компанії / ФОП';
+$_['entry_edrpou']          = 'Код ЄДРПОУ / ІПН';
+
+// Payment methods
+$_['text_pay_request']      = 'Заявка без оплати';
+$_['text_pay_request_sub']  = 'Швидке узгодження з менеджером, без введення картки';
+$_['text_pay_online']       = 'Карткою онлайн (Fondy)';
+$_['text_pay_online_sub']   = 'Visa, Mastercard, Apple Pay, Google Pay';
+
+// Summary
+$_['text_summary_title']    = 'Ваша подія';
+$_['text_items_count']      = 'позицій';
+$_['text_units_count']      = 'од.';
+$_['text_day_rate']         = 'за добу';
+$_['text_days_count']       = 'діб оренди';
+$_['text_subtotal']         = 'Разом за оренду';
+$_['text_prepay']           = 'Передоплата 50%';
+$_['text_postpay']          = 'Решта при отриманні';
+$_['text_btn_request']      = 'Надіслати заявку';
+$_['text_btn_pay']          = 'Сплатити передоплату';
+$_['text_security_note']    = 'Менеджер перевірить наявність та надішле точний кошторис.';
+
+// Empty cart
+$_['text_empty_title']      = 'Ваш кошик події порожній';
+$_['text_empty_subtitle']   = 'Оберіть посуд, меблі чи текстиль у каталозі, щоб сформувати замовлення.';
+$_['text_btn_catalog']      = 'Перейти до каталогу';
+$_['text_hits_title']       = 'Популярне для оренди';
+
+// Errors
+$_['error_cart_empty']      = 'Кошик порожній';
+$_['error_name']            = 'Вкажіть ваше ім\'я (від 2 до 64 символів)';
+$_['error_phone']           = 'Введіть коректний номер телефону (наприклад, +380 67 123 45 67)';
+$_['error_dates']           = 'Оберіть коректні дати оренди (дата повернення не може бути раніше отримання)';
+$_['error_address']         = 'Вкажіть адресу події для доставки';
+$_['error_company']         = 'Вкажіть назву компанії або ФОП';
+$_['error_edrpou']          = 'Вкажіть код ЄДРПОУ або ІПН (8–10 цифр)';
+$_['error_antispam']        = 'Помилка безпеки або забагато запитів. Спробуйте ще раз за хвилину.';

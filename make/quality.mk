@@ -6,7 +6,7 @@
 #   include make/quality.mk
 # ---------------------------------------------------------------------------
 
-.PHONY: lint test-lib test-smoke test-mobile mobile-setup verify \
+.PHONY: lint test-lib test-smoke test-security test-mobile mobile-setup verify \
         core-report core-apply core-verify core-package core-prod-remove core-rollback \
         db-check db-schema-snapshot db-schema-diff db-explain db-profile \
         migrate migrate-status migrate-down migrate-print migrate-new
@@ -58,6 +58,9 @@ test-lib: ## Тести бібліотеки kristal (tests/lib): web-конте
 
 test-smoke: ## Smoke вітрини з tests/smoke/ (BASE=https://... — інший сайт)
 	@bash tools/test-smoke.sh
+
+test-security: ## 017: службові файли, адмінка, 301 з дзеркал, заголовки, кука сесії (BASE=https://orendaposudu.com — прод)
+	@bash tools/test-security.sh
 
 test-mobile: ## Мобільний аудит: CWV, вага, 360px, тач-зони, зображення (URL=/x — одна сторінка)
 	@bash tools/test-mobile.sh

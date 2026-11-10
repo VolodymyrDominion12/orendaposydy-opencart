@@ -1,0 +1,150 @@
+{# Фіча 022: «Крістал: прайс». Автоекранування в OpenCart вимкнене — усе з файлу й БД виводимо через |e. #}
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <a href="{{ back }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible" role="alert"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    {% if success %}
+    <div class="alert alert-success alert-dismissible" role="status"><i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+
+    {% if preview %}
+    <div class="panel panel-primary">
+      <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-eye"></i> {{ text_preview|format(filename|e) }}</h3></div>
+      <div class="panel-body">
+        <p class="text-muted">{{ text_preview_meta|format(encoding|e, delimiter|e, columns|join(', ')|e) }}</p>
+        <p>{{ text_counts|format(counts.rows, counts.matched, counts.changed, counts.unchanged, counts.created, counts.errors) }}</p>
+
+        {% if warnings %}
+        <div class="alert alert-warning">
+          <p><b><i class="fa fa-exclamation-triangle"></i> {{ text_warnings }}</b></p>
+          <ul>{% for warning in warnings %}<li>{{ warning|e }}</li>{% endfor %}</ul>
+        </div>
+        {% endif %}
+
+        {% if errors %}
+        <h4 class="text-danger"><i class="fa fa-times-circle"></i> {{ text_errors }} ({{ errors|length }})</h4>
+        <div class="table-responsive" style="max-height: 320px; overflow-y: auto;">
+          <table class="table table-bordered table-condensed">
+            <thead><tr><th scope="col" style="width: 80px;">{{ column_line }}</th><th scope="col">{{ column_problem }}</th></tr></thead>
+            <tbody>{% for error in errors %}<tr><td>{{ error.line }}</td><td>{{ error.text|e }}</td></tr>{% endfor %}</tbody>
+          </table>
+        </div>
+        {% endif %}
+
+        {% if changes %}
+        <h4><i class="fa fa-pencil"></i> {{ text_changes }}</h4>
+        <div class="table-responsive" style="max-height: 480px; overflow-y: auto;">
+          <table class="table table-bordered table-condensed table-striped">
+            <thead><tr><th scope="col" style="width: 70px;">{{ column_line }}</th><th scope="col">{{ column_product }}</th><th scope="col">{{ column_field }}</th><th scope="col">{{ column_old }}</th><th scope="col">{{ column_new }}</th></tr></thead>
+            <tbody>
+              {% for change in changes %}
+              <tr><td>{{ change.line }}</td><td>#{{ change.id }} {{ change.name|e }}</td><td>{{ change.field }}</td><td class="text-muted">{{ change.old|e }}</td><td><b>{{ change.new|e }}</b></td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% if changes_hidden %}<p class="text-muted">{{ text_changes_more|format(changes_hidden) }}</p>{% endif %}
+        {% endif %}
+
+        {% if creates %}
+        <h4><i class="fa fa-plus"></i> {{ text_creates }} ({{ creates|length }})</h4>
+        <div class="table-responsive">
+          <table class="table table-bordered table-condensed">
+            <thead><tr><th scope="col">{{ column_line }}</th><th scope="col">{{ field_sku }}</th><th scope="col">{{ field_name }}</th><th scope="col">{{ field_category }}</th><th scope="col">{{ field_price }}</th><th scope="col">{{ field_minimum }}</th></tr></thead>
+            <tbody>{% for c in creates %}<tr><td>{{ c.line }}</td><td>{{ c.sku|e }}</td><td>{{ c.name|e }}</td><td>{{ c.category|e }}</td><td>{{ c.price|e }}</td><td>{{ c.minimum }}</td></tr>{% endfor %}</tbody>
+          </table>
+        </div>
+        {% endif %}
+
+        {% if can_apply %}
+        <form action="{{ apply }}" method="post" onsubmit="this.querySelector('button').disabled = true; return confirm('{{ text_apply_confirm|e('js') }}');">
+          <input type="hidden" name="key" value="{{ key|e }}">
+          <input type="hidden" name="hash" value="{{ hash|e }}">
+          <button type="submit" class="btn btn-primary btn-lg"><i class="fa fa-check"></i> {{ button_apply }}</button>
+          <a href="{{ cancel }}" class="btn btn-default btn-lg">{{ button_cancel_preview }}</a>
+        </form>
+        {% else %}
+        <div class="alert alert-info">{{ text_nothing }}</div>
+        <a href="{{ cancel }}" class="btn btn-default">{{ button_cancel_preview }}</a>
+        {% endif %}
+      </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ text_note }}</div>
+
+    <div class="panel panel-default">
+      <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-download"></i> {{ text_step_export }}</h3></div>
+      <div class="panel-body">
+        <p>{{ text_export_help|format(columns_help|e) }}</p>
+        {% if can_modify %}<a href="{{ export }}" class="btn btn-default"><i class="fa fa-file-excel-o"></i> {{ button_export }}</a>{% endif %}
+      </div>
+    </div>
+
+    <div class="panel panel-default">
+      <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-upload"></i> {{ text_step_upload }}</h3></div>
+      <div class="panel-body">
+        <p>{{ text_upload_help|format(max_mb, max_rows) }}</p>
+        <p class="help-block">{{ text_rules }}</p>
+        {% if can_modify %}
+        <form action="{{ upload }}" method="post" enctype="multipart/form-data" class="form-inline">
+          <div class="form-group">
+            <label class="sr-only" for="input-kristal-import-file">{{ entry_file }}</label>
+            <input type="file" name="file" id="input-kristal-import-file" accept=".csv,text/csv" required class="form-control">
+          </div>
+          <button type="submit" class="btn btn-primary"><i class="fa fa-eye"></i> {{ button_preview }}</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="panel panel-default">
+      <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-history"></i> {{ text_log }}</h3></div>
+      <div class="panel-body">
+        {% if log %}
+        <div class="table-responsive">
+          <table class="table table-bordered table-condensed">
+            <thead><tr><th scope="col">#</th><th scope="col">{{ column_date }}</th><th scope="col">{{ column_user }}</th><th scope="col">{{ column_file }}</th><th scope="col">{{ column_result }}</th><th scope="col">{{ column_status }}</th><th scope="col"></th></tr></thead>
+            <tbody>
+              {% for row in log %}
+              <tr>
+                <td>{{ row.import_id }}</td><td>{{ row.created_at }}</td><td>{{ row.username|e }}</td><td>{{ row.filename|e }}</td><td>{{ row.counts }}</td><td>{{ row.status }}</td>
+                <td>
+                  {% if row.action and can_modify %}
+                  <form action="{{ undo }}" method="post" onsubmit="return confirm('{{ text_undo_confirm|e('js') }}');" style="margin: 0;">
+                    <input type="hidden" name="import_id" value="{{ row.import_id }}">
+                    <button type="submit" class="btn btn-xs {{ row.action == 'recover' ? 'btn-danger' : 'btn-warning' }}">{{ row.action == 'recover' ? button_recover : button_undo }}</button>
+                  </form>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p class="text-muted">{{ text_log_empty }}</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{{ footer }}

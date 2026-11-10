@@ -13,3 +13,9 @@
 /success                            # 003 — «Дякуємо»
 /poshuk?q=%D1%82%D0%B0%D1%80%D1%96%D0%BB%D0%BA%D0%B0 # 027 — результати пошуку
 /poshuk?q=zzzzqq                 # 027 — нічого не знайдено
+/posud?filter=kolir-bilyi        # 021 — категорія з фільтром (колонка/шторка, kristal-filter.js)
+/posud/tarilky/bili              # 021 — SEO-сторінка фільтра
+/order                           # 010 — кошик події
+/vesillya                        # 007 — сторінка події (весілля, комплекти)
+/kalkulyator                     # 008 — калькулятор події
+

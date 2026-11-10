@@ -551,6 +551,81 @@ CREATE TABLE `oc_information_to_store` (
   `store_id` int(11) NOT NULL,
   PRIMARY KEY (`information_id`,`store_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `oc_kristal_calc_norm` (
+  `norm_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `category_type` varchar(32) NOT NULL DEFAULT 'plates',
+  `name` varchar(128) NOT NULL DEFAULT '',
+  `product_id_classic` int(11) unsigned NOT NULL DEFAULT 0,
+  `product_id_royal` int(11) unsigned NOT NULL DEFAULT 0,
+  `norm_banquet` decimal(5,2) NOT NULL DEFAULT 0.00,
+  `norm_buffet` decimal(5,2) NOT NULL DEFAULT 0.00,
+  `norm_coffee` decimal(5,2) NOT NULL DEFAULT 0.00,
+  `dish_rule` varchar(32) DEFAULT NULL,
+  `drink_filter` varchar(32) DEFAULT NULL,
+  `pack_size` int(11) unsigned NOT NULL DEFAULT 10,
+  `sort_order` int(11) NOT NULL DEFAULT 0,
+  `status` tinyint(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`norm_id`),
+  KEY `idx_cat_sort` (`category_type`,`sort_order`),
+  KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `oc_kristal_filter_page` (
+  `filter_page_id` int(11) NOT NULL AUTO_INCREMENT,
+  `category_id` int(11) NOT NULL,
+  `filter_ids` varchar(64) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
+  `keyword` varchar(64) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
+  `h1` varchar(255) NOT NULL DEFAULT '',
+  `title` varchar(255) NOT NULL DEFAULT '',
+  `description` varchar(255) NOT NULL DEFAULT '',
+  `text` mediumtext NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 1,
+  `date_modified` datetime NOT NULL,
+  PRIMARY KEY (`filter_page_id`),
+  UNIQUE KEY `uq_category_keyword` (`category_id`,`keyword`),
+  UNIQUE KEY `uq_category_filters` (`category_id`,`filter_ids`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `oc_kristal_import_log` (
+  `import_id` int(11) NOT NULL AUTO_INCREMENT,
+  `created_at` datetime NOT NULL,
+  `user_id` int(11) NOT NULL DEFAULT 0,
+  `username` varchar(20) NOT NULL DEFAULT '',
+  `filename` varchar(255) NOT NULL DEFAULT '',
+  `status` varchar(16) NOT NULL DEFAULT 'applying',
+  `rows_total` int(11) NOT NULL DEFAULT 0,
+  `changed` int(11) NOT NULL DEFAULT 0,
+  `created` int(11) NOT NULL DEFAULT 0,
+  `errors` int(11) NOT NULL DEFAULT 0,
+  `snapshot` mediumtext NOT NULL,
+  `summary` text NOT NULL,
+  PRIMARY KEY (`import_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `oc_kristal_kit` (
+  `kit_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `code` varchar(32) NOT NULL,
+  `event_type` varchar(32) NOT NULL DEFAULT 'wedding',
+  `tier` varchar(32) NOT NULL DEFAULT 'standard',
+  `name` varchar(128) NOT NULL DEFAULT '',
+  `badge` varchar(64) NOT NULL DEFAULT '',
+  `discount_pct` decimal(5,2) NOT NULL DEFAULT 0.00,
+  `features` text DEFAULT NULL,
+  `sort_order` int(11) NOT NULL DEFAULT 0,
+  `status` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`kit_id`),
+  UNIQUE KEY `uq_code` (`code`),
+  KEY `idx_event_tier` (`event_type`,`tier`),
+  KEY `idx_status_sort` (`status`,`sort_order`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `oc_kristal_kit_item` (
+  `kit_id` int(11) unsigned NOT NULL,
+  `product_id` int(11) unsigned NOT NULL,
+  `qty_per_guest` decimal(8,2) NOT NULL DEFAULT 1.00,
+  `qty_fixed` int(11) unsigned NOT NULL DEFAULT 0,
+  `sort_order` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`kit_id`,`product_id`),
+  KEY `idx_product_id` (`product_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 CREATE TABLE `oc_kristal_layout_backup` (
   `layout_module_id` int(11) NOT NULL,
   `layout_id` int(11) NOT NULL,
@@ -560,6 +635,47 @@ CREATE TABLE `oc_kristal_layout_backup` (
   `migration` varchar(64) NOT NULL,
   PRIMARY KEY (`layout_module_id`),
   KEY `idx_migration` (`migration`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `oc_kristal_lead` (
+  `lead_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `type` varchar(32) NOT NULL DEFAULT 'calc_15m',
+  `status` varchar(32) NOT NULL DEFAULT 'new',
+  `name` varchar(255) NOT NULL DEFAULT '',
+  `phone` varchar(32) NOT NULL DEFAULT '',
+  `email` varchar(255) NOT NULL DEFAULT '',
+  `event_date` date DEFAULT NULL,
+  `guests` int(11) unsigned DEFAULT NULL,
+  `product_id` int(11) unsigned DEFAULT NULL,
+  `quantity` int(11) unsigned DEFAULT NULL,
+  `contact_channel` varchar(32) NOT NULL DEFAULT 'viber',
+  `comment` text DEFAULT NULL,
+  `manager_note` text DEFAULT NULL,
+  `source_url` varchar(512) NOT NULL DEFAULT '',
+  `utm_source` varchar(255) DEFAULT NULL,
+  `utm_medium` varchar(255) DEFAULT NULL,
+  `utm_campaign` varchar(255) DEFAULT NULL,
+  `utm_content` varchar(255) DEFAULT NULL,
+  `utm_term` varchar(255) DEFAULT NULL,
+  `ip` varchar(45) NOT NULL DEFAULT '',
+  `user_agent` varchar(255) NOT NULL DEFAULT '',
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`lead_id`),
+  KEY `idx_status_created` (`status`,`created_at`),
+  KEY `idx_type_created` (`type`,`created_at`),
+  KEY `idx_created` (`created_at`),
+  KEY `idx_product_id` (`product_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `oc_kristal_lead_file` (
+  `file_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `lead_id` int(11) unsigned NOT NULL,
+  `filename_orig` varchar(255) NOT NULL DEFAULT '',
+  `filename_stored` varchar(255) NOT NULL DEFAULT '',
+  `filesize` int(11) unsigned NOT NULL DEFAULT 0,
+  `mime_type` varchar(128) NOT NULL DEFAULT '',
+  `created_at` datetime NOT NULL,
+  PRIMARY KEY (`file_id`),
+  KEY `idx_lead_id` (`lead_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 CREATE TABLE `oc_kristal_migration` (
   `version` varchar(16) NOT NULL,
@@ -581,6 +697,40 @@ CREATE TABLE `oc_kristal_mock_backup` (
   `field` varchar(64) NOT NULL,
   `value` text NOT NULL,
   PRIMARY KEY (`entity`,`entity_id`,`field`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `oc_kristal_notify_log` (
+  `log_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `channel` varchar(16) NOT NULL COMMENT 'telegram, email, webhook',
+  `event_type` varchar(32) NOT NULL COMMENT 'order, lead, test',
+  `entity_id` int(11) unsigned NOT NULL DEFAULT 0,
+  `recipient` varchar(191) NOT NULL DEFAULT '',
+  `status` varchar(16) NOT NULL DEFAULT 'sent' COMMENT 'sent, failed',
+  `attempts` tinyint(3) unsigned NOT NULL DEFAULT 1,
+  `error` varchar(255) DEFAULT NULL,
+  `summary` varchar(255) DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`log_id`),
+  KEY `idx_status_attempts` (`status`,`attempts`),
+  KEY `idx_created` (`created_at`),
+  KEY `idx_entity` (`entity_id`,`event_type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `oc_kristal_order_rental` (
+  `order_id` int(11) unsigned NOT NULL,
+  `date_from` date NOT NULL,
+  `date_to` date NOT NULL,
+  `rental_days` int(11) unsigned NOT NULL DEFAULT 1,
+  `delivery_type` varchar(16) NOT NULL DEFAULT 'delivery',
+  `delivery_address` varchar(255) NOT NULL DEFAULT '',
+  `contact_channel` varchar(32) NOT NULL DEFAULT 'viber',
+  `is_company` tinyint(1) NOT NULL DEFAULT 0,
+  `company_name` varchar(255) NOT NULL DEFAULT '',
+  `edrpou` varchar(32) NOT NULL DEFAULT '',
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`order_id`),
+  KEY `idx_dates` (`date_from`,`date_to`),
+  KEY `idx_created` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 CREATE TABLE `oc_kristal_product_rental` (
   `product_id` int(11) NOT NULL,

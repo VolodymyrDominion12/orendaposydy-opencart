@@ -1,0 +1,172 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <a href="{{ back }}" data-toggle="tooltip" title="Назад до списку" class="btn btn-default"><i class="fa fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_title }} #{{ lead.lead_id }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if success %}
+    <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+
+    <div class="row">
+      <div class="col-md-8">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-user"></i> Дані клієнта та події</h3>
+          </div>
+          <div class="panel-body">
+            <table class="table table-bordered">
+              <tr>
+                <td style="width: 25%;"><strong>Тип заявки:</strong></td>
+                <td>
+                  {% if lead.type == 'calc_15m' %}<span class="label label-primary">Розрахунок за 15 хвилин</span>
+                  {% elseif lead.type == 'quick_order' %}<span class="label label-info">Швидке замовлення (1 клік)</span>
+                  {% elseif lead.type == 'callback' %}<span class="label label-warning">Зворотний дзвінок</span>
+                  {% else %}<span class="label label-default">{{ lead.type }}</span>{% endif %}
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Клієнт:</strong></td>
+                <td>{{ lead.name ?: 'Не вказано' }}</td>
+              </tr>
+              <tr>
+                <td><strong>Телефон:</strong></td>
+                <td><a href="tel:{{ lead.phone }}" style="font-size: 16px; font-weight: bold;">{{ lead.phone }}</a></td>
+              </tr>
+              {% if lead.email %}
+              <tr>
+                <td><strong>Email:</strong></td>
+                <td><a href="mailto:{{ lead.email }}">{{ lead.email }}</a></td>
+              </tr>
+              {% endif %}
+              <tr>
+                <td><strong>Канал зв'язку:</strong></td>
+                <td><span class="label label-default">{{ lead.contact_channel|upper }}</span></td>
+              </tr>
+              {% if lead.event_date_formatted %}
+              <tr>
+                <td><strong>Дата події:</strong></td>
+                <td><strong>{{ lead.event_date_formatted }}</strong></td>
+              </tr>
+              {% endif %}
+              {% if lead.guests %}
+              <tr>
+                <td><strong>Кількість гостей:</strong></td>
+                <td>{{ lead.guests }} осіб</td>
+              </tr>
+              {% endif %}
+              {% if product %}
+              <tr>
+                <td><strong>Замовлений товар:</strong></td>
+                <td>
+                  <strong>{{ product.name }}</strong> (код: {{ product.model }})
+                  <br>Кількість: <strong>{{ lead.quantity ?: 1 }}</strong> шт
+                </td>
+              </tr>
+              {% endif %}
+              {% if lead.comment %}
+              <tr>
+                <td><strong>Коментар клієнта:</strong></td>
+                <td><em>{{ lead.comment|nl2br }}</em></td>
+              </tr>
+              {% endif %}
+              <tr>
+                <td><strong>Дата створення:</strong></td>
+                <td>{{ lead.created_at_formatted }}</td>
+              </tr>
+              {% if lead.source_url %}
+              <tr>
+                <td><strong>Сторінка переходу:</strong></td>
+                <td><a href="{{ lead.source_url }}" target="_blank" rel="noopener">{{ lead.source_url }}</a></td>
+              </tr>
+              {% endif %}
+              {% if lead.utm_source or lead.utm_campaign %}
+              <tr>
+                <td><strong>Маркетинг (UTM):</strong></td>
+                <td>
+                  {% if lead.utm_source %}source: <code>{{ lead.utm_source }}</code> {% endif %}
+                  {% if lead.utm_medium %}medium: <code>{{ lead.utm_medium }}</code> {% endif %}
+                  {% if lead.utm_campaign %}campaign: <code>{{ lead.utm_campaign }}</code>{% endif %}
+                </td>
+              </tr>
+              {% endif %}
+            </table>
+          </div>
+        </div>
+
+        {% if files %}
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-paperclip"></i> Прикріплені файли меню / кошторису</h3>
+          </div>
+          <div class="panel-body">
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th>Назва файлу</th>
+                  <th>Розмір</th>
+                  <th class="text-right">Дія</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for f in files %}
+                <tr>
+                  <td><i class="fa fa-file-text-o text-primary"></i> <strong>{{ f.filename }}</strong></td>
+                  <td>{{ f.size }}</td>
+                  <td class="text-right">
+                    <a href="{{ f.download }}" class="btn btn-primary btn-sm"><i class="fa fa-download"></i> Завантажити</a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="col-md-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-cog"></i> Керування заявкою</h3>
+          </div>
+          <div class="panel-body">
+            <form action="{{ action_status }}" method="post">
+              <input type="hidden" name="lead_id" value="{{ lead.lead_id }}">
+              
+              <div class="form-group">
+                <label class="control-label" for="select-status">Статус заявки</label>
+                <select name="status" id="select-status" class="form-control">
+                  <option value="new"{% if lead.status == 'new' %} selected="selected"{% endif %}>Нова</option>
+                  <option value="in_progress"{% if lead.status == 'in_progress' %} selected="selected"{% endif %}>В роботі</option>
+                  <option value="completed"{% if lead.status == 'completed' %} selected="selected"{% endif %}>Виконано</option>
+                  <option value="canceled"{% if lead.status == 'canceled' %} selected="selected"{% endif %}>Скасовано</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="control-label" for="textarea-note">Внутрішня примітка менеджера</label>
+                <textarea name="manager_note" id="textarea-note" rows="5" class="form-control" placeholder="Нотатки для внутрішнього користування...">{{ lead.manager_note }}</textarea>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-block"><i class="fa fa-save"></i> Зберегти зміни</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{{ footer }}

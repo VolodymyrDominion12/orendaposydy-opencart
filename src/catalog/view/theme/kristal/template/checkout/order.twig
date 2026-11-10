@@ -1,0 +1,176 @@
+{{ header }}
+
+<div class="k-wrap k-page">
+  <ol class="k-crumbs">
+    {% for breadcrumb in breadcrumbs %}
+      {% if loop.last %}
+        <li aria-current="page">{{ breadcrumb.text }}</li>
+      {% else %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+      {% endif %}
+    {% endfor %}
+  </ol>
+
+  <h1 class="k-h1" style="margin-bottom:var(--space-4)">{{ heading_title }}</h1>
+
+  {% if empty %}
+    <div class="k-empty-cart">
+      <svg class="k-ico" style="width:64px;height:64px;margin-bottom:var(--space-4);color:var(--gold)"><use href="#i-bag"/></svg>
+      <h2 class="k-h2" style="margin-bottom:var(--space-2)">{{ text_empty_title }}</h2>
+      <p class="k-muted" style="margin-bottom:var(--space-6)">{{ text_empty_subtitle }}</p>
+      <a href="{{ k_catalog_href }}" class="k-btn k-btn--primary">{{ text_btn_catalog }}</a>
+
+      {% if hits %}
+        <div style="margin-top:var(--space-12);text-align:left">
+          <h3 class="k-h2" style="margin-bottom:var(--space-4)">{{ text_hits_title }}</h3>
+          <div class="k-grid k-grid--4">
+            {% for product in hits %}
+            <article class="k-card">
+              <a class="k-card__media" href="{{ product.href }}" tabindex="-1" aria-hidden="true">
+                {% if product.k.is_hit %}<span class="k-badge k-badge--hit">{{ kc_hit }}</span>{% endif %}
+                <img src="{{ product.k.img.src }}"{% if product.k.img.srcset %} srcset="{{ product.k.img.srcset }}" sizes="(min-width: 1280px) 290px, (min-width: 1024px) 23vw, (min-width: 768px) 31vw, 47vw"{% endif %} width="{{ product.k.img.width }}" height="{{ product.k.img.height }}" alt="{{ product.name }}" loading="lazy">
+              </a>
+              <div class="k-card__body">
+                <h3 class="k-card__name"><a href="{{ product.href }}">{{ product.name }}</a></h3>
+                {% if product.k.price %}<p class="k-card__price"><span class="k-price">{{ product.k.price }}</span> <span class="k-buy__unit">{{ product.k.per }}</span></p>{% endif %}
+                {% if product.k.min_text %}<p class="k-card__meta">{{ product.k.min_text }}</p>{% endif %}
+                {% if product.k.best %}<p class="k-card__vol">{{ product.k.best }}</p>{% endif %}
+                <form class="k-card__foot" action="{{ product.href }}" method="get" data-k-add data-k-min="{{ product.k.minimum }}" data-k-hint="{{ product.k.min_hint }}">
+                  <input type="hidden" name="product_id" value="{{ product.product_id }}">
+                  <div class="k-qty">
+                    <button type="button" data-k-step="-1" aria-label="{{ kc_less }}"><svg class="k-ico"><use href="#i-minus"/></svg></button>
+                    <input type="number" name="quantity" value="{{ product.k.minimum }}" min="{{ product.k.minimum }}" inputmode="numeric" aria-label="{{ kc_qty }}: {{ product.name }}">
+                    <button type="button" data-k-step="1" aria-label="{{ kc_more_qty }}"><svg class="k-ico"><use href="#i-plus"/></svg></button>
+                  </div>
+                  <button class="k-btn k-btn--secondary k-btn--sm" type="submit">{{ kc_add }}</button>
+                  <p class="k-card__hint" aria-live="polite"></p>
+                </form>
+              </div>
+            </article>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  {% else %}
+    <ol class="k-stepper">
+      <li class="is-on">{{ text_step_items }}</li>
+      <li class="is-on">{{ text_step_dates }}</li>
+      <li class="is-on">{{ text_step_contacts }}</li>
+      <li>{{ text_step_booking }}</li>
+    </ol>
+
+    <div class="k-checkout">
+      <form id="k-checkout-form" method="post" action="{{ action_save }}">
+        <input type="hidden" name="{{ antispam.token_name }}" value="{{ antispam.token }}">
+        <div class="k-hp" aria-hidden="true" style="display:none"><input type="text" name="{{ antispam.honeypot_name }}" tabindex="-1" autocomplete="off"></div>
+
+        <!-- 01 Що берете -->
+        <div class="k-block" style="border-top:0;padding-top:0">
+          <div class="k-block__title"><span class="k-mono">01</span><h2 class="k-h3" style="font-size:20px">{{ text_block_items }}</h2></div>
+          <div id="k-cart-lines">
+            {% for p in products %}
+              <div class="k-line" data-cart-id="{{ p.cart_id }}" data-pid="{{ p.product_id }}">
+                <div class="k-photo">
+                  <img src="{{ p.image.src }}" srcset="{{ p.image.srcset }}" width="{{ p.image.width }}" height="{{ p.image.height }}" alt="{{ p.name|e }}" loading="lazy">
+                </div>
+                <div class="k-line__info">
+                  <a class="k-line__name" href="{{ p.href }}">{{ p.name }}</a>
+                  <span class="k-card__meta">{% if p.sku %}{{ p.sku }} · {% endif %}{{ p.unit_price }} × доба</span>
+                </div>
+                <div class="k-line__ctrl">
+                  <div class="k-qty" data-cart-id="{{ p.cart_id }}" data-min="{{ p.minimum }}">
+                    <button type="button" class="k-qty-btn" data-act="minus" aria-label="Менше"><svg class="k-ico k-ico--sm"><use href="#i-minus"/></svg></button>
+                    <input type="number" class="k-qty-input" value="{{ p.quantity }}" min="{{ p.minimum }}" aria-label="Кількість">
+                    <button type="button" class="k-qty-btn" data-act="plus" aria-label="Більше"><svg class="k-ico k-ico--sm"><use href="#i-plus"/></svg></button>
+                  </div>
+                  <span class="k-line__sum">{{ p.total }}</span>
+                  <button class="k-line__del" type="button" data-act="del" aria-label="Прибрати"><svg class="k-ico"><use href="#i-trash"/></svg></button>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+          <div class="k-remind">
+            <svg class="k-ico k-gold"><use href="#i-textile"/></svg>
+            <p><b>Потрібен додатковий інвентар чи декор?</b> <span class="k-muted">Перегляньте інші розділи каталогу, щоб доповнити замовлення.</span></p>
+            <a class="k-btn k-btn--secondary k-btn--sm" href="{{ k_catalog_href }}">До каталогу</a>
+          </div>
+        </div>
+
+        <!-- 02 Дати й доставка -->
+        <div class="k-block">
+          <div class="k-block__title"><span class="k-mono">02</span><h2 class="k-h3" style="font-size:20px">{{ text_block_dates }}</h2></div>
+          <div class="k-form__row">
+            <label class="k-field"><span>{{ entry_date_from }}</span><input class="k-input" type="date" name="date_from" id="k-date-from" value="{{ default_date_from }}" min="{{ min_date }}" required></label>
+            <label class="k-field"><span>{{ entry_date_to }}</span><input class="k-input" type="date" name="date_to" id="k-date-to" value="{{ default_date_to }}" min="{{ min_date }}" required></label>
+          </div>
+          <p class="k-hint">Оренда: <b class="k-mono" style="color:var(--ink)" id="k-days-display">2 доби</b>. Повернення інвентарю до 12:00 наступного дня.</p>
+          <div class="k-radio-card" role="radiogroup" aria-label="Спосіб отримання">
+            <label class="is-checked"><input type="radio" name="delivery_type" value="delivery" checked><b>{{ text_delivery }}</b><span>{{ text_delivery_sub }}</span></label>
+            <label><input type="radio" name="delivery_type" value="pickup"><b>{{ text_pickup }}</b><span>{{ text_pickup_sub }}</span></label>
+          </div>
+          <label class="k-field" id="k-addr-wrapper"><span>{{ entry_delivery_address }}</span><input class="k-input" type="text" name="delivery_address" id="k-delivery-address" autocomplete="street-address" placeholder="Місто, вулиця, будинок або назва локації"></label>
+        </div>
+
+        <!-- 03 Контакти -->
+        <div class="k-block">
+          <div class="k-block__title"><span class="k-mono">03</span><h2 class="k-h3" style="font-size:20px">{{ text_block_contacts }}</h2></div>
+          <div class="k-form__row">
+            <label class="k-field"><span>{{ entry_name }}</span><input class="k-input" type="text" name="firstname" value="{{ customer_name }}" autocomplete="name" required></label>
+            <label class="k-field"><span>{{ entry_phone }}</span><input class="k-input" type="tel" name="telephone" value="{{ customer_phone }}" autocomplete="tel" placeholder="+380" required></label>
+          </div>
+          <div class="k-field"><span>{{ entry_channel }}</span>
+            <div class="k-seg">
+              <label class="is-checked"><input type="radio" name="contact_channel" value="viber" checked><span>Viber</span></label>
+              <label><input type="radio" name="contact_channel" value="telegram"><span>Telegram</span></label>
+              <label><input type="radio" name="contact_channel" value="phone"><span>Дзвінок</span></label>
+              <label><input type="radio" name="contact_channel" value="email"><span>Email</span></label>
+            </div>
+          </div>
+          <label class="k-field"><span>{{ entry_comment }}</span><textarea class="k-textarea" name="comment" placeholder="Час доставки, поверх, потрібен монтаж…"></textarea></label>
+          <label class="k-check" style="margin-top:var(--space-2);display:inline-flex;align-items:center;gap:var(--space-2);cursor:pointer">
+            <input type="checkbox" name="is_company" id="k-toggle-company" value="1"><span>{{ text_company_toggle }}</span>
+          </label>
+          <div id="k-company-fields" style="display:none;margin-top:var(--space-3)">
+            <div class="k-form__row">
+              <label class="k-field"><span>{{ entry_company_name }}</span><input class="k-input" type="text" name="company_name" placeholder="ТОВ або ФОП"></label>
+              <label class="k-field"><span>{{ entry_edrpou }}</span><input class="k-input" type="text" name="edrpou" placeholder="8 або 10 цифр"></label>
+            </div>
+          </div>
+        </div>
+
+        <!-- 04 Бронювання -->
+        <div class="k-block">
+          <div class="k-block__title"><span class="k-mono">04</span><h2 class="k-h3" style="font-size:20px">{{ text_block_booking }}</h2></div>
+          <div class="k-radio-card" role="radiogroup" aria-label="Спосіб оформлення">
+            <label class="is-checked"><input type="radio" name="payment_method" value="kristal_request" checked><b>{{ text_pay_request }}</b><span>{{ text_pay_request_sub }}</span></label>
+            <label><input type="radio" name="payment_method" value="oplata"><b>{{ text_pay_online }}</b><span>{{ text_pay_online_sub }}</span></label>
+          </div>
+        </div>
+      </form>
+
+      <!-- Підсумок замовлення -->
+      <aside class="k-summary k-panel k-panel--gold">
+        <h2 class="k-h3" style="font-size:20px;margin-bottom:var(--space-4)">{{ text_summary_title }}</h2>
+        <dl>
+          <dt><span id="k-sum-positions">{{ count_positions }}</span> {{ text_items_count }}, <span id="k-sum-units">{{ total_units }}</span> {{ text_units_count }}</dt><dd id="k-sum-day-rate">{{ total_day }} / доба</dd>
+          <dt>× <span id="k-sum-days-count">2</span> {{ text_days_count }}</dt><dd id="k-sum-days-mult">×1.5</dd>
+          <dt>Доставка</dt><dd class="k-muted" style="font-family:var(--font-sans)">у кошторисі</dd>
+          <dt class="k-sub">{{ text_subtotal }}</dt><dd class="k-sub" id="k-sum-subtotal">0 ₴</dd>
+          <dt class="k-total">{{ text_prepay }}</dt><dd class="k-total" id="k-sum-prepay">0 ₴</dd>
+          <dt>{{ text_postpay }}</dt><dd><span id="k-sum-postpay">0 ₴</span> + доставка</dd>
+        </dl>
+        <p class="k-hint" style="margin:var(--space-3) 0 var(--space-6)">{{ text_security_note }}</p>
+        <button class="k-btn k-btn--primary k-btn--block" type="submit" form="k-checkout-form" id="k-btn-order">{{ text_btn_request }}</button>
+        <div id="k-form-errors" style="display:none;color:var(--danger);margin-top:var(--space-3);font-size:14px;text-align:center"></div>
+        <p class="k-hint" style="margin-top:var(--space-3);text-align:center">Безпечне оформлення · підтвердження у месенджері</p>
+      </aside>
+    </div>
+  {% endif %}
+</div>
+
+{% if not empty %}
+<script src="catalog/view/theme/kristal/js/kristal-checkout.js" defer></script>
+{% endif %}
+
+{{ footer }}

@@ -1,0 +1,63 @@
+{# Фіча 021: масове призначення значень фільтрів товарам категорії. #}
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        {% if products and groups %}<button type="submit" form="form-kristal-filter-assign" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>{% endif %}
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
+      <h1>{{ text_assign }}{% if category_name %}: {{ category_name }}{% endif %}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li>{% if breadcrumb.href %}<a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a>{% else %}{{ breadcrumb.text }}{% endif %}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}</div>
+    {% endif %}
+    {% if success %}
+    <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    <p class="help-block">{{ text_assign_help }}</p>
+    {% if limit_note %}<div class="alert alert-warning">{{ limit_note }}</div>{% endif %}
+    {% if not groups %}
+    <div class="alert alert-warning">{{ text_no_groups }}</div>
+    {% elseif not products %}
+    <p>{{ text_assign_empty }}</p>
+    {% else %}
+    <form action="{{ action }}" method="post" id="form-kristal-filter-assign">
+      <div class="table-responsive">
+        <table class="table table-bordered table-condensed">
+          <thead>
+            <tr>
+              <th>{{ column_product }}</th>
+              {% for group in groups %}<th>{{ group.name }}</th>{% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for product in products %}
+            <tr{% if not product.status %} class="text-muted"{% endif %}>
+              <td style="min-width:220px"><a href="{{ product.edit }}" target="_blank" rel="noopener">{{ product.name }}</a><br><small>{{ product.model }}</small></td>
+              {% for group in groups %}
+              <td>
+                <select name="pf[{{ product.id }}][{{ group.id }}][]" class="form-control input-sm" multiple size="{{ group.values|length > 4 ? 4 : group.values|length }}" aria-label="{{ product.name }}: {{ group.name }}">
+                  {% for fid, name in group.values %}<option value="{{ fid }}"{% if product.filters[fid] is defined %} selected{% endif %}>{{ name }}</option>{% endfor %}
+                </select>
+              </td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> {{ button_save }}</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+{{ footer }}

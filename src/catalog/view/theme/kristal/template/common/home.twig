@@ -132,18 +132,39 @@
 </section>
 {% endif %}
 
-<section class="k-section k-section--sunken">
+<section class="k-section k-section--sunken" id="lead">
   <div class="k-wrap k-leadbox">
-    <div>
-      <span class="k-label k-label--gold">{{ kh_contact_label }}</span>
-      <h2 class="k-h2">{{ kh_contact_title }}</h2>
-      <p class="k-lead">{{ kh_contact_lead }}</p>
+    <div class="k-leadbox__alt">
+      <span class="k-label k-label--gold">{{ kh_contact_label ?: 'Розрахунок за 15 хвилин' }}</span>
+      <h2 class="k-h2">{{ kh_contact_title ?: 'Надішліть дату й кількість гостей — решту порахуємо ми' }}</h2>
+      <p class="k-muted">{{ kh_contact_lead ?: 'Менеджер перевірить наявність на вашу дату, підбере посуд під меню й надішле кошторис у Viber, Telegram або на пошту. У робочий час — за 15 хвилин.' }}</p>
+      <div class="k-messengers" style="margin-top:var(--space-4)">
+        {% if k_phone_tel %}<a class="k-btn k-btn--ghost" href="{{ k_phone_tel }}"><svg class="k-ico"><use href="#i-phone"/></svg><span class="k-mono">{{ k_phone_display }}</span></a>{% endif %}
+        {% if k_viber_href %}<a class="k-btn k-btn--ghost" href="{{ k_viber_href }}"><svg class="k-ico"><use href="#i-viber"/></svg>Viber</a>{% endif %}
+        {% if k_telegram_href %}<a class="k-btn k-btn--ghost" href="{{ k_telegram_href }}" rel="noopener"><svg class="k-ico"><use href="#i-telegram"/></svg>Telegram</a>{% endif %}
+      </div>
     </div>
-    <div class="k-messengers">
-      {% if k_phone_tel %}<a class="k-btn k-btn--primary" href="{{ k_phone_tel }}"><svg class="k-ico"><use href="#i-phone"/></svg><span class="k-mono">{{ k_phone_display }}</span></a>{% endif %}
-      {% if k_viber_href %}<a class="k-btn k-btn--ghost" href="{{ k_viber_href }}"><svg class="k-ico"><use href="#i-viber"/></svg>Viber</a>{% endif %}
-      {% if k_telegram_href %}<a class="k-btn k-btn--ghost" href="{{ k_telegram_href }}" rel="noopener"><svg class="k-ico"><use href="#i-telegram"/></svg>Telegram</a>{% endif %}
-    </div>
+    <form class="k-panel k-panel--gold k-form" action="{{ k_lead_action }}" method="post" enctype="multipart/form-data" data-k-lead>
+      <input type="hidden" name="type" value="calc_15m">
+      {% if k_antispam_token_name %}
+      <input type="hidden" name="{{ k_antispam_token_name }}" value="{{ k_antispam_token }}">
+      <div class="k-hp" aria-hidden="true"><input type="text" name="{{ k_antispam_hp_name }}" tabindex="-1" autocomplete="off"></div>
+      {% elseif k_antispam %}
+      <input type="hidden" name="{{ k_antispam.token_name }}" value="{{ k_antispam.token }}">
+      <div class="k-hp" aria-hidden="true"><input type="text" name="{{ k_antispam.honeypot_name }}" tabindex="-1" autocomplete="off"></div>
+      {% endif %}
+      <div class="k-form__row">
+        <label class="k-field"><span>Дата події</span><input class="k-input" type="date" name="event_date"></label>
+        <label class="k-field"><span>Кількість гостей</span><input class="k-input" type="number" name="guests" inputmode="numeric" min="1" placeholder="Напр., 80"></label>
+      </div>
+      <div class="k-form__row">
+        <label class="k-field"><span>Ваше ім'я</span><input class="k-input" type="text" name="name" autocomplete="name" placeholder="Як до вас звертатися"></label>
+        <label class="k-field"><span>Телефон *</span><input class="k-input" type="tel" name="phone" autocomplete="tel" placeholder="+380" required></label>
+      </div>
+      <label class="k-file"><svg class="k-ico"><use href="#i-file"/></svg><span>Додати меню (PDF, фото) — підберемо посуд під страви</span><input type="file" name="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.webp" class="k-sr"></label>
+      <button class="k-btn k-btn--primary k-btn--block" type="submit">Отримати розрахунок</button>
+      <p class="k-hint">Розрахунок безкоштовний і ні до чого не зобов'язує. Натискаючи кнопку, ви погоджуєтеся з {% if k_privacy_href %}<a href="{{ k_privacy_href }}" style="text-decoration:underline">політикою конфіденційності</a>{% else %}політикою конфіденційності{% endif %}.</p>
+    </form>
   </div>
 </section>
 {{ content_bottom }}

@@ -167,7 +167,12 @@ while IFS= read -r rel; do
     [ -n "$rel" ] || continue
     if [ -f "$SRC/$rel" ]; then
         size="$(du -h "$SRC/$rel" | cut -f1)"
-        printf '  + %-72s %s\n' "$rel" "$size" >> "$PLAN"
+        remote="$(remote_rel "$rel")"
+        if [ "$remote" != "$rel" ]; then
+            printf '  + %-72s %s  → %s\n' "$rel" "$size" "$remote" >> "$PLAN"
+        else
+            printf '  + %-72s %s\n' "$rel" "$size" >> "$PLAN"
+        fi
         TOTAL=$((TOTAL+1))
     else
         printf '  - %-72s (видалено локально — на проді НЕ видаляється автоматично)\n' "$rel" >> "$PLAN"
@@ -194,9 +199,35 @@ cat "$PLAN"
 printf '\n  Файлів до заливки: %s\n' "$TOTAL"
 [ "$MISSING" -gt 0 ] && printf '  Відсутніх локально (не чіпаємо): %s\n' "$MISSING"
 
+# ---------------------------------------------------------------------------
+# 017: стан проду — одне FTP-з'єднання (лістинг кореня сайту).
+#   install/ на проді → помилка (AC-3); файли адмінки, а теки REMOTE_ADMIN_DIR немає → помилка
+#   (інакше curl --ftp-create-dirs створив би напівпорожню адмінку під новою назвою).
+# ---------------------------------------------------------------------------
+GUARD_FAIL=0
+if [ "${DEPLOY_METHOD:-ftp}" = "ftp" ] && [ -n "${FTP_HOST:-}" ] && [ -n "${FTP_PASSWORD:-}" ]; then
+    SITE_NAMES="$(ftp_site_names || true)"
+    if [ -z "$SITE_NAMES" ]; then
+        warn "не вдалося прочитати корінь сайту по FTP — перевірку install/ і теки адмінки пропущено"
+    else
+        if printf '%s\n' "$SITE_NAMES" | grep -qx 'install'; then
+            err "install/ на проді — видалити: make sec-cleanup APPLY=1 (specs/017-security)"
+            GUARD_FAIL=1
+        fi
+        if grep -q '^admin/' "$FILTERED"; then
+            ADMIN_REMOTE="$(remote_rel admin)"
+            if ! printf '%s\n' "$SITE_NAMES" | grep -qx "$ADMIN_REMOTE"; then
+                err "теки адмінки '$ADMIN_REMOTE' на проді немає — перевірте REMOTE_ADMIN_DIR у .env"
+                GUARD_FAIL=1
+            fi
+        fi
+    fi
+fi
+
 if [ "$APPLY" -eq 0 ]; then
     printf '\n'
     info "Це DRY-RUN. Нічого не змінилось."
+    [ "$GUARD_FAIL" -eq 0 ] || { err "Спершу виправте помилки вище."; exit 1; }
     printf '  Щоб залити:  tools/deploy.sh --apply\n'
     if [ "$DEPLOY_METHOD" = "zip" ]; then
         printf '  Або зібрати архів:  tools/package-release.sh\n'
@@ -207,6 +238,8 @@ fi
 # ---------------------------------------------------------------------------
 # Підтвердження
 # ---------------------------------------------------------------------------
+[ "$GUARD_FAIL" -eq 0 ] || die "Деплой зупинено: виправте помилки вище."
+
 step "3/4  Підтвердження"
 printf 'Залити %s файл(ів) на ПРОД %s?\n' "$TOTAL" "${FTP_HOST:-?}"
 printf 'Спершу буде зроблено бекап поточних версій із прода.\n'

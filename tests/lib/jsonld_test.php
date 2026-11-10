@@ -131,3 +131,19 @@ test('AC-9: Nap::get кешує kristal.nap, Cache_key::flush скидає', fun
 	assert_same('+380501112233', Nap::get($registry)['primary_phone']['number'], 'після flush');
 	assert_same('чуже', $cache->get('product.1'), 'інші ключі не зачеплено');
 });
+
+test('breadcrumbs: BreadcrumbList, декодування назв, останній без url, < 2 пунктів — порожньо', function () {
+	$ld = Jsonld::breadcrumbs(array(
+		array('name' => 'Головна', 'url' => 'https://orendaposudu.com/'),
+		array('name' => 'Посуд &amp; прибори', 'url' => 'https://orendaposudu.com/posud?a=1&amp;b=2'),
+		array('name' => '', 'url' => 'x'),
+		array('name' => 'Оренда білих тарілок', 'url' => '')
+	));
+	assert_same('BreadcrumbList', $ld['@type']);
+	assert_same(3, count($ld['itemListElement']));
+	assert_same('Посуд & прибори', $ld['itemListElement'][1]['name']);
+	assert_same('https://orendaposudu.com/posud?a=1&b=2', $ld['itemListElement'][1]['item']);
+	assert_same(3, $ld['itemListElement'][2]['position']);
+	assert_false(isset($ld['itemListElement'][2]['item']));
+	assert_same(array(), Jsonld::breadcrumbs(array(array('name' => 'Головна', 'url' => '/'))));
+});

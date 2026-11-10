@@ -1,0 +1,404 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        {% if legacy_available %}
+        <button type="button" id="button-import-legacy" class="btn btn-warning" data-toggle="tooltip" title="{{ text_import_confirm }}"><i class="fa fa-download"></i> {{ button_import }}</button>
+        {% endif %}
+        <button type="submit" form="form-kristal-notify" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    {% if success %}
+    <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-bell"></i> {{ text_edit }}</h3>
+      </div>
+      <div class="panel-body">
+        <ul class="nav nav-tabs">
+          <li class="active"><a href="#tab-general" data-toggle="tab"><i class="fa fa-cogs"></i> Загальні</a></li>
+          <li><a href="#tab-telegram" data-toggle="tab"><i class="fa fa-paper-plane"></i> {{ text_telegram }}</a></li>
+          <li><a href="#tab-email" data-toggle="tab"><i class="fa fa-envelope"></i> {{ text_email }}</a></li>
+          <li><a href="#tab-webhook" data-toggle="tab"><i class="fa fa-exchange"></i> {{ text_webhook }}</a></li>
+          <li><a href="#tab-log" data-toggle="tab"><i class="fa fa-list-alt"></i> {{ text_log }}</a></li>
+        </ul>
+
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-kristal-notify" class="form-horizontal">
+          <div class="tab-content">
+            <!-- Вкладка 1: Загальні -->
+            <div class="tab-pane active" id="tab-general">
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
+                <div class="col-sm-10">
+                  <select name="module_kristal_notify_status" id="input-status" class="form-control">
+                    <option value="1"{% if module_kristal_notify_status %} selected="selected"{% endif %}>{{ text_enabled }}</option>
+                    <option value="0"{% if not module_kristal_notify_status %} selected="selected"{% endif %}>{{ text_disabled }}</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Вкладка 2: Telegram -->
+            <div class="tab-pane" id="tab-telegram">
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-tg-status">{{ entry_tg_status }}</label>
+                <div class="col-sm-10">
+                  <select name="module_kristal_notify_telegram_status" id="input-tg-status" class="form-control">
+                    <option value="1"{% if module_kristal_notify_telegram_status %} selected="selected"{% endif %}>{{ text_enabled }}</option>
+                    <option value="0"{% if not module_kristal_notify_telegram_status %} selected="selected"{% endif %}>{{ text_disabled }}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-tg-token"><span data-toggle="tooltip" title="{{ help_tg_token }}">{{ entry_tg_token }}</span></label>
+                <div class="col-sm-10">
+                  <input type="text" name="module_kristal_notify_telegram_token" value="{{ module_kristal_notify_telegram_token }}" placeholder="{% if has_saved_token %}{{ telegram_token_masked }} (збережено){% else %}123456789:ABCdef...{% endif %}" id="input-tg-token" class="form-control" />
+                  {% if error.tg_token %}
+                  <div class="text-danger">{{ error.tg_token }}</div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-tg-chats"><span data-toggle="tooltip" title="{{ help_tg_chats }}">{{ entry_tg_chats }}</span></label>
+                <div class="col-sm-10">
+                  <textarea name="module_kristal_notify_telegram_chats" rows="4" placeholder="12345678, -100987654321" id="input-tg-chats" class="form-control">{{ module_kristal_notify_telegram_chats }}</textarea>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-10 col-sm-offset-2">
+                  <button type="button" id="btn-test-tg" class="btn btn-info"><i class="fa fa-paper-plane"></i> {{ button_test }} Telegram</button>
+                  <span id="tg-test-result" style="margin-left: 15px;"></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Вкладка 3: Email -->
+            <div class="tab-pane" id="tab-email">
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-email-status">{{ entry_email_status }}</label>
+                <div class="col-sm-10">
+                  <select name="module_kristal_notify_email_status" id="input-email-status" class="form-control">
+                    <option value="1"{% if module_kristal_notify_email_status %} selected="selected"{% endif %}>{{ text_enabled }}</option>
+                    <option value="0"{% if not module_kristal_notify_email_status %} selected="selected"{% endif %}>{{ text_disabled }}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-email-to"><span data-toggle="tooltip" title="{{ help_email_to }}">{{ entry_email_to }}</span></label>
+                <div class="col-sm-10">
+                  <textarea name="module_kristal_notify_email_to" rows="3" placeholder="manager@kristal.lviv.ua, director@kristal.lviv.ua" id="input-email-to" class="form-control">{{ module_kristal_notify_email_to }}</textarea>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-email-prefix"><span data-toggle="tooltip" title="{{ help_email_prefix }}">{{ entry_email_prefix }}</span></label>
+                <div class="col-sm-10">
+                  <input type="text" name="module_kristal_notify_email_prefix" value="{{ module_kristal_notify_email_prefix }}" id="input-email-prefix" class="form-control" />
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-10 col-sm-offset-2">
+                  <button type="button" id="btn-test-email" class="btn btn-info"><i class="fa fa-envelope"></i> {{ button_test }} Email</button>
+                  <span id="email-test-result" style="margin-left: 15px;"></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Вкладка 4: Webhook CRM -->
+            <div class="tab-pane" id="tab-webhook">
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-hook-status">{{ entry_hook_status }}</label>
+                <div class="col-sm-10">
+                  <select name="module_kristal_notify_webhook_status" id="input-hook-status" class="form-control">
+                    <option value="1"{% if module_kristal_notify_webhook_status %} selected="selected"{% endif %}>{{ text_enabled }}</option>
+                    <option value="0"{% if not module_kristal_notify_webhook_status %} selected="selected"{% endif %}>{{ text_disabled }}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-hook-url"><span data-toggle="tooltip" title="{{ help_hook_url }}">{{ entry_hook_url }}</span></label>
+                <div class="col-sm-10">
+                  <input type="text" name="module_kristal_notify_webhook_url" value="{{ module_kristal_notify_webhook_url }}" placeholder="https://api.crm.example/webhook/orders" id="input-hook-url" class="form-control" />
+                  {% if error.hook_url %}
+                  <div class="text-danger">{{ error.hook_url }}</div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-hook-secret"><span data-toggle="tooltip" title="{{ help_hook_secret }}">{{ entry_hook_secret }}</span></label>
+                <div class="col-sm-10">
+                  <div class="input-group">
+                    <input type="text" name="module_kristal_notify_webhook_secret" value="{{ module_kristal_notify_webhook_secret }}" placeholder="Секретний ключ для HMAC SHA-256" id="input-hook-secret" class="form-control" />
+                    <span class="input-group-btn">
+                      <button type="button" id="btn-gen-secret" class="btn btn-default" data-toggle="tooltip" title="Згенерувати випадковий ключ"><i class="fa fa-key"></i></button>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-10 col-sm-offset-2">
+                  <button type="button" id="btn-test-hook" class="btn btn-info"><i class="fa fa-exchange"></i> {{ button_test }} Webhook</button>
+                  <span id="hook-test-result" style="margin-left: 15px;"></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Вкладка 5: Журнал -->
+            <div class="tab-pane" id="tab-log">
+              <div class="well">
+                <div class="row">
+                  <div class="col-sm-4">
+                    <div class="form-group">
+                      <label class="control-label">Статус</label>
+                      <select id="log-filter-status" class="form-control">
+                        <option value="">{{ text_all }}</option>
+                        <option value="sent"{% if filter_status == 'sent' %} selected="selected"{% endif %}>{{ text_status_sent }}</option>
+                        <option value="failed"{% if filter_status == 'failed' %} selected="selected"{% endif %}>{{ text_status_failed }}</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-sm-4">
+                    <div class="form-group">
+                      <label class="control-label">Канал</label>
+                      <select id="log-filter-channel" class="form-control">
+                        <option value="">{{ text_all }}</option>
+                        <option value="telegram"{% if filter_channel == 'telegram' %} selected="selected"{% endif %}>Telegram</option>
+                        <option value="email"{% if filter_channel == 'email' %} selected="selected"{% endif %}>Email</option>
+                        <option value="webhook"{% if filter_channel == 'webhook' %} selected="selected"{% endif %}>Webhook</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-sm-4 text-right" style="margin-top: 25px;">
+                    <button type="button" id="btn-apply-log-filter" class="btn btn-primary"><i class="fa fa-filter"></i> {{ button_filter }}</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                  <thead>
+                    <tr>
+                      <th>{{ column_date }}</th>
+                      <th>{{ column_channel }}</th>
+                      <th>{{ column_event }}</th>
+                      <th>{{ column_recipient }}</th>
+                      <th>{{ column_summary }}</th>
+                      <th class="text-center">{{ column_status }}</th>
+                      <th>{{ column_error }}</th>
+                      <th class="text-right">{{ column_action }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% if logs %}
+                    {% for l in logs %}
+                    <tr>
+                      <td>{{ l.created_at }}</td>
+                      <td>
+                        {% if l.channel == 'telegram' %}
+                        <span class="label label-info"><i class="fa fa-paper-plane"></i> Telegram</span>
+                        {% elseif l.channel == 'email' %}
+                        <span class="label label-primary"><i class="fa fa-envelope"></i> Email</span>
+                        {% else %}
+                        <span class="label label-default"><i class="fa fa-exchange"></i> Webhook</span>
+                        {% endif %}
+                      </td>
+                      <td>{{ l.event_type }}</td>
+                      <td><code>{{ l.recipient }}</code></td>
+                      <td>{{ l.summary }}</td>
+                      <td class="text-center">
+                        {% if l.status == 'sent' %}
+                        <span class="label label-success">{{ text_status_sent }}</span>
+                        {% else %}
+                        <span class="label label-danger">{{ text_status_failed }}</span>
+                        {% endif %}
+                      </td>
+                      <td><small class="text-danger">{{ l.error }}</small></td>
+                      <td class="text-right">
+                        {% if l.status == 'failed' %}
+                        <button type="button" data-log-id="{{ l.log_id }}" class="btn btn-xs btn-warning btn-retry-log" data-toggle="tooltip" title="{{ button_retry }}"><i class="fa fa-refresh"></i></button>
+                        {% endif %}
+                      </td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                      <td class="text-center" colspan="8">Журнал порожній</td>
+                    </tr>
+                    {% endif %}
+                  </tbody>
+                </table>
+              </div>
+              <div class="row">
+                <div class="col-sm-12 text-right">{{ pagination }}</div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript"><!--
+$('#btn-gen-secret').on('click', function() {
+  var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+  var res = '';
+  for (var i = 0; i < 32; i++) {
+    res += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  $('#input-hook-secret').val(res);
+});
+
+$('#button-import-legacy').on('click', function() {
+  if (confirm('{{ text_import_confirm }}')) {
+    $.ajax({
+      url: 'index.php?route=extension/module/kristal_notify/importLegacy&user_token={{ user_token }}',
+      type: 'post',
+      dataType: 'json',
+      success: function(json) {
+        if (json.ok) {
+          alert(json.message);
+          location.reload();
+        } else {
+          alert(json.message);
+        }
+      }
+    });
+  }
+});
+
+$('#btn-test-tg').on('click', function() {
+  var $btn = $(this);
+  var $res = $('#tg-test-result');
+  $btn.button('loading');
+  $res.html('');
+
+  $.ajax({
+    url: 'index.php?route=extension/module/kristal_notify/testTelegram&user_token={{ user_token }}',
+    type: 'post',
+    data: {
+      token: $('#input-tg-token').val(),
+      chats: $('#input-tg-chats').val()
+    },
+    dataType: 'json',
+    success: function(json) {
+      $btn.button('reset');
+      if (json.ok) {
+        $res.html('<span class="text-success"><i class="fa fa-check-circle"></i> ' + json.message + '</span>');
+      } else {
+        $res.html('<span class="text-danger"><i class="fa fa-exclamation-triangle"></i> ' + json.message + '</span>');
+      }
+    },
+    error: function(xhr, status, error) {
+      $btn.button('reset');
+      $res.html('<span class="text-danger">Помилка сервера: ' + error + '</span>');
+    }
+  });
+});
+
+$('#btn-test-email').on('click', function() {
+  var $btn = $(this);
+  var $res = $('#email-test-result');
+  $btn.button('loading');
+  $res.html('');
+
+  $.ajax({
+    url: 'index.php?route=extension/module/kristal_notify/testEmail&user_token={{ user_token }}',
+    type: 'post',
+    data: {
+      emails: $('#input-email-to').val()
+    },
+    dataType: 'json',
+    success: function(json) {
+      $btn.button('reset');
+      if (json.ok) {
+        $res.html('<span class="text-success"><i class="fa fa-check-circle"></i> ' + json.message + '</span>');
+      } else {
+        $res.html('<span class="text-danger"><i class="fa fa-exclamation-triangle"></i> ' + json.message + '</span>');
+      }
+    },
+    error: function(xhr, status, error) {
+      $btn.button('reset');
+      $res.html('<span class="text-danger">Помилка сервера: ' + error + '</span>');
+    }
+  });
+});
+
+$('#btn-test-hook').on('click', function() {
+  var $btn = $(this);
+  var $res = $('#hook-test-result');
+  $btn.button('loading');
+  $res.html('');
+
+  $.ajax({
+    url: 'index.php?route=extension/module/kristal_notify/testWebhook&user_token={{ user_token }}',
+    type: 'post',
+    data: {
+      url: $('#input-hook-url').val(),
+      secret: $('#input-hook-secret').val()
+    },
+    dataType: 'json',
+    success: function(json) {
+      $btn.button('reset');
+      if (json.ok) {
+        $res.html('<span class="text-success"><i class="fa fa-check-circle"></i> ' + json.message + '</span>');
+      } else {
+        $res.html('<span class="text-danger"><i class="fa fa-exclamation-triangle"></i> ' + json.message + '</span>');
+      }
+    },
+    error: function(xhr, status, error) {
+      $btn.button('reset');
+      $res.html('<span class="text-danger">Помилка сервера: ' + error + '</span>');
+    }
+  });
+});
+
+$('.btn-retry-log').on('click', function() {
+  var $btn = $(this);
+  var logId = $btn.data('log-id');
+  $btn.button('loading');
+
+  $.ajax({
+    url: 'index.php?route=extension/module/kristal_notify/retry&user_token={{ user_token }}',
+    type: 'post',
+    data: { log_id: logId },
+    dataType: 'json',
+    success: function(json) {
+      alert(json.message);
+      location.reload();
+    },
+    error: function(xhr, status, error) {
+      $btn.button('reset');
+      alert('Помилка сервера: ' + error);
+    }
+  });
+});
+
+$('#btn-apply-log-filter').on('click', function() {
+  var url = 'index.php?route=extension/module/kristal_notify&user_token={{ user_token }}';
+  var status = $('#log-filter-status').val();
+  var channel = $('#log-filter-channel').val();
+  if (status) { url += '&filter_status=' + encodeURIComponent(status); }
+  if (channel) { url += '&filter_channel=' + encodeURIComponent(channel); }
+  location = url;
+});
+//--></script>
+{{ footer }}

@@ -53,7 +53,12 @@ class Antispam {
 			}
 		}
 
-		return new self($config->get('module_kristal_core_salt'), $session_id, $options);
+		$salt = (string)$config->get('module_kristal_core_salt');
+		if ($salt === '') {
+			$salt = defined('DIR_SYSTEM') ? md5(DIR_SYSTEM) : 'kristal_default_salt';
+		}
+
+		return new self($salt, $session_id, $options);
 	}
 
 	/** Лише для тестів: зафіксувати «зараз». */

@@ -1,0 +1,3 @@
+
+# 022: приклади прайсу як із Excel — CRLF і Windows-1251 зберігаються як є
+tests/fixtures/import/*.csv -text

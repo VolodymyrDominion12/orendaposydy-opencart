@@ -1,6 +1,6 @@
 {{ header }}
 <div class="k-wrap k-page">
-  <nav aria-label="{{ k_crumbs }}">
+  <nav aria-label="{{ k_crumbs }}" data-k-swap>
     <ol class="k-crumbs">
       {% for breadcrumb in breadcrumbs %}
       <li>{% if loop.last %}<span aria-current="page">{{ breadcrumb.text }}</span>{% else %}<a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a>{% endif %}</li>
@@ -9,7 +9,7 @@
   </nav>
   {{ content_top }}
 
-  <div class="k-cathead">
+  <div class="k-cathead" data-k-swap>
     <h1 class="k-h1">{{ heading_title }}</h1>
     {% if kc_min_price %}<p class="k-cathead__price">{{ kc_min_price }} <span class="k-muted">/ доба</span></p>{% endif %}
     {% if kc_chips %}
@@ -21,10 +21,54 @@
     {% endif %}
   </div>
 
-  {% if products %}
+  <div class="k-catalog{% if kf %} k-catalog--filters{% endif %}">
+  {% if kf %}
+  <div class="k-sheet k-fpanel" id="filters" role="dialog" aria-labelledby="k-ftitle" data-k-fpanel>
+    <a class="k-sheet__bg" href="#" aria-label="{{ kf_close }}" data-k-fclose></a>
+    <form class="k-sheet__panel" action="{{ kf.action }}" method="get" data-k-filter>
+      <div class="k-sheet__head"><span class="k-h3" id="k-ftitle">{{ kf_title }}</span><a class="k-iconbtn" href="#" aria-label="{{ kf_close }}" data-k-fclose><svg class="k-ico"><use href="#i-close"/></svg></a></div>
+      <div class="k-sheet__body" data-k-fbody>
+        <p class="k-label k-fpanel__label">{{ kf_title }}</p>
+        {% for name, value in kf.hidden %}<input type="hidden" name="{{ name }}" value="{{ value }}">{% endfor %}
+        {% for group in kf.groups %}
+        <details class="k-fgroup"{% if group.open %} open{% endif %}>
+          <summary>{{ group.name }} <svg class="k-ico k-ico--sm"><use href="#i-down"/></svg></summary>
+          <fieldset class="k-fset">
+            <legend class="k-sr">{{ group.name }}</legend>
+            {% for v in group.values %}
+            <label class="k-check{% if v.disabled %} is-off{% endif %}"><input type="checkbox" name="fv[]" value="{{ v.slug }}"{% if v.checked %} checked{% endif %}{% if v.disabled %} disabled{% endif %}>{% if v.disabled %}<span>{{ v.name }}</span>{% else %}<a href="{{ v.href }}"{% if v.nofollow %} rel="nofollow"{% endif %} tabindex="-1">{{ v.name }}</a>{% endif %}<small>{{ v.count }}</small></label>
+            {% endfor %}
+          </fieldset>
+        </details>
+        {% endfor %}
+        {% if kf.price %}
+        <details class="k-fgroup"{% if kf.pmin or kf.pmax or kf.groups|length < 2 %} open{% endif %}>
+          <summary>{{ kf_price }} <svg class="k-ico k-ico--sm"><use href="#i-down"/></svg></summary>
+          <fieldset class="k-fset">
+            <legend class="k-sr">{{ kf_price }}</legend>
+            <div class="k-range">
+              <input class="k-input k-mono" type="number" name="pmin" value="{{ kf.pmin }}" placeholder="{{ kf.bmin }}" min="0" step="1" inputmode="numeric" aria-label="{{ kf_price }}: {{ kf_from }}">
+              <span class="k-muted" aria-hidden="true">—</span>
+              <input class="k-input k-mono" type="number" name="pmax" value="{{ kf.pmax }}" placeholder="{{ kf.bmax }}" min="0" step="1" inputmode="numeric" aria-label="{{ kf_price }}: {{ kf_to }}">
+            </div>
+          </fieldset>
+        </details>
+        {% endif %}
+      </div>
+      <div class="k-sheet__foot">
+        <a class="k-btn k-btn--ghost" href="{{ kf.reset }}">{{ kf_reset }}</a>
+        <button class="k-btn k-btn--primary" type="submit" data-k-fshow>{{ kf.show }}</button>
+      </div>
+    </form>
+  </div>
+  {% endif %}
+
+  <div class="k-catalog__main" data-k-swap data-k-results>
+  {% if products or kf_empty %}
   <div class="k-toolbar">
-    <p class="k-results">{{ results }}</p>
-    {% if kc_sorts %}
+    {% if kf %}<a class="k-btn k-btn--ghost k-btn--sm k-toolbar__filters" href="#filters" aria-controls="filters" aria-expanded="false" data-k-fopen><svg class="k-ico k-ico--sm"><use href="#i-filter"/></svg>{{ kf_open }}{% if kf.count %} <span class="k-mono k-gold">{{ kf.count }}</span>{% endif %}</a>{% endif %}
+    <p class="k-results" aria-live="polite">{{ results }}</p>
+    {% if kc_sorts and products %}
     <form class="k-toolbar__sort" action="" method="get">
       <label class="k-sr" for="k-sort">{{ kc_sort }}</label>
       <select class="k-select" id="k-sort" data-k-sort>
@@ -38,8 +82,15 @@
     </form>
     {% endif %}
   </div>
+  {% if kf and kf.chips %}
+  <div class="k-fchips" aria-label="{{ kf_selected }}">
+    {% for chip in kf.chips %}<a class="k-chip k-chip--x" href="{{ chip.href }}" rel="nofollow" aria-label="{{ kf_remove }}: {{ chip.name }}">{{ chip.name }}<svg class="k-ico k-ico--sm" aria-hidden="true"><use href="#i-close"/></svg></a>{% endfor %}
+    <a class="k-link" href="{{ kf.reset }}">{{ kf_reset_all }}</a>
+  </div>
+  {% endif %}
 
-  <div class="k-grid k-grid--4" data-k-grid>
+  {% if products %}
+  <div class="k-grid{% if not kf %} k-grid--4{% endif %}" data-k-grid>
     {% for product in products %}
     <article class="k-card">
       <a class="k-card__media" href="{{ product.href }}" tabindex="-1" aria-hidden="true">
@@ -87,14 +138,32 @@
   </div>
   {% endif %}
   {% else %}
+  <div class="k-fempty">
+    <p class="k-h3">{{ kf_empty_title }}</p>
+    <p>{{ kf_empty_text }}</p>
+    <div class="k-btns">
+      <a class="k-btn k-btn--secondary" href="{{ kf.reset }}">{{ kf_empty_reset }}</a>
+      {% if k_phone_tel %}<a class="k-btn k-btn--ghost" href="{{ k_phone_tel }}"><svg class="k-ico"><use href="#i-phone"/></svg><span class="k-mono">{{ k_phone_display }}</span></a>{% endif %}
+      {% if k_viber_href %}<a class="k-btn k-btn--ghost" href="{{ k_viber_href }}"><svg class="k-ico"><use href="#i-viber"/></svg>Viber</a>{% endif %}
+      {% if k_telegram_href %}<a class="k-btn k-btn--ghost" href="{{ k_telegram_href }}"><svg class="k-ico"><use href="#i-telegram"/></svg>Telegram</a>{% endif %}
+    </div>
+  </div>
+  {% endif %}
+  {% else %}
   <p class="k-lead">{{ kc_empty }}</p>
   {% endif %}
+  </div>
+  </div>
 
+  <div data-k-swap>
   {% if description %}
   <section class="k-section-sm">
     <div class="k-prose">{{ description }}</div>
   </section>
   {% endif %}
+  </div>
+  {{ kf_jsonld }}
+  {% if kf %}<script src="{{ kf.js }}" defer></script>{% endif %}
   {{ content_bottom }}
 </div>
 <div class="k-toast" role="status" aria-live="polite" data-k-toast data-k-ok="{{ kc_added }}" data-k-err="{{ kc_add_error }}" hidden><span data-k-toast-text></span><a href="{{ k_cart_url }}">{{ kc_go_cart }}</a></div>

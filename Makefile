@@ -20,6 +20,8 @@ N := \033[0m
         import dump db-tables \
         clear-cache clear-cache-all refresh-mods images-warm \
         deploy deploy-apply deploy-sql deploy-rollback package backup-list \
+        sec-status sec-cleanup sec-rename-admin sec-retire-online sec-restore \
+        backup-install backup-status backup-pull \
         check php-version url
 
 # ===========================================================================
@@ -143,11 +145,11 @@ refresh-mods: ## Застосувати OCMOD-модифікації (те са�
 # ===========================================================================
 # Деплой на прод
 # ===========================================================================
-deploy: ## Показати, що поїде на прод (нічого не змінює)
-	@bash tools/deploy.sh $(if $(FILES),--files "$(FILES)") $(if $(SINCE),--since "$(SINCE)")
+deploy: ## Показати, що поїде на прод (нічого не змінює; HTACCESS=1 — разом із .htaccess)
+	@bash tools/deploy.sh $(if $(FILES),--files "$(FILES)") $(if $(SINCE),--since "$(SINCE)") $(if $(HTACCESS),--include-htaccess)
 
-deploy-apply: ## Залити зміни на прод (з бекапом і підтвердженням)
-	@bash tools/deploy.sh --apply $(if $(FILES),--files "$(FILES)") $(if $(SINCE),--since "$(SINCE)") $(if $(CLEAR_CACHE),--clear-cache)
+deploy-apply: ## Залити зміни на прод (з бекапом і підтвердженням; HTACCESS=1 — разом із .htaccess)
+	@bash tools/deploy.sh --apply $(if $(FILES),--files "$(FILES)") $(if $(SINCE),--since "$(SINCE)") $(if $(CLEAR_CACHE),--clear-cache) $(if $(HTACCESS),--include-htaccess)
 
 deploy-sql: ## Підготувати SQL-файл для phpMyAdmin: make deploy-sql SQL=tools/sql/x.sql
 	@test -n "$(SQL)" || { echo "  Вкажіть файл: make deploy-sql SQL=tools/sql/02-mail-to-mailpit.sql"; exit 1; }
@@ -159,6 +161,32 @@ deploy-rollback: ## Відкотити деплой: make deploy-rollback DIR=ba
 
 package: ## Зібрати ZIP зі змінами для файлового менеджера панелі
 	@bash tools/package-release.sh $(if $(FILES),--files "$(FILES)") $(if $(SINCE),--since "$(SINCE)")
+
+# --- 017: безпека проду (за замовчуванням dry-run; APPLY=1 — виконати з підтвердженням YES) ---
+sec-status: ## 017: стан проду — install/, архіви, адмінка, стара тека (лише читання)
+	@bash tools/prod-security.sh status
+
+sec-cleanup: ## 017: install/, index1.php, архіви з кореня сайту → ~/kristal-trash/ (APPLY=1)
+	@bash tools/prod-security.sh cleanup $(if $(APPLY),--apply)
+
+sec-rename-admin: ## 017: перейменувати адмінку на проді (APPLY=1 [NAME=kr-xxxx] [UNDO=1])
+	@bash tools/prod-security.sh rename-admin $(if $(APPLY),--apply) $(if $(NAME),--name "$(NAME)") $(if $(UNDO),--undo)
+
+sec-retire-online: ## 017: стару теку orendaposudu.online → ~/kristal-trash/ (APPLY=1)
+	@bash tools/prod-security.sh retire-online $(if $(APPLY),--apply)
+
+sec-restore: ## 017: повернути зі смітника: make sec-restore P=kristal-trash/<дата>/site/install APPLY=1
+	@test -n "$(P)" || { echo "  Вкажіть шлях: make sec-restore P=kristal-trash/<дата>/site/<ім'я>"; exit 1; }
+	@bash tools/prod-security.sh restore "$(P)" $(if $(APPLY),--apply)
+
+backup-install: ## 017: залити скрипт бекапу на хостинг (~/kristal-backup/) і показати рядок cron
+	@bash tools/backup.sh install
+
+backup-status: ## 017: що є в бекапах на хостингу + журнал
+	@bash tools/backup.sh status
+
+backup-pull: ## 017: найновіший дамп бази з хостингу → dumps/ (FILES=1 — і архів файлів), далі make import
+	@bash tools/backup.sh pull $(if $(FILES),--files)
 
 backup-list: ## Показати наявні бекапи
 	@ls -1t backups/ 2>/dev/null | head -20 || echo "  Бекапів немає."
@@ -180,6 +208,6 @@ url: ## Показати адреси локальних сервісів
 	@printf '  Адмінка:   http://localhost:%s/admin/\n' "$$(grep -E '^WEB_PORT=' .env | cut -d= -f2)"
 	@printf '  База:      http://localhost:%s/\n' "$$(grep -E '^ADMINER_PORT=' .env | cut -d= -f2)"
 	@printf '  Пошта:     http://localhost:%s/\n' "$$(grep -E '^MAILPIT_UI_PORT=' .env | cut -d= -f2)"
-	@printf '  Прод:      https://orendaposydy.com/\n'
+	@printf '  Прод:      https://orendaposudu.com/\n'
 
 include make/quality.mk

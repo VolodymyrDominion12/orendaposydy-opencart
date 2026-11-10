@@ -72,7 +72,7 @@ tools/ftp-get.sh index.php /tmp/test-index.php && echo "FTP працює"
 | `config.php`, `admin/config.php` | бойові доступи до БД; локальні вказують на `localhost` і зламають сайт |
 | `system/storage/` | кеш, логи, сесії, згенеровані OCMOD |
 | `image/cache/` | прев'ю, генеруються на місці |
-| `.htaccess` | правила хостингу (є окремий прапорець `--include-htaccess`) |
+| `.htaccess` | лише явно: `make deploy-apply FILES=.htaccess HTACCESS=1` (017: файл однаковий для локалу й проду) |
 | `install/`, `*.sql` | небезпечно / виконується через phpMyAdmin |
 
 ---
@@ -101,9 +101,37 @@ SQL → вставити → Go.
   шестерня → «Оновити».
 - Додали `.ocmod.xml` → він **не** заливається через FTP: адмінка →
   Розширення → Встановлення розширень → завантажити → Модифікатори → «Оновити».
-- Перевірте сайт: https://orendaposydy.com/
+- Перевірте сайт: `make test-smoke BASE=https://orendaposudu.com` і `make test-security BASE=https://orendaposudu.com`.
 
 ---
+
+## Адмінка під іншою назвою (017)
+
+На проді адмінка не в `admin/`, а в теці з `.env` → `REMOTE_ADMIN_DIR` (випадкова назва, у git її немає).
+Локально нічого не змінюється: правите `src/admin/…`, а `make deploy`, бекап перед деплоєм, відкат і `make package`
+самі кладуть файли в бойову теку (план деплою показує `admin/x.php → <тека>/x.php`).
+Перейменування — один раз: `make sec-rename-admin` (план) → `make sec-rename-admin APPLY=1`; відкат — `UNDO=1 APPLY=1`.
+
+## .htaccess (017)
+
+`src/.htaccess` однаковий для локалу й проду: бойові правила (301 з дзеркал, заголовки безпеки) в блоці
+`# kristal:prod BEGIN/END` прив'язані до доменів і на localhost не спрацьовують. Заливається лише явно:
+
+```bash
+make deploy-apply FILES=.htaccess HTACCESS=1
+make test-security BASE=https://orendaposudu.com
+```
+
+Відкат — як будь-якого файлу: `make deploy-rollback DIR=backups/<дата>`.
+
+## Прибирання на проді (017)
+
+`make sec-status` — що лежить у корені сайту, чи є `install/`, архіви, стара тека, бекапи (лише читання).
+`make sec-cleanup APPLY=1`, `make sec-retire-online APPLY=1` нічого не видаляють: переносять одною FTP-командою
+в `~/kristal-trash/<дата>/` поза сайтом (рекурсивне видалення по FTP = сотні команд = блок IP). Повернути:
+`make sec-restore P=kristal-trash/<дата>/site/<ім'я> APPLY=1`. Смітник видаляйте в File Manager, коли все перевірено.
+
+Бекапи бази й файлів — `docs/04-backup-restore.md`.
 
 ## Відкат
 

@@ -1,0 +1,13 @@
+{% if fondy_data.result and fondy_data.url %}
+  <div class="k-panel" style="text-align:center;padding:var(--space-8) var(--space-4);margin:var(--space-6) 0">
+    <p class="k-h3" style="margin-bottom:var(--space-4)">Перенаправлення на захищену сторінку оплати Fondy...</p>
+    <a href="{{ fondy_data.url }}" class="k-btn k-btn--primary">{{ button_confirm }}</a>
+    <script>
+      window.location.href = "{{ fondy_data.url }}";
+    </script>
+  </div>
+{% elseif fondy_data.message %}
+  <div class="k-toast is-err" style="position:static;max-width:100%;margin:var(--space-4) 0">
+    <span>{{ fondy_data.message }}</span>
+  </div>
+{% endif %}

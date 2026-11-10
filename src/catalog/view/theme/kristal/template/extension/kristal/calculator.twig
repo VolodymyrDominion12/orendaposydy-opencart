@@ -1,0 +1,156 @@
+{{ header }}
+
+<div class="k-wrap">
+  <ol class="k-crumbs">
+    {% for breadcrumb in breadcrumbs %}
+      {% if loop.last %}
+        <li aria-current="page">{{ breadcrumb.text }}</li>
+      {% else %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+      {% endif %}
+    {% endfor %}
+  </ol>
+
+  <div class="k-cathead">
+    <h1 class="k-h1">{{ heading_title }}</h1>
+    <p class="k-lead">{{ text_lead }}</p>
+  </div>
+
+  <div class="k-calc" data-calc data-add-url="{{ add_url }}" data-cart-url="{{ cart_url }}">
+    <form class="k-calc__in k-panel k-panel--gold" onsubmit="return false">
+      <div class="k-slider">
+        <div class="k-slider__row">
+          <label for="guests" class="k-h3">{{ text_guests }}</label>
+          <output class="k-slider__val" for="guests" data-out>{{ default_guests }}</output>
+        </div>
+        <input id="guests" type="range" min="10" max="300" step="5" value="{{ default_guests }}" data-guests aria-label="{{ text_guests }}">
+      </div>
+
+      <div class="k-field">
+        <span>{{ text_format }}</span>
+        <div class="k-seg">
+          <label><input type="radio" name="fmt" value="banquet"{% if default_format == 'banquet' %} checked{% endif %}><span>{{ text_format_banquet }}</span></label>
+          <label><input type="radio" name="fmt" value="buffet"{% if default_format == 'buffet' %} checked{% endif %}><span>{{ text_format_buffet }}</span></label>
+          <label><input type="radio" name="fmt" value="coffee"{% if default_format == 'coffee' %} checked{% endif %}><span>{{ text_format_coffee }}</span></label>
+        </div>
+      </div>
+
+      <div class="k-field">
+        <span>{{ text_dishes }}</span>
+        <div class="k-seg">
+          <label><input type="radio" name="dishes" value="2"{% if default_dishes == 2 %} checked{% endif %}><span>2</span></label>
+          <label><input type="radio" name="dishes" value="3"{% if default_dishes == 3 %} checked{% endif %}><span>3</span></label>
+          <label><input type="radio" name="dishes" value="4"{% if default_dishes == 4 %} checked{% endif %}><span>4+</span></label>
+        </div>
+      </div>
+
+      <div class="k-field">
+        <span>{{ text_drinks }}</span>
+        <div class="k-seg">
+          <label><input type="checkbox" name="wine"{% if 'wine' in default_drinks %} checked{% endif %}><span>{{ text_drink_wine }}</span></label>
+          <label><input type="checkbox" name="champ"{% if 'champ' in default_drinks %} checked{% endif %}><span>{{ text_drink_champ }}</span></label>
+          <label><input type="checkbox" name="strong"{% if 'strong' in default_drinks %} checked{% endif %}><span>{{ text_drink_strong }}</span></label>
+        </div>
+      </div>
+
+      <label class="k-field">
+        <span>{{ text_series }}</span>
+        <select class="k-select" name="series">
+          <option value="1"{% if default_series == 1 %} selected{% endif %}>{{ text_series_classic }}</option>
+          <option value="2"{% if default_series == 2 %} selected{% endif %}>{{ text_series_royal }}</option>
+        </select>
+      </label>
+    </form>
+
+    <div>
+      <table class="k-calc__table">
+        <thead>
+          <tr>
+            <th>{{ text_th_item }}</th>
+            <th class="n">{{ text_th_qty }}</th>
+            <th class="n hide-m">{{ text_th_price }}</th>
+            <th class="n">{{ text_th_total }}</th>
+          </tr>
+        </thead>
+        <tbody data-rows>
+          {% for group_key, group in initial_calc.groups %}
+            {% if group.items %}
+              <tr class="grp"><td colspan="4">{{ group.title }}</td></tr>
+              {% for item in group.items %}
+                <tr>
+                  <td><a href="{{ item.href }}">{{ item.display }}</a></td>
+                  <td class="n">{{ item.quantity }}</td>
+                  <td class="n hide-m">{{ item.price_fmt }}</td>
+                  <td class="n">{{ item.total_fmt }}</td>
+                </tr>
+              {% endfor %}
+            {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div class="k-calc__total k-panel">
+        <div>
+          <div class="k-muted k-small">{{ text_total_day }}</div>
+          <div class="k-price" data-total>{{ initial_calc.total_fmt }}</div>
+          <div class="k-hint" data-pp>{{ text_per_guest_hint|format(initial_calc.per_guest) }}</div>
+        </div>
+        <div class="k-btns">
+          <button class="k-btn k-btn--primary" type="button" data-add-all>
+            <svg class="k-ico"><use href="#i-bag"/></svg>{{ text_all_to_cart }}
+          </button>
+          <a class="k-btn k-btn--secondary" href="#lead" data-send-lead>{{ text_send_manager }}</a>
+        </div>
+        <div data-calc-toast style="flex-basis: 100%; display: none;"></div>
+      </div>
+
+      <p class="k-note" style="margin-top:var(--space-4)">{{ text_note }}</p>
+    </div>
+  </div>
+</div>
+
+<!-- Секція форми заявки на розрахунок менеджеру (kristal_lead) -->
+<section class="k-section k-section--sunken" id="lead">
+  <div class="k-wrap k-leadbox">
+    <div class="k-leadbox__alt">
+      <span class="k-label k-label--gold">Розрахунок за 15 хвилин</span>
+      <h2 class="k-h2">Надішліть дату й кількість гостей — решту порахуємо ми</h2>
+      <p class="k-muted">Менеджер перевірить наявність на вашу дату, підбере посуд під меню й надішле кошторис у Viber, Telegram або на пошту. У робочий час — за 15 хвилин.</p>
+      <div class="k-messengers" style="margin-top:var(--space-4)">
+        <a class="k-btn k-btn--ghost" href="tel:+380678277007"><svg class="k-ico"><use href="#i-phone"/></svg><span class="k-mono">067 827 70 07</span></a>
+        <a class="k-btn k-btn--ghost" href="viber://chat?number=%2B380678277007"><svg class="k-ico"><use href="#i-viber"/></svg>Viber</a>
+        <a class="k-btn k-btn--ghost" href="https://t.me/"><svg class="k-ico"><use href="#i-telegram"/></svg>Telegram</a>
+      </div>
+    </div>
+    <form class="k-panel k-panel--gold k-form" action="{{ k_lead_action }}" method="post" enctype="multipart/form-data" data-k-lead>
+      <input type="hidden" name="type" value="calc_15m">
+      <input type="hidden" name="source_url" value="/kalkulyator">
+      <input type="hidden" name="note" value="" data-calc-note>
+      {% if k_antispam_token_name %}
+        <input type="hidden" name="{{ k_antispam_token_name }}" value="{{ k_antispam_token }}">
+      {% endif %}
+      <div class="k-hp" aria-hidden="true"><input type="text" name="{{ k_antispam_hp_name }}" tabindex="-1" autocomplete="off"></div>
+
+      <div class="k-form__row">
+        <label class="k-field"><span>Дата події</span><input class="k-input" type="date" name="event_date" required></label>
+        <label class="k-field"><span>Кількість гостей</span><input class="k-input" type="number" name="guests" inputmode="numeric" min="1" value="{{ default_guests }}" placeholder="Напр., 100" data-lead-guests required></label>
+      </div>
+      <div class="k-form__row">
+        <label class="k-field"><span>Ваше ім'я</span><input class="k-input" type="text" name="name" autocomplete="name" placeholder="Олена"></label>
+        <label class="k-field"><span>Телефон</span><input class="k-input" type="tel" name="phone" autocomplete="tel" placeholder="+380" required></label>
+      </div>
+      <label class="k-file">
+        <svg class="k-ico"><use href="#i-file"/></svg>
+        <span class="k-file__name">Додати меню (PDF, фото) — підберемо посуд під страви</span>
+        <input type="file" name="menu_file" accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx">
+      </label>
+      <button class="k-btn k-btn--primary k-btn--block" type="submit">Отримати розрахунок</button>
+      <p class="k-hint">Розрахунок безкоштовний і ні до чого не зобов'язує. Натискаючи кнопку, ви погоджуєтеся з <a href="/politika-konfidenciynosti" style="text-decoration:underline">політикою конфіденційності</a>.</p>
+    </form>
+  </div>
+</section>
+
+<script id="k-calc-data" type="application/json">{{ client_norms_json|raw }}</script>
+<script src="catalog/view/theme/kristal/js/kristal-calc.js" defer></script>
+
+{{ footer }}

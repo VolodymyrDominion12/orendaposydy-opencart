@@ -77,6 +77,37 @@ class Jsonld {
 		return self::clean($data);
 	}
 
+	/**
+	 * BreadcrumbList (021, SEO-сторінки фільтрів): [['name' => 'Головна', 'url' => 'https://…'], …].
+	 * Назви — як у крихтах (можуть бути закодовані ядром) → декодуємо; останній пункт без url — поточна сторінка.
+	 */
+	public static function breadcrumbs(array $items) {
+		$list = array();
+		$position = 1;
+
+		foreach ($items as $item) {
+			$name = trim(html_entity_decode(strip_tags((string)$item['name']), ENT_QUOTES, 'UTF-8'));
+
+			if ($name === '') {
+				continue;
+			}
+
+			$entry = array('@type' => 'ListItem', 'position' => $position++, 'name' => $name);
+
+			if (!empty($item['url'])) {
+				$entry['item'] = html_entity_decode((string)$item['url'], ENT_QUOTES, 'UTF-8');
+			}
+
+			$list[] = $entry;
+		}
+
+		if (count($list) < 2) {
+			return array();
+		}
+
+		return array('@context' => 'https://schema.org', '@type' => 'BreadcrumbList', 'itemListElement' => $list);
+	}
+
 	public static function encode($data, $pretty = false) {
 		$flags = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG;
 

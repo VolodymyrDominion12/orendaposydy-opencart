@@ -22,6 +22,8 @@
 #       не на той хост, що в SITE_URL.
 #   Решта правил (SEO-URL, sitemap, захист файлів) не чіпається — вони
 #   потрібні локально так само, як на проді.
+#   Блок між «# kristal:prod BEGIN» і «# kristal:prod END» (017: дзеркала → 301,
+#   заголовки) теж не чіпається: його правила прив'язані до бойових хостів.
 #
 # БЕЗПЕКА:
 #   Оригінал зберігається в backups/htaccess/<дата>/.htaccess — навмисно НЕ
@@ -59,6 +61,15 @@ localize_one() {
         {
             raw = $0
             low = tolower(raw)
+
+            # 0) Блок «kristal:prod» (017) прив'"'"'язаний до бойових хостів і на localhost
+            #    не спрацьовує — лишаємо як є, щоб src/.htaccess був однаковим для локалу й проду.
+            if (raw ~ /^# kristal:prod BEGIN/) { prod_block = 1 }
+            if (prod_block) {
+                if (raw ~ /^# kristal:prod END/) { prod_block = 0 }
+                print raw
+                next
+            }
 
             # 1) Умова «зєднання не по HTTPS» — це бойове правило хостингу.
             if (is_cond(raw) && low ~ /%\{https\}/) {
@@ -145,7 +156,7 @@ ensure_deny_block() {
 # [local] тепер лежать у backups/ (поза docroot), а це правило страхує від
 # [local] нових: дампів, логів, .env, покладених у src/ випадково.
 # [local] ---------------------------------------------------------------------
-<FilesMatch "(?i)(prod-backup|\.sql$|\.sql\.gz$|\.log$|\.env$)">
+<FilesMatch "(?i)(prod-backup|\.sql$|\.sql\.gz$|\.log$|\.env$|\.(zip|rar|7z|tgz|gz|tar|bak|old|orig|swp)$)">
  Require all denied
 </FilesMatch>
 EOF

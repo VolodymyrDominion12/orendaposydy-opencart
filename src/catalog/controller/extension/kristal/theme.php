@@ -92,7 +92,8 @@ class ControllerExtensionKristalTheme extends Controller {
 
 		$head = array();
 
-		if (in_array($route, self::$noindex, true)) {
+		// kristal_noindex — сторінка сама вирішила (021: категорія з фільтром, що не є SEO-сторінкою)
+		if (in_array($route, self::$noindex, true) || $this->config->get('kristal_noindex')) {
 			$head[] = '<meta name="robots" content="noindex, follow">';
 		}
 
@@ -180,7 +181,7 @@ class ControllerExtensionKristalTheme extends Controller {
 			'k_logo'       => 'catalog/view/theme/kristal/image/emblem-96.webp',
 			// Корінь сайту замість index.php?route=common/home (ядро не має ЧПУ для головної)
 			'k_home'       => !empty($this->request->server['HTTPS']) ? $this->config->get('config_ssl') : $this->config->get('config_url'),
-			'k_cart_href'  => $this->url->link('checkout/cart'),
+			'k_cart_href'  => $this->url->link('checkout/order'),
 			'k_cart_count' => $this->cartPositions()
 		);
 
@@ -200,6 +201,13 @@ class ControllerExtensionKristalTheme extends Controller {
 			self::$shared['k_search_q'] = \Kristal\Search::cut(html_entity_decode((string)$this->request->get['q'], ENT_QUOTES, 'UTF-8'));
 		}
 
+		// Ліди (009): форма 15 хв, 1 клік, дзвінок
+		$antispam = \Kristal\Antispam::fromConfig($this->config, $this->session->getId());
+		$antispamFields = $antispam->fields('lead');
+		self::$shared['k_lead_action'] = 'index.php?route=extension/kristal/lead/submit';
+		self::$shared['k_lead_js'] = $this->asset('js/kristal-lead.js');
+		self::$shared['k_antispam'] = $antispamFields;
+
 		// Шаблонам сторінок (404, «Дякуємо») — через мовні дані: event/language ядра додає їх у кожен view
 		$cats = self::$shared['k_cats'];
 		$this->language->set('k_catalog_href', $cats ? $cats[0]['href'] : self::$shared['k_home']);
@@ -207,7 +215,11 @@ class ControllerExtensionKristalTheme extends Controller {
 		$this->language->set('k_phone_display', $nap['primary_phone'] ? $nap['primary_phone']['display'] : '');
 		$this->language->set('k_viber_href', $viber);
 		$this->language->set('k_telegram_href', $telegram);
-		$this->language->set('k_cart_url', self::$shared['k_cart_href']);
+		$this->language->set('k_lead_action', self::$shared['k_lead_action']);
+		$this->language->set('k_lead_js', self::$shared['k_lead_js']);
+		$this->language->set('k_antispam_token_name', $antispamFields['token_name']);
+		$this->language->set('k_antispam_token', $antispamFields['token']);
+		$this->language->set('k_antispam_hp_name', $antispamFields['honeypot_name']);
 
 		return self::$shared;
 	}

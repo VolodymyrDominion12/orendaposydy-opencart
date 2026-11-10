@@ -8,7 +8,9 @@
 /                                   200                    # 004: головна теми
 /oplata                             200                    # 003: інформаційна сторінка теми
 /success                            200                    # 003: «Дякуємо» (шаблон common/success теми)
-/order                              200  allow=h1,canonical # кошик: noindex, canonical не потрібен (011)
+/order                              200  allow=canonical # 010: кошик події (noindex, canonical не потрібен)
+/vesillya                            200  allow=canonical # 007: весілля (комплекти, сервірування)
+/kalkulyator                         200                    # 008: калькулятор події
 /kristal-smoke-neisnuyucha-storinka 404
 
 # 001: нові категорії
@@ -41,3 +43,11 @@
 /poshuk?q=%D1%82%D0%B0%D1%80%D1%96%D0%BB%D0%BA%D0%B0     200  allow=canonical # 027: «тарілка» — результати
 /poshuk?q=%D1%81%D0%BC&page=2                            200  allow=canonical # 027: друга сторінка результатів
 /poshuk?q=zzzzqq                                         200  allow=canonical # 027: нічого не знайдено
+
+# 021: фільтри категорії (мок: «Крістал: фільтри» → заповнення з атрибутів + 3 SEO-сторінки)
+/posud?filter=kolir-bilyi                                200                    # 021: фільтр — noindex, canonical на категорію
+/posud?filter=material-portseliana_kolir-bilyi_tsina-10-30 200                  # 021: дві групи + ціна
+/posud?filter=kolir-bilyi_tsina-1000-2000                200                    # 021: нічого не знайдено за фільтрами
+/posud/tarilky/bili                                      200                    # 021: SEO-сторінка фільтра
+/mebli/stiltsi/plastykovi                                200                    # 021: SEO-сторінка фільтра
+/posud/tarilky/nemaie-takoi                              404                    # 021: невідома адреса в категорії

@@ -55,6 +55,7 @@
             <button type="button" data-k-step="1" aria-label="{{ kc_more_qty }}"><svg class="k-ico"><use href="#i-plus"/></svg></button>
           </div>
           <button class="k-btn k-btn--primary" type="submit" data-k-main-add>{{ kc_add }}</button>
+          <button class="k-btn k-btn--secondary" type="button" data-k-quick-order data-k-prod-id="{{ product_id }}" data-k-prod-name="{{ heading_title }}">Забронювати в 1 клік</button>
         </div>
         <p class="k-buy__hint" aria-live="polite"></p>
         {% if kc.price %}<p class="k-buy__sum" data-k-sum aria-live="polite">{{ kc.sum }}</p>{% endif %}
