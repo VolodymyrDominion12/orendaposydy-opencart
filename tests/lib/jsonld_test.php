@@ -147,3 +147,53 @@ test('breadcrumbs: BreadcrumbList, декодування назв, останн
 	assert_false(isset($ld['itemListElement'][2]['item']));
 	assert_same(array(), Jsonld::breadcrumbs(array(array('name' => 'Головна', 'url' => '/'))));
 });
+
+test('aggregateRating: формування коректної мікророзмітки рейтингу', function () {
+	$rating = Jsonld::aggregateRating(4.93, 15);
+	assert_same('AggregateRating', $rating['@type']);
+	assert_same('4.9', $rating['ratingValue']);
+	assert_same(15, $rating['reviewCount']);
+	assert_same('5', $rating['bestRating']);
+	assert_same('1', $rating['worstRating']);
+
+	assert_same(array(), Jsonld::aggregateRating(5.0, 0));
+});
+
+test('reviews: формування списку відгуків Review', function () {
+	$items = array(
+		array('author_name' => 'Олена', 'text' => 'Чудовий посуд!', 'rating' => 5, 'date_added' => '2026-10-10'),
+		array('author_name' => '', 'text' => 'Немає автора'),
+		array('author_name' => 'Ігор', 'text' => '', 'rating' => 4)
+	);
+
+	$res = Jsonld::reviews($items);
+	assert_same(1, count($res));
+	assert_same('Review', $res[0]['@type']);
+	assert_same('Олена', $res[0]['author']['name']);
+	assert_same('Чудовий посуд!', $res[0]['reviewBody']);
+	assert_same('5', $res[0]['reviewRating']['ratingValue']);
+	assert_same('2026-10-10', $res[0]['datePublished']);
+});
+
+test('article: валідна розмітка статті Article з автором і видавцем', function () {
+	$post = array(
+		'title' => 'Як розрахувати келихи на весілля',
+		'summary' => 'Норми розрахунку скла на гостя',
+		'author' => 'Оксана Крістал',
+		'date_added' => '2026-11-01',
+		'date_modified' => '2026-11-05'
+	);
+
+	$res = Jsonld::article($post, 'https://orendaposudu.com/blog/kelykhy', 'https://orendaposudu.com/image/blog.jpg', 'Крістал', 'https://orendaposudu.com/image/logo.png');
+	assert_same('Article', $res['@type']);
+	assert_same('Як розрахувати келихи на весілля', $res['headline']);
+	assert_same('Норми розрахунку скла на гостя', $res['description']);
+	assert_same('https://orendaposudu.com/blog/kelykhy', $res['url']);
+	assert_same('Оксана Крістал', $res['author']['name']);
+	assert_same('Крістал', $res['publisher']['name']);
+	assert_same('2026-11-01', $res['datePublished']);
+	assert_same('2026-11-05', $res['dateModified']);
+
+	assert_same(array(), Jsonld::article(array('title' => '')));
+});
+

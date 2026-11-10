@@ -108,6 +108,93 @@ class Jsonld {
 		return array('@context' => 'https://schema.org', '@type' => 'BreadcrumbList', 'itemListElement' => $list);
 	}
 
+	/**
+	 * AggregateRating (014): формується лише на основі реальних відгуків сайту.
+	 */
+	public static function aggregateRating($rating_value, $review_count, $best_rating = 5, $worst_rating = 1) {
+		if ((int)$review_count < 1) {
+			return array();
+		}
+
+		return array(
+			'@type'       => 'AggregateRating',
+			'ratingValue' => number_format((float)$rating_value, 1, '.', ''),
+			'reviewCount' => (int)$review_count,
+			'bestRating'  => (string)$best_rating,
+			'worstRating' => (string)$worst_rating
+		);
+	}
+
+	/**
+	 * Review масив для мікророзмітки (014).
+	 */
+	public static function reviews(array $items) {
+		$reviews = array();
+
+		foreach ($items as $item) {
+			if (empty($item['author_name']) || empty($item['text'])) {
+				continue;
+			}
+
+			$reviews[] = array(
+				'@type'         => 'Review',
+				'author'        => array(
+					'@type' => 'Person',
+					'name'  => trim((string)$item['author_name'])
+				),
+				'datePublished' => !empty($item['date_added']) ? (string)$item['date_added'] : date('Y-m-d'),
+				'reviewBody'    => trim(strip_tags((string)$item['text'])),
+				'reviewRating'  => array(
+					'@type'       => 'Rating',
+					'ratingValue' => (string)(isset($item['rating']) ? (int)$item['rating'] : 5),
+					'bestRating'  => '5',
+					'worstRating' => '1'
+				)
+			);
+		}
+
+		return $reviews;
+	}
+
+	/**
+	 * Article JSON-LD (013, блог): мікророзмітка статті з автором, датою та видавцем.
+	 */
+	public static function article(array $article, $url = '', $image = '', $publisher_name = 'Крістал', $publisher_logo = '') {
+		$headline = !empty($article['title']) ? trim(strip_tags((string)$article['title'])) : '';
+		if ($headline === '') {
+			return array();
+		}
+
+		$data = array(
+			'@context'         => 'https://schema.org',
+			'@type'            => 'Article',
+			'headline'         => $headline,
+			'description'      => !empty($article['summary']) ? trim(strip_tags((string)$article['summary'])) : '',
+			'url'              => (string)$url,
+			'image'            => (string)$image,
+			'datePublished'    => !empty($article['date_added']) ? (string)$article['date_added'] : date('Y-m-d'),
+			'dateModified'     => !empty($article['date_modified']) ? (string)$article['date_modified'] : (!empty($article['date_added']) ? (string)$article['date_added'] : date('Y-m-d')),
+			'author'           => array(
+				'@type' => 'Person',
+				'name'  => !empty($article['author']) ? trim((string)$article['author']) : $publisher_name
+			),
+			'publisher'        => array(
+				'@type' => 'Organization',
+				'name'  => $publisher_name,
+				'logo'  => !empty($publisher_logo) ? array(
+					'@type' => 'ImageObject',
+					'url'   => $publisher_logo
+				) : null
+			),
+			'mainEntityOfPage' => array(
+				'@type' => 'WebPage',
+				'@id'   => (string)$url
+			)
+		);
+
+		return self::clean($data);
+	}
+
 	public static function encode($data, $pretty = false) {
 		$flags = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG;
 

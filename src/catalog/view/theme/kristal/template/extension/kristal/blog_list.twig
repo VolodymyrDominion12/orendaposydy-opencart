@@ -1,0 +1,75 @@
+{{ header }}
+
+<main id="main">
+  <div class="k-wrap" style="padding-top:1.5rem;padding-bottom:2rem">
+    <ol class="k-crumbs">
+      {% for crumb in breadcrumbs %}
+        {% if loop.last %}
+          <li aria-current="page">{{ crumb.text }}</li>
+        {% else %}
+          <li><a href="{{ crumb.href }}">{{ crumb.text }}</a></li>
+        {% endif %}
+      {% endfor %}
+    </ol>
+
+    <div style="margin-bottom:2rem">
+      <span class="k-label k-label--gold">Корисні статті</span>
+      <h1 class="k-display" style="margin-top:0.5rem;margin-bottom:1rem">Блог та поради сервірування</h1>
+      <p class="k-lead" style="max-width:70ch;color:var(--ink-light)">Експертні рекомендації, норми розрахунку посуду на гостя, чек-листи для кейтерингу та тренди оформлення весіль від команди «Крістал».</p>
+    </div>
+
+    <!-- Рубрики блогу -->
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:2.5rem">
+      {% for cat in categories %}
+        <a href="{{ cat.href }}" class="k-btn {{ active_category == cat.category_id ? 'k-btn--primary' : 'k-btn--secondary' }}" style="padding:0.5rem 1.25rem;font-size:0.9rem">
+          {{ cat.title }}
+        </a>
+      {% endfor %}
+    </div>
+
+    <!-- Сітка статей -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(320px, 1fr));gap:2rem;margin-bottom:4rem">
+      {% for post in posts %}
+        <article style="background:var(--bg-elevated,#241e21);border:1px solid var(--border,#382f34);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;transition:transform 0.2s ease,border-color 0.2s ease">
+          <a href="{{ post.href }}" style="display:block;aspect-ratio:16/10;overflow:hidden;background:#1a1517">
+            <img src="{{ post.thumb }}" alt="{{ post.title }}" style="width:100%;height:100%;object-fit:cover;transition:transform 0.3s ease" loading="lazy">
+          </a>
+          <div style="padding:1.5rem;flex:1;display:flex;flex-direction:column">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;font-size:0.85rem;color:var(--accent,#e5a93b)">
+              <span>{{ post.category_title ? post.category_title : 'Поради' }}</span>
+              <span style="color:var(--ink-muted,#8a7e84)">~{{ post.read_min }} хв читання</span>
+            </div>
+            <h2 style="font-size:1.2rem;font-weight:700;line-height:1.35;margin-bottom:0.75rem">
+              <a href="{{ post.href }}" style="color:var(--ink);text-decoration:none">{{ post.title }}</a>
+            </h2>
+            <p style="color:var(--ink-light);font-size:0.92rem;line-height:1.55;margin-bottom:1.5rem;flex:1">{{ post.summary }}</p>
+            <div style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border,#382f34);padding-top:1rem;font-size:0.85rem;color:var(--ink-muted,#8a7e84)">
+              <span>{{ post.date_added }}</span>
+              <a href="{{ post.href }}" class="k-btn k-btn--secondary" style="padding:0.4rem 1rem;font-size:0.85rem">Читати статтю →</a>
+            </div>
+          </div>
+        </article>
+      {% else %}
+        <p style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--ink-muted)">У цій рубриці статей поки що немає.</p>
+      {% endfor %}
+    </div>
+
+    <!-- Банер калькулятора -->
+    <section style="background:linear-gradient(135deg,rgba(229,169,59,0.08) 0%,rgba(36,30,33,0.9) 100%);border:1px solid var(--border,#382f34);border-radius:16px;padding:2.5rem;margin-bottom:3rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1.5rem">
+      <div style="max-width:55ch">
+        <span class="k-label k-label--gold">Інструмент</span>
+        <h2 class="k-h2" style="margin-top:0.25rem;margin-bottom:0.5rem">Потрібен швидкий розрахунок на подію?</h2>
+        <p style="color:var(--ink-light);line-height:1.5;margin:0">Скористайтеся нашим інтерактивним калькулятором: оберіть формат (банкет, фуршет, кава-брейк) та введіть кількість гостей.</p>
+      </div>
+      <div>
+        <a href="/kalkulyator" class="k-btn k-btn--primary" style="padding:0.75rem 1.5rem">Відкрити калькулятор події →</a>
+      </div>
+    </section>
+  </div>
+</main>
+
+{% if jsonld %}
+  {{ jsonld|raw }}
+{% endif %}
+
+{{ footer }}

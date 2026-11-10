@@ -1,0 +1,129 @@
+{{ header }}
+
+<main id="main">
+  <div class="k-wrap" style="padding-top:1.5rem;padding-bottom:2rem">
+    <ol class="k-crumbs">
+      {% for crumb in breadcrumbs %}
+        {% if loop.last %}
+          <li aria-current="page">{{ crumb.text }}</li>
+        {% else %}
+          <li><a href="{{ crumb.href }}">{{ crumb.text }}</a></li>
+        {% endif %}
+      {% endfor %}
+    </ol>
+
+    <div style="margin-bottom:2rem">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;font-size:0.9rem;color:var(--accent,#e5a93b)">
+        <span class="k-label k-label--gold">Кейс «Крістал»</span>
+        {% if guests %}
+          <span>• {{ guests }} гостей</span>
+        {% endif %}
+        {% if location %}
+          <span>• {{ location }}</span>
+        {% endif %}
+        {% if date_event %}
+          <span>• {{ date_event }}</span>
+        {% endif %}
+      </div>
+      <h1 class="k-display" style="margin-top:0.25rem;margin-bottom:1rem">{{ title }}</h1>
+      <p class="k-lead" style="max-width:75ch;color:var(--ink-light)">{{ summary }}</p>
+    </div>
+
+    <!-- Головне фото та деталі -->
+    <div style="display:grid;grid-template-columns:1fr;gap:2rem;margin-bottom:3rem">
+      <div style="border-radius:16px;overflow:hidden;border:1px solid var(--border,#382f34);background:#1a1517;max-height:550px">
+        <img src="{{ thumb }}" alt="{{ title }}" style="width:100%;height:100%;max-height:550px;object-fit:cover" loading="eager">
+      </div>
+    </div>
+
+    <!-- Додаткові фото галереї -->
+    {% if images %}
+      <div style="margin-bottom:3rem">
+        <h2 class="k-h2" style="margin-bottom:1rem">Фотографії сервірування</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(240px, 1fr));gap:1rem">
+          {% for img in images %}
+            <div style="border-radius:10px;overflow:hidden;border:1px solid var(--border,#382f34);aspect-ratio:4/3;background:#1a1517">
+              <img src="{{ img.thumb }}" alt="{{ title }}" style="width:100%;height:100%;object-fit:cover" loading="lazy">
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- Текстовий опис кейсу -->
+    <div style="background:var(--bg-elevated,#241e21);border:1px solid var(--border,#382f34);border-radius:16px;padding:2.5rem;margin-bottom:3.5rem;line-height:1.7;color:var(--ink-light);font-size:1.05rem">
+      {{ description|raw }}
+    </div>
+
+    <!-- Посуд, використаний на події -->
+    {% if products %}
+      <section style="margin-bottom:4rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem">
+          <div>
+            <span class="k-label k-label--gold">Склад комплекту</span>
+            <h2 class="k-h2" style="margin-top:0.25rem">Посуд та прибори з цього кейсу</h2>
+          </div>
+          <span style="color:var(--ink-muted);font-size:0.9rem">Всі позиції доступні до оренди</span>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));gap:1.5rem">
+          {% for prod in products %}
+            <div style="background:var(--bg-elevated,#241e21);border:1px solid var(--border,#382f34);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;padding:1rem">
+              <a href="{{ prod.href }}" style="aspect-ratio:1/1;display:block;overflow:hidden;border-radius:8px;background:#1a1517;margin-bottom:0.75rem">
+                <img src="{{ prod.thumb }}" alt="{{ prod.name }}" style="width:100%;height:100%;object-fit:contain" loading="lazy">
+              </a>
+              <h3 style="font-size:0.95rem;font-weight:600;margin-bottom:0.5rem;line-height:1.3;flex:1">
+                <a href="{{ prod.href }}" style="color:var(--ink);text-decoration:none">{{ prod.name }}</a>
+              </h3>
+              <div style="display:flex;align-items:baseline;justify-content:space-between;margin-top:auto;border-top:1px solid rgba(255,255,255,0.05);padding-top:0.5rem">
+                <div>
+                  <span style="font-size:1.15rem;font-weight:700;color:var(--accent,#e5a93b)">{{ prod.price }} ₴</span>
+                  <span style="font-size:0.8rem;color:var(--ink-muted)">/{{ prod.unit }}</span>
+                </div>
+                <a href="{{ prod.href }}" class="k-btn k-btn--secondary" style="padding:0.3rem 0.75rem;font-size:0.8rem">В картку</a>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
+    <!-- Схожі події -->
+    {% if related_cases %}
+      <section style="border-top:1px solid var(--border,#382f34);padding-top:3rem;margin-bottom:3rem">
+        <h2 class="k-h2" style="margin-bottom:1.5rem">Інші кейси сервірування</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.5rem">
+          {% for rc in related_cases %}
+            <a href="{{ rc.href }}" style="background:var(--bg-elevated,#241e21);border:1px solid var(--border,#382f34);border-radius:12px;overflow:hidden;text-decoration:none;display:block">
+              <div style="aspect-ratio:16/10;overflow:hidden;background:#1a1517">
+                <img src="{{ rc.thumb }}" alt="{{ rc.title }}" style="width:100%;height:100%;object-fit:cover" loading="lazy">
+              </div>
+              <div style="padding:1.25rem">
+                <div style="font-size:0.8rem;color:var(--accent,#e5a93b);margin-bottom:0.5rem">
+                  {% if rc.guests %}{{ rc.guests }} гостей • {% endif %}{{ rc.location }}
+                </div>
+                <h3 style="font-size:1.05rem;color:var(--ink);margin:0;line-height:1.3">{{ rc.title }}</h3>
+              </div>
+            </a>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
+    <!-- Нижня форма замовлення -->
+    <div style="background:linear-gradient(135deg,rgba(229,169,59,0.08) 0%,rgba(36,30,33,0.95) 100%);border:1px solid var(--accent,#e5a93b);border-radius:16px;padding:2.5rem;text-align:center">
+      <h2 class="k-h2" style="margin-bottom:0.5rem">Хочете подібне сервірування для своєї події?</h2>
+      <p style="color:var(--ink-light);max-width:55ch;margin:0 auto 1.5rem;line-height:1.5">Ми підберемо повний комплект фарфору, приборів, келихів та текстилю з урахуванням вашого меню та локації.</p>
+      <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+        <a href="/#lead" class="k-btn k-btn--primary">Отримати консультацію та розрахунок</a>
+        <a href="/portfolio" class="k-btn k-btn--secondary">← До всіх кейсів</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+{% if jsonld %}
+  {{ jsonld|raw }}
+{% endif %}
+
+{{ footer }}

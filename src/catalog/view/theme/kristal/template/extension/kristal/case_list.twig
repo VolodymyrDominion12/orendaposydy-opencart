@@ -1,0 +1,108 @@
+{{ header }}
+
+<main id="main">
+  <div class="k-wrap" style="padding-top:1.5rem;padding-bottom:1rem">
+    <ol class="k-crumbs">
+      {% for crumb in breadcrumbs %}
+        {% if loop.last %}
+          <li aria-current="page">{{ crumb.text }}</li>
+        {% else %}
+          <li><a href="{{ crumb.href }}">{{ crumb.text }}</a></li>
+        {% endif %}
+      {% endfor %}
+    </ol>
+
+    <div style="margin-bottom:2rem">
+      <span class="k-label k-label--gold">Реальні події</span>
+      <h1 class="k-display" style="margin-top:0.5rem;margin-bottom:1rem">Портфоліо та кейси сервірування</h1>
+      <p class="k-lead" style="max-width:70ch;color:var(--ink-light)">Погляньте, як посуд, келихи та текстиль «Крістал» виглядають на реальних весіллях, фуршетах, кейтерингах та корпоративах у Львові та області.</p>
+    </div>
+
+    <!-- Фільтри форматів -->
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:2.5rem">
+      {% for f in filters %}
+        <a href="{{ f.href }}" class="k-btn {{ active_filter == f.code ? 'k-btn--primary' : 'k-btn--secondary' }}" style="padding:0.5rem 1.25rem;font-size:0.9rem">
+          {{ f.title }}
+        </a>
+      {% endfor %}
+    </div>
+
+    <!-- Сітка кейсів -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(320px, 1fr));gap:2rem;margin-bottom:4rem">
+      {% for case in cases %}
+        <article style="background:var(--bg-elevated,#241e21);border:1px solid var(--border,#382f34);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;transition:transform 0.2s ease,border-color 0.2s ease">
+          <a href="{{ case.href }}" style="display:block;aspect-ratio:16/10;overflow:hidden;background:#1a1517">
+            <img src="{{ case.thumb }}" alt="{{ case.title }}" style="width:100%;height:100%;object-fit:cover;transition:transform 0.3s ease" loading="lazy">
+          </a>
+          <div style="padding:1.5rem;flex:1;display:flex;flex-direction:column">
+            <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;font-size:0.85rem;color:var(--accent,#e5a93b)">
+              {% if case.guests %}
+                <span><svg class="k-ico" style="width:14px;height:14px;vertical-align:-2px"><use href="#i-users"/></svg> {{ case.guests }} гостей</span>
+              {% endif %}
+              {% if case.location %}
+                <span>• {{ case.location }}</span>
+              {% endif %}
+            </div>
+            <h2 style="font-size:1.25rem;font-weight:700;line-height:1.3;margin-bottom:0.75rem">
+              <a href="{{ case.href }}" style="color:var(--ink);text-decoration:none">{{ case.title }}</a>
+            </h2>
+            <p style="color:var(--ink-light);font-size:0.92rem;line-height:1.5;margin-bottom:1.5rem;flex:1">{{ case.summary }}</p>
+            <div style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border,#382f34);padding-top:1rem">
+              <span style="font-size:0.85rem;color:var(--ink-muted,#8a7e84)">{{ case.date_event }}</span>
+              <a href="{{ case.href }}" class="k-btn k-btn--secondary" style="padding:0.4rem 1rem;font-size:0.85rem">Деталі кейсу →</a>
+            </div>
+          </div>
+        </article>
+      {% else %}
+        <p style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--ink-muted)">Наразі немає кейсів у цій категорії.</p>
+      {% endfor %}
+    </div>
+
+    <!-- Блок відгуків клієнтів -->
+    {% if testimonials %}
+      <section style="background:linear-gradient(135deg,rgba(229,169,59,0.06) 0%,rgba(36,30,33,0.8) 100%);border:1px solid var(--border,#382f34);border-radius:16px;padding:2.5rem;margin-bottom:4rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:2rem">
+          <div>
+            <span class="k-label k-label--gold">Google Reviews</span>
+            <h2 class="k-h2" style="margin-top:0.25rem">Що кажуть організатори та клієнти</h2>
+          </div>
+          <a href="{{ link_testimonials ? link_testimonials : '/vidhuky' }}" class="k-btn k-btn--secondary">Всі відгуки (5.0 ★) →</a>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.5rem">
+          {% for t in testimonials %}
+            <div style="background:var(--bg,#1a1517);border:1px solid var(--border,#382f34);border-radius:12px;padding:1.5rem;display:flex;flex-direction:column">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem">
+                <div>
+                  <strong style="color:var(--ink);font-size:1rem;display:block">{{ t.author_name }}</strong>
+                  <span style="color:var(--ink-muted);font-size:0.8rem">{{ t.author_role }}</span>
+                </div>
+                <div style="color:#f59e0b;font-size:1rem;letter-spacing:2px">★★★★★</div>
+              </div>
+              <p style="color:var(--ink-light);font-size:0.9rem;line-height:1.5;margin-bottom:1rem;flex:1">«{{ t.text }}»</p>
+              <div style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(255,255,255,0.05);padding-top:0.5rem;font-size:0.8rem;color:var(--ink-muted)">
+                <span>{{ t.event_title }}</span>
+                <span>{{ t.date_added }}</span>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
+    <!-- CTA розрахунку -->
+    <section style="text-align:center;background:var(--bg-elevated,#241e21);border:1px solid var(--border,#382f34);border-radius:16px;padding:3rem 1.5rem;margin-bottom:3rem">
+      <h2 class="k-h2" style="margin-bottom:0.75rem">Плануєте весілля, банкет чи кейтеринг?</h2>
+      <p style="color:var(--ink-light);max-width:55ch;margin:0 auto 1.5rem;line-height:1.5">Надішліть нам дату, кількість гостей та побажання — менеджер розрахує точну вартість оренди посуду за 15 хвилин.</p>
+      <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+        <a href="/#lead" class="k-btn k-btn--primary">Отримати розрахунок за 15 хв</a>
+        <a href="/kalkulyator" class="k-btn k-btn--secondary">Калькулятор події</a>
+      </div>
+    </section>
+  </div>
+</main>
+
+{% if jsonld %}
+  {{ jsonld|raw }}
+{% endif %}
+
+{{ footer }}

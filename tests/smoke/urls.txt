@@ -19,6 +19,11 @@
 /keiterynh                           200                    # 006: кейтеринг та виїзне обслуговування
 /korporatyv                          200                    # 006: корпоратив і бенкети
 /kalkulyator                         200                    # 008: калькулятор події
+/portfolio                           200                    # 014: портфоліо кейсів подій
+/vidhuky                             200                    # 014: відгуки клієнтів
+/vesillya-v-edem-resort              200                    # 014: кейс весілля в Edem Resort
+/blog                                200                    # 013: блог та статті
+/yak-rozrakhuvaty-kelykhy-na-vesillya 200                   # 013: стаття про келихи на весілля
 /sitemap.xml                         200  allow=h1,canonical # 011: XML карта сайту
 /kristal-smoke-neisnuyucha-storinka 404
 

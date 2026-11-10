@@ -1,0 +1,147 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <a href="{{ cancel }}" data-toggle="tooltip" title="Назад" class="btn btn-default"><i class="fa fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if success %}
+    <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+
+    <ul class="nav nav-tabs">
+      <li class="active"><a href="#tab-posts" data-toggle="tab"><i class="fa fa-newspaper-o"></i> Статті ({{ posts|length }})</a></li>
+      <li><a href="#tab-add-post" data-toggle="tab"><i class="fa fa-plus"></i> Додати статтю</a></li>
+    </ul>
+
+    <div class="tab-content">
+      <!-- Список статей -->
+      <div class="tab-pane active" id="tab-posts">
+        <div class="panel panel-default">
+          <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-list"></i> Список публікацій</h3></div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Заголовок</th>
+                    <th>Рубрика</th>
+                    <th>Автор</th>
+                    <th>Переглядів</th>
+                    <th>Статус</th>
+                    <th class="text-right">Дії</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for p in posts %}
+                  <tr>
+                    <td>{{ p.post_id }}</td>
+                    <td><strong>{{ p.title }}</strong></td>
+                    <td><span class="label label-info">{{ p.category_title }}</span></td>
+                    <td>{{ p.author }}</td>
+                    <td>{{ p.viewed }}</td>
+                    <td>
+                      {% if p.status %}
+                        <span class="label label-success">Опубліковано</span>
+                      {% else %}
+                        <span class="label label-default">Чернетка</span>
+                      {% endif %}
+                    </td>
+                    <td class="text-right">
+                      <a href="{{ p.delete }}" onclick="return confirm('Ви впевнені?');" class="btn btn-danger btn-xs"><i class="fa fa-trash"></i></a>
+                    </td>
+                  </tr>
+                  {% else %}
+                  <tr><td colspan="7" class="text-center">Статей ще немає</td></tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Додати статтю -->
+      <div class="tab-pane" id="tab-add-post">
+        <div class="panel panel-default">
+          <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-plus"></i> Нова стаття</h3></div>
+          <div class="panel-body">
+            <form action="{{ action }}" method="post" class="form-horizontal">
+              <input type="hidden" name="action" value="add_post">
+              <div class="form-group required">
+                <label class="col-sm-2 control-label">Заголовок статті</label>
+                <div class="col-sm-10">
+                  <input type="text" name="title" class="form-control" placeholder="Як розрахувати келихи на весілля" required>
+                </div>
+              </div>
+              <div class="form-group required">
+                <label class="col-sm-2 control-label">ЧПУ (slug)</label>
+                <div class="col-sm-10">
+                  <input type="text" name="slug" class="form-control" placeholder="yak-rozrakhuvaty-kelykhy-na-vesillya" required>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Рубрика</label>
+                <div class="col-sm-10">
+                  <select name="category_id" class="form-control">
+                    {% for cat in categories %}
+                      <option value="{{ cat.category_id }}">{{ cat.title }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Автор</label>
+                <div class="col-sm-10">
+                  <input type="text" name="author" class="form-control" value="Команда «Крістал»">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Короткий анонс</label>
+                <div class="col-sm-10">
+                  <textarea name="summary" class="form-control" rows="2"></textarea>
+                </div>
+              </div>
+              <div class="form-group required">
+                <label class="col-sm-2 control-label">Зміст (HTML)</label>
+                <div class="col-sm-10">
+                  <textarea name="content" class="form-control" rows="8" required></textarea>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Шлях до зображення</label>
+                <div class="col-sm-10">
+                  <input type="text" name="image" class="form-control" placeholder="catalog/demo/banners/blog-glasses.jpg">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Порядок сортування</label>
+                <div class="col-sm-10">
+                  <input type="number" name="sort_order" class="form-control" value="0">
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                  <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Опублікувати статтю</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{{ footer }}

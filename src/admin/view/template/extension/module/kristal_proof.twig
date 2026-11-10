@@ -1,0 +1,272 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <a href="{{ cancel }}" data-toggle="tooltip" title="Назад" class="btn btn-default"><i class="fa fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if success %}
+    <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+
+    <ul class="nav nav-tabs">
+      <li class="active"><a href="#tab-cases" data-toggle="tab"><i class="fa fa-picture-o"></i> Кейси портфоліо ({{ cases|length }})</a></li>
+      <li><a href="#tab-testimonials" data-toggle="tab"><i class="fa fa-comments"></i> Відгуки клієнтів ({{ testimonials|length }})</a></li>
+      <li><a href="#tab-add-case" data-toggle="tab"><i class="fa fa-plus"></i> Додати кейс</a></li>
+      <li><a href="#tab-add-testimonial" data-toggle="tab"><i class="fa fa-plus"></i> Додати відгук</a></li>
+    </ul>
+
+    <div class="tab-content">
+      <!-- Список кейсів -->
+      <div class="tab-pane active" id="tab-cases">
+        <div class="panel panel-default">
+          <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-list"></i> Список кейсів подій</h3></div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Назва події</th>
+                    <th>Формат</th>
+                    <th>Гостей</th>
+                    <th>Локація</th>
+                    <th>Статус</th>
+                    <th class="text-right">Дії</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for c in cases %}
+                  <tr>
+                    <td>{{ c.case_id }}</td>
+                    <td><strong>{{ c.title }}</strong></td>
+                    <td><span class="label label-info">{{ c.event_type }}</span></td>
+                    <td>{{ c.guests }}</td>
+                    <td>{{ c.location }}</td>
+                    <td>
+                      {% if c.status %}
+                        <span class="label label-success">Активний</span>
+                      {% else %}
+                        <span class="label label-default">Вимкнено</span>
+                      {% endif %}
+                    </td>
+                    <td class="text-right">
+                      <a href="{{ c.delete }}" onclick="return confirm('Ви впевнені, що хочете видалити цей кейс?');" class="btn btn-danger btn-xs"><i class="fa fa-trash"></i></a>
+                    </td>
+                  </tr>
+                  {% else %}
+                  <tr><td colspan="7" class="text-center">Кейсів ще не додано</td></tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Список відгуків -->
+      <div class="tab-pane" id="tab-testimonials">
+        <div class="panel panel-default">
+          <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-comments"></i> Відгуки клієнтів</h3></div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Автор</th>
+                    <th>Роль / Статус</th>
+                    <th>Оцінка</th>
+                    <th>Джерело</th>
+                    <th>Статус</th>
+                    <th class="text-right">Дії</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for t in testimonials %}
+                  <tr>
+                    <td>{{ t.testimonial_id }}</td>
+                    <td><strong>{{ t.author_name }}</strong></td>
+                    <td>{{ t.author_role }}</td>
+                    <td><span class="text-warning">★ {{ t.rating }}/5</span></td>
+                    <td><span class="label label-primary">{{ t.source }}</span></td>
+                    <td>
+                      {% if t.status %}
+                        <span class="label label-success">Активний</span>
+                      {% else %}
+                        <span class="label label-default">Вимкнено</span>
+                      {% endif %}
+                    </td>
+                    <td class="text-right">
+                      <a href="{{ t.delete }}" onclick="return confirm('Ви впевнені?');" class="btn btn-danger btn-xs"><i class="fa fa-trash"></i></a>
+                    </td>
+                  </tr>
+                  {% else %}
+                  <tr><td colspan="7" class="text-center">Відгуків ще немає</td></tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Форма додавання кейсу -->
+      <div class="tab-pane" id="tab-add-case">
+        <div class="panel panel-default">
+          <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-plus"></i> Новий кейс</h3></div>
+          <div class="panel-body">
+            <form action="{{ action }}" method="post" class="form-horizontal">
+              <input type="hidden" name="action" value="add_case">
+              <div class="form-group required">
+                <label class="col-sm-2 control-label">Назва події</label>
+                <div class="col-sm-10">
+                  <input type="text" name="title" class="form-control" placeholder="Весілля в Edem Resort на 120 осіб" required>
+                </div>
+              </div>
+              <div class="form-group required">
+                <label class="col-sm-2 control-label">ЧПУ (slug)</label>
+                <div class="col-sm-10">
+                  <input type="text" name="slug" class="form-control" placeholder="vesillya-v-edem-resort" required>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Формат</label>
+                <div class="col-sm-10">
+                  <select name="event_type" class="form-control">
+                    <option value="wedding">Весілля</option>
+                    <option value="buffet">Фуршет / Кава-пауза</option>
+                    <option value="catering">Кейтеринг</option>
+                    <option value="corporate">Корпоратив</option>
+                    <option value="private">Приватна подія</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Гостей</label>
+                <div class="col-sm-10">
+                  <input type="number" name="guests" class="form-control" value="100">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Локація</label>
+                <div class="col-sm-10">
+                  <input type="text" name="location" class="form-control" placeholder="м. Львів або комплекс">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Дата / Сезон</label>
+                <div class="col-sm-10">
+                  <input type="text" name="date_event" class="form-control" placeholder="Вересень 2026">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Короткий опис</label>
+                <div class="col-sm-10">
+                  <textarea name="summary" class="form-control" rows="2"></textarea>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Повний опис (HTML)</label>
+                <div class="col-sm-10">
+                  <textarea name="description" class="form-control" rows="5"></textarea>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Шлях до зображення</label>
+                <div class="col-sm-10">
+                  <input type="text" name="image" class="form-control" placeholder="catalog/demo/banners/wedding-case.jpg">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Порядок сортування</label>
+                <div class="col-sm-10">
+                  <input type="number" name="sort_order" class="form-control" value="0">
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                  <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Зберегти кейс</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Форма додавання відгуку -->
+      <div class="tab-pane" id="tab-add-testimonial">
+        <div class="panel panel-default">
+          <div class="panel-heading"><h3 class="panel-title"><i class="fa fa-plus"></i> Новий відгук</h3></div>
+          <div class="panel-body">
+            <form action="{{ action }}" method="post" class="form-horizontal">
+              <input type="hidden" name="action" value="add_testimonial">
+              <div class="form-group required">
+                <label class="col-sm-2 control-label">Ім'я автора</label>
+                <div class="col-sm-10">
+                  <input type="text" name="author_name" class="form-control" placeholder="Олена Мороз" required>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Роль / Статус</label>
+                <div class="col-sm-10">
+                  <input type="text" name="author_role" class="form-control" placeholder="Наречена або Шеф-кухар">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Оцінка</label>
+                <div class="col-sm-10">
+                  <select name="rating" class="form-control">
+                    <option value="5" selected>5 зірок (Відмінно)</option>
+                    <option value="4">4 зірки (Добре)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group required">
+                <label class="col-sm-2 control-label">Текст відгуку</label>
+                <div class="col-sm-10">
+                  <textarea name="text" class="form-control" rows="4" required></textarea>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Назва події</label>
+                <div class="col-sm-10">
+                  <input type="text" name="event_title" class="form-control" placeholder="Весілля в Emily Resort">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Джерело</label>
+                <div class="col-sm-10">
+                  <input type="text" name="source" class="form-control" value="Google">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Посилання на відгук</label>
+                <div class="col-sm-10">
+                  <input type="text" name="source_url" class="form-control" placeholder="https://maps.google.com">
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                  <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Зберегти відгук</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{{ footer }}

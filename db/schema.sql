@@ -560,6 +560,47 @@ CREATE TABLE `oc_kristal_404_log` (
   KEY `idx_hits` (`hits`),
   KEY `idx_last_at` (`last_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `oc_kristal_blog_category` (
+  `category_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `slug` varchar(255) NOT NULL,
+  `description` text NOT NULL,
+  `sort_order` int(11) NOT NULL DEFAULT 0,
+  `status` tinyint(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`category_id`),
+  UNIQUE KEY `uq_slug` (`slug`),
+  KEY `idx_status_sort` (`status`,`sort_order`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `oc_kristal_blog_post` (
+  `post_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `slug` varchar(255) NOT NULL,
+  `summary` varchar(500) NOT NULL DEFAULT '',
+  `content` mediumtext NOT NULL,
+  `image` varchar(255) NOT NULL DEFAULT '',
+  `author` varchar(128) NOT NULL DEFAULT 'Команда «Крістал»',
+  `viewed` int(11) NOT NULL DEFAULT 0,
+  `sort_order` int(11) NOT NULL DEFAULT 0,
+  `status` tinyint(1) NOT NULL DEFAULT 1,
+  `date_added` datetime NOT NULL,
+  `date_modified` datetime NOT NULL,
+  PRIMARY KEY (`post_id`),
+  UNIQUE KEY `uq_slug` (`slug`),
+  KEY `idx_status_date` (`status`,`date_added`),
+  KEY `idx_sort_order` (`sort_order`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `oc_kristal_blog_post_related_product` (
+  `post_id` int(11) unsigned NOT NULL,
+  `product_id` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`post_id`,`product_id`),
+  KEY `idx_product_id` (`product_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `oc_kristal_blog_post_to_category` (
+  `post_id` int(11) unsigned NOT NULL,
+  `category_id` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`post_id`,`category_id`),
+  KEY `idx_category_id` (`category_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 CREATE TABLE `oc_kristal_calc_norm` (
   `norm_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `category_type` varchar(32) NOT NULL DEFAULT 'plates',
@@ -577,6 +618,39 @@ CREATE TABLE `oc_kristal_calc_norm` (
   PRIMARY KEY (`norm_id`),
   KEY `idx_cat_sort` (`category_type`,`sort_order`),
   KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `oc_kristal_case` (
+  `case_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `slug` varchar(255) NOT NULL,
+  `event_type` varchar(64) NOT NULL DEFAULT 'wedding',
+  `guests` int(11) NOT NULL DEFAULT 0,
+  `location` varchar(255) NOT NULL DEFAULT '',
+  `date_event` varchar(64) NOT NULL DEFAULT '',
+  `summary` varchar(500) NOT NULL DEFAULT '',
+  `description` mediumtext NOT NULL,
+  `image` varchar(255) NOT NULL DEFAULT '',
+  `sort_order` int(11) NOT NULL DEFAULT 0,
+  `status` tinyint(1) NOT NULL DEFAULT 1,
+  `date_added` datetime NOT NULL,
+  PRIMARY KEY (`case_id`),
+  UNIQUE KEY `uq_slug` (`slug`),
+  KEY `idx_status_sort` (`status`,`sort_order`),
+  KEY `idx_event_type` (`event_type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `oc_kristal_case_image` (
+  `image_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `case_id` int(11) unsigned NOT NULL,
+  `image` varchar(255) NOT NULL,
+  `sort_order` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`image_id`),
+  KEY `idx_case_id` (`case_id`,`sort_order`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `oc_kristal_case_product` (
+  `case_id` int(11) unsigned NOT NULL,
+  `product_id` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`case_id`,`product_id`),
+  KEY `idx_product_id` (`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 CREATE TABLE `oc_kristal_filter_page` (
   `filter_page_id` int(11) NOT NULL AUTO_INCREMENT,
@@ -805,6 +879,22 @@ CREATE TABLE `oc_kristal_setting_backup` (
   `migration` varchar(64) NOT NULL,
   `backed_up_at` datetime NOT NULL,
   PRIMARY KEY (`setting_id`,`migration`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `oc_kristal_testimonial` (
+  `testimonial_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `author_name` varchar(128) NOT NULL,
+  `author_role` varchar(128) NOT NULL DEFAULT '',
+  `rating` tinyint(1) NOT NULL DEFAULT 5,
+  `text` text NOT NULL,
+  `event_title` varchar(255) NOT NULL DEFAULT '',
+  `source` varchar(64) NOT NULL DEFAULT 'Google',
+  `source_url` varchar(255) NOT NULL DEFAULT '',
+  `avatar` varchar(255) NOT NULL DEFAULT '',
+  `date_added` date NOT NULL,
+  `sort_order` int(11) NOT NULL DEFAULT 0,
+  `status` tinyint(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`testimonial_id`),
+  KEY `idx_status_sort` (`status`,`sort_order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 CREATE TABLE `oc_language` (
   `language_id` int(11) NOT NULL AUTO_INCREMENT,
