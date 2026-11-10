@@ -1,0 +1,30 @@
+# 011 — Задачі реалізації
+
+- [x] **T1. Бібліотека `Kristal\Seo` та тести**
+  - [x] Створити `src/system/library/kristal/seo.php` з методами `renderTemplate`, `buildSitemapXml`, `jsonLdBreadcrumbs`, `jsonLdProduct`, `jsonLdLocalBusiness`, `getSeoUrlMap`.
+  - [x] Написати юніт-тести в `tests/lib/seo_test.php`.
+  - [x] Запустити `make test-lib T=seo` і переконатися, що всі тести зелені (5 OK, 0 FAIL).
+- [x] **T2. Міграція бази даних `0020_kristal_seo`**
+  - [x] Створити `db/migrations/0020_kristal_seo.up.sql` (таблиця `oc_kristal_seo_meta`, реєстрація подій, SEO URL для `sitemap.xml`).
+  - [x] Створити `db/migrations/0020_kristal_seo.down.sql`.
+  - [x] Виконати `make migrate`.
+  - [x] Перевірити `make db-check`, `make db-schema-diff` та `make db-schema-snapshot`.
+- [x] **T3. Оптимізація та кешування `oc_seo_url` у `startup/seo_url.php`**
+  - [x] Додати в `catalog/controller/startup/seo_url.php` кешування через `Kristal\Seo::getSeoUrlMap()`.
+  - [x] Перевірити `make db-profile URL=/posud/tarilky` — запити впали зі 171 до 51 (бюджет 100, час 26 мс).
+- [x] **T4. Контролер та модель вітрини `extension/kristal/seo`**
+  - [x] Реалізувати `sitemap()` у `catalog/controller/extension/kristal/seo.php` з кешуванням.
+  - [x] Реалізувати події `headerBefore()`, `categoryView()`, `productView()`.
+  - [x] Створити модель `catalog/model/extension/kristal/seo.php`.
+- [x] **T5. Оновлення шаблонів теми `kristal`**
+  - [x] Додати в `catalog/view/theme/kristal/template/common/header.twig` вивід JSON-LD, `canonical` та `robots`.
+  - [x] Додати в `catalog/view/theme/kristal/template/product/category.twig` вивід окремого `h1` та блоку `.k-seo-text` унизу.
+  - [x] Додати стилі для `.k-seo-text` у `catalog/view/theme/kristal/stylesheet/kristal.css`.
+- [x] **T6. Модуль та модель адмінки `extension/module/kristal_seo`**
+  - [x] Контролер `admin/controller/extension/module/kristal_seo.php`.
+  - [x] Модель `admin/model/extension/kristal/seo.php`.
+  - [x] Шаблон `admin/view/template/extension/module/kristal_seo.twig`.
+  - [x] Мовний файл `admin/language/uk-ua/extension/module/kristal_seo.php`.
+- [x] **T7. Smoke-тести та верифікація**
+  - [x] Додати `/sitemap.xml` до `tests/smoke/urls.txt`.
+  - [x] Запустити `make lint`, `make test-lib`, `make test-smoke`, `make test-security` — усе зелено.

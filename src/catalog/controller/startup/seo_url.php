@@ -1,5 +1,20 @@
-<?php // ==========================================  seo_url.php v.140618 opencart-russia.ru ===============================
+<?php // ==========================================  seo_url.php v.140618 opencart-russia.ru + Kristal\Seo cache ===============================
 class ControllerStartupSeoUrl extends Controller {
+	private $url_map = null;
+
+	private function getMap() {
+		if ($this->url_map === null) {
+			$this->url_map = \Kristal\Seo::getSeoUrlMap(
+				$this->db,
+				(int)$this->config->get('config_store_id'),
+				(int)$this->config->get('config_language_id'),
+				$this->cache
+			);
+		}
+
+		return $this->url_map;
+	}
+
 	public function index() {
 		// Add rewrite to url class
 		if ($this->config->get('config_seo_url')) {
@@ -15,11 +30,11 @@ class ControllerStartupSeoUrl extends Controller {
 				array_pop($parts);
 			}
 
-			foreach ($parts as $part) {
-				$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "seo_url WHERE keyword = '" . $this->db->escape($part) . "' AND store_id = '" . (int)$this->config->get('config_store_id') . "'");
+			$map = $this->getMap();
 
-				if ($query->num_rows) {
-					$url = explode('=', $query->row['query']);
+			foreach ($parts as $part) {
+				if (isset($map['k2q'][$part])) {
+					$url = explode('=', $map['k2q'][$part]);
 
 					if ($url[0] == 'product_id') {
 						$this->request->get['product_id'] = $url[1];
@@ -41,13 +56,43 @@ class ControllerStartupSeoUrl extends Controller {
 						$this->request->get['information_id'] = $url[1];
 					}
 
-					if ($query->row['query'] && $url[0] != 'information_id' && $url[0] != 'manufacturer_id' && $url[0] != 'category_id' && $url[0] != 'product_id') {
-						$this->request->get['route'] = $query->row['query'];
+					if ($map['k2q'][$part] && $url[0] != 'information_id' && $url[0] != 'manufacturer_id' && $url[0] != 'category_id' && $url[0] != 'product_id') {
+						$this->request->get['route'] = $map['k2q'][$part];
 					}
 				} else {
-					$this->request->get['route'] = 'error/not_found';
+					$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "seo_url WHERE keyword = '" . $this->db->escape($part) . "' AND store_id = '" . (int)$this->config->get('config_store_id') . "'");
 
-					break;
+					if ($query->num_rows) {
+						$url = explode('=', $query->row['query']);
+
+						if ($url[0] == 'product_id') {
+							$this->request->get['product_id'] = $url[1];
+						}
+
+						if ($url[0] == 'category_id') {
+							if (!isset($this->request->get['path'])) {
+								$this->request->get['path'] = $url[1];
+							} else {
+								$this->request->get['path'] .= '_' . $url[1];
+							}
+						}
+
+						if ($url[0] == 'manufacturer_id') {
+							$this->request->get['manufacturer_id'] = $url[1];
+						}
+
+						if ($url[0] == 'information_id') {
+							$this->request->get['information_id'] = $url[1];
+						}
+
+						if ($query->row['query'] && $url[0] != 'information_id' && $url[0] != 'manufacturer_id' && $url[0] != 'category_id' && $url[0] != 'product_id') {
+							$this->request->get['route'] = $query->row['query'];
+						}
+					} else {
+						$this->request->get['route'] = 'error/not_found';
+
+						break;
+					}
 				}
 			}
 
@@ -59,14 +104,15 @@ class ControllerStartupSeoUrl extends Controller {
 				} elseif (isset($this->request->get['manufacturer_id'])) {
 					$this->request->get['route'] = 'product/manufacturer/info';
 				} elseif (isset($this->request->get['information_id'])) {
-					$this->request->get['route'] = 'information/information';
+					$this->request->get['information_id'] = $url[1];
 				}
 			}
-		// Redirect 301   
+		// Redirect 301
 		} elseif (isset($this->request->get['route']) && empty($this->request->post) && !isset($this->request->get['token']) && $this->config->get('config_seo_url')) {
 			$arg = '';
 			$cat_path = false;
 			$route = $this->request->get['route'];
+			$map = $this->getMap();
 
 			if ($this->request->get['route'] == 'product/product' && isset($this->request->get['product_id'])) {
 				$route = 'product_id=' . (int)$this->request->get['product_id'];
@@ -74,12 +120,17 @@ class ControllerStartupSeoUrl extends Controller {
 				$categorys_id = explode('_', $this->request->get['path']);
 				$cat_path = '';
 				foreach ($categorys_id as $category_id) {
-					$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "seo_url` WHERE `query` = 'category_id=" . (int)$category_id . "' AND `store_id` = '" . (int)$this->config->get('config_store_id') . "' AND `language_id` = '" . (int)$this->config->get('config_language_id') . "'");   
-					if ($query->num_rows && $query->row['keyword'] /**/ ) {
-						$cat_path .= '/' . $query->row['keyword'];
+					$cat_k = 'category_id=' . (int)$category_id;
+					if (isset($map['q2k'][$cat_k])) {
+						$cat_path .= '/' . $map['q2k'][$cat_k];
 					} else {
-						$cat_path = false;
-						break;
+						$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "seo_url` WHERE `query` = '" . $this->db->escape($cat_k) . "' AND `store_id` = '" . (int)$this->config->get('config_store_id') . "' AND `language_id` = '" . (int)$this->config->get('config_language_id') . "'");
+						if ($query->num_rows && $query->row['keyword']) {
+							$cat_path .= '/' . $query->row['keyword'];
+						} else {
+							$cat_path = false;
+							break;
+						}
 					}
 				}
 				$arg = trim($cat_path, '/');
@@ -94,10 +145,16 @@ class ControllerStartupSeoUrl extends Controller {
 				$arg = str_replace('&amp;', '&', $args);
 			}
 
-			$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "seo_url` WHERE `query` = '" . $this->db->escape($route) . "' AND `store_id` = '" . (int)$this->config->get('config_store_id') . "' AND `language_id` = '" . (int)$this->config->get('config_language_id') . "'");
+			$kw = isset($map['q2k'][$route]) ? $map['q2k'][$route] : '';
+			if (!$kw) {
+				$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "seo_url` WHERE `query` = '" . $this->db->escape($route) . "' AND `store_id` = '" . (int)$this->config->get('config_store_id') . "' AND `language_id` = '" . (int)$this->config->get('config_language_id') . "'");
+				if (!empty($query->num_rows) && !empty($query->row['keyword'])) {
+					$kw = $query->row['keyword'];
+				}
+			}
 
-			if (!empty($query->num_rows) && !empty($query->row['keyword']) && $route) {
-				$this->response->redirect($query->row['keyword'] . $arg, 301);
+			if ($kw && $route) {
+				$this->response->redirect($kw . $arg, 301);
 			} elseif ($cat_path) {
 				$this->response->redirect($arg, 301);
 			} elseif ($this->request->get['route'] == 'common/home') {
@@ -115,36 +172,40 @@ class ControllerStartupSeoUrl extends Controller {
 
 		parse_str($url_info['query'], $data);
 
+		$map = $this->getMap();
+
 		foreach ($data as $key => $value) {
 			if (isset($data['route'])) {
 				if (($data['route'] == 'product/product' && $key == 'product_id') || (($data['route'] == 'product/manufacturer/info' || $data['route'] == 'product/product') && $key == 'manufacturer_id') || ($data['route'] == 'information/information' && $key == 'information_id')) {
-					$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "seo_url WHERE `query` = '" . $this->db->escape($key . '=' . (int)$value) . "' AND store_id = '" . (int)$this->config->get('config_store_id') . "' AND language_id = '" . (int)$this->config->get('config_language_id') . "'");
-
-					if ($query->num_rows && $query->row['keyword']) {
-						$url .= '/' . $query->row['keyword'];
-
+					$lookup = $key . '=' . (int)$value;
+					if (isset($map['q2k'][$lookup])) {
+						$url .= '/' . $map['q2k'][$lookup];
 						unset($data[$key]);
 					}
 				} elseif ($key == 'path') {
 					$categories = explode('_', $value);
+					$found = true;
+					$cat_part = '';
 
 					foreach ($categories as $category) {
-						$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "seo_url WHERE `query` = 'category_id=" . (int)$category . "' AND store_id = '" . (int)$this->config->get('config_store_id') . "' AND language_id = '" . (int)$this->config->get('config_language_id') . "'");
-
-						if ($query->num_rows && $query->row['keyword']) {
-							$url .= '/' . $query->row['keyword'];
+						$cat_k = 'category_id=' . (int)$category;
+						if (isset($map['q2k'][$cat_k])) {
+							$cat_part .= '/' . $map['q2k'][$cat_k];
 						} else {
-							$url = '';
-
+							$found = false;
 							break;
 						}
 					}
 
-					unset($data[$key]);
-				} elseif ($key == 'route') {
-					$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "seo_url WHERE `query` = '" . $this->db->escape($data['route']) . "' AND store_id = '" . (int)$this->config->get('config_store_id') . "' AND language_id = '" . (int)$this->config->get('config_language_id') . "'");
-					if ($query->num_rows) /**/ {
-						$url .= '/' . $query->row['keyword'];
+					if ($found) {
+						$url .= $cat_part;
+						unset($data[$key]);
+					} else {
+						$url = '';
+					}
+				} elseif ($key == 'route' && !$url) {
+					if (isset($map['q2k'][$data['route']])) {
+						$url .= '/' . $map['q2k'][$data['route']];
 					}
 				}
 			}

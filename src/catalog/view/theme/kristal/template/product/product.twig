@@ -28,7 +28,7 @@
     <div class="k-buy">
       <div class="k-buy__top">
         {% if kc.is_hit %}<span><span class="k-badge k-badge--hit">{{ kc_hit }}</span></span>{% endif %}
-        <h1 class="k-h1">{{ heading_title }}</h1>
+        <h1 class="k-h1">{{ k_h1 ? k_h1 : heading_title }}</h1>
         {% if kc.sku %}<p class="k-buy__sku">{{ kc_sku }}: {{ kc.sku }}</p>{% endif %}
         {% if kc.excerpt %}<p class="k-muted">{{ kc.excerpt }}</p>{% endif %}
         {% if kc.price %}<p class="k-buy__price"><span class="k-price">{{ kc.price }}</span> <span class="k-buy__unit">{{ kc.per }}</span></p>{% endif %}
@@ -143,5 +143,6 @@
   <button class="k-btn k-btn--primary k-btn--sm" type="button" data-k-sticky-add tabindex="-1">{{ kc_add }}</button>
 </div>
 {% endif %}
+{{ k_jsonld_product }}
 <div class="k-toast" role="status" aria-live="polite" data-k-toast data-k-ok="{{ kc_added }}" data-k-err="{{ kc_add_error }}" hidden><span data-k-toast-text></span><a href="{{ k_cart_url }}">{{ kc_go_cart }}</a></div>
 {{ footer }}

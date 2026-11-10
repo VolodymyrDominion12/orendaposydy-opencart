@@ -247,7 +247,7 @@ ftp_abs_raw() {
 # Спільні опції curl. --ssl-reqd = явний FTPS (AUTH TLS).
 # Без нього логін і пароль ідуть відкритим текстом.
 ftp_opts() {
-    printf -- '--silent --show-error --user %s:%s' "$FTP_USER" "$FTP_PASSWORD"
+    printf -- '--silent --show-error --connect-timeout 15 --max-time 60 --user %s:%s' "$FTP_USER" "$FTP_PASSWORD"
     if [ "${FTP_TLS:-no}" = "yes" ]; then
         printf -- ' --ssl-reqd'
     fi

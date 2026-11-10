@@ -10,7 +10,7 @@
   {{ content_top }}
 
   <div class="k-cathead" data-k-swap>
-    <h1 class="k-h1">{{ heading_title }}</h1>
+    <h1 class="k-h1">{{ k_h1 ? k_h1 : heading_title }}</h1>
     {% if kc_min_price %}<p class="k-cathead__price">{{ kc_min_price }} <span class="k-muted">/ доба</span></p>{% endif %}
     {% if kc_chips %}
     <nav class="k-chips" aria-label="{{ kc_subcats }}">
@@ -156,7 +156,11 @@
   </div>
 
   <div data-k-swap>
-  {% if description %}
+  {% if k_seo_text %}
+  <section class="k-section-sm">
+    <div class="k-prose k-seo-text">{{ k_seo_text }}</div>
+  </section>
+  {% elseif description %}
   <section class="k-section-sm">
     <div class="k-prose">{{ description }}</div>
   </section>

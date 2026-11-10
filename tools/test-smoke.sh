@@ -50,15 +50,19 @@ if [ -f "$URLS" ]; then
         fi
         problems=""
         if [ "$code" = "200" ]; then
-            h1="$( (grep -oi '<h1[ >]' "$BODY" || true) | wc -l | tr -d ' ')"
-            if [ "$h1" != "1" ] && [[ ",$allow," != *",h1,"* ]]; then problems+=" h1=$h1;"; fi
-            grep -qi '<title>' "$BODY" || problems+=" немає <title>;"
-            if grep -qE '(Notice|Warning|Fatal error|Parse error)</b>:|Notice: |Warning: |Fatal error|Stack trace' "$BODY"; then
-                problems+=" PHP-помилка в HTML;"
-            fi
-            grep -q -e 'My Great Website' -e 'Site Content' "$BODY" && problems+=" заглушка шаблону;"
-            if ! grep -qi 'rel="canonical"' "$BODY" && [[ ",$allow," != *",canonical,"* ]]; then
-                warn "$path — немає rel=\"canonical\""; WARN=$((WARN + 1))
+            if [[ "$path" == *.xml ]]; then
+                if ! grep -qi '<?xml' "$BODY"; then problems+=" не XML;"; fi
+            else
+                h1="$( (grep -oi '<h1[ >]' "$BODY" || true) | wc -l | tr -d ' ')"
+                if [ "$h1" != "1" ] && [[ ",$allow," != *",h1,"* ]]; then problems+=" h1=$h1;"; fi
+                if ! grep -qi '<title>' "$BODY" && [[ ",$allow," != *",title,"* ]]; then problems+=" немає <title>;"; fi
+                if grep -qE '(Notice|Warning|Fatal error|Parse error)</b>:|Notice: |Warning: |Fatal error|Stack trace' "$BODY"; then
+                    problems+=" PHP-помилка в HTML;"
+                fi
+                grep -q -e 'My Great Website' -e 'Site Content' "$BODY" && problems+=" заглушка шаблону;"
+                if ! grep -qi 'rel="canonical"' "$BODY" && [[ ",$allow," != *",canonical,"* ]]; then
+                    warn "$path — немає rel=\"canonical\""; WARN=$((WARN + 1))
+                fi
             fi
         fi
         if [ -n "$problems" ]; then fail "$path —$problems"; else ok "$path ($got)"; PASS=$((PASS + 1)); fi

@@ -11,6 +11,7 @@
 /order                              200  allow=canonical # 010: кошик події (noindex, canonical не потрібен)
 /vesillya                            200  allow=canonical # 007: весілля (комплекти, сервірування)
 /kalkulyator                         200                    # 008: калькулятор події
+/sitemap.xml                         200  allow=h1,canonical # 011: XML карта сайту
 /kristal-smoke-neisnuyucha-storinka 404
 
 # 001: нові категорії

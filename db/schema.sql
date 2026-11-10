@@ -764,6 +764,16 @@ CREATE TABLE `oc_kristal_search_word` (
   PRIMARY KEY (`word`,`type`,`item_id`),
   KEY `idx_item_type` (`item_id`,`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `oc_kristal_seo_meta` (
+  `entity_type` varchar(16) NOT NULL,
+  `entity_id` int(11) NOT NULL,
+  `language_id` int(11) NOT NULL,
+  `h1` varchar(255) NOT NULL DEFAULT '',
+  `seo_text` mediumtext DEFAULT NULL,
+  PRIMARY KEY (`entity_type`,`entity_id`,`language_id`),
+  KEY `idx_entity_id` (`entity_id`),
+  KEY `idx_language_id` (`language_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 CREATE TABLE `oc_kristal_setting_backup` (
   `setting_id` int(11) NOT NULL,
   `store_id` int(11) NOT NULL,
