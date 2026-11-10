@@ -101,6 +101,15 @@ class ControllerExtensionKristalSeo extends Controller {
 			$lb_data = \Kristal\Jsonld::localBusiness($nap, $server, $logo);
 			$data['k_jsonld_localbusiness'] = \Kristal\Jsonld::render($lb_data);
 		}
+
+		// 4. Analytics & GTM
+		if ($this->config->get('module_kristal_analytics_status')) {
+			$data['k_gtm_id'] = (string)$this->config->get('module_kristal_analytics_gtm_id');
+			$data['k_ga4_id'] = (string)$this->config->get('module_kristal_analytics_ga4_id');
+		} else {
+			$data['k_gtm_id'] = '';
+			$data['k_ga4_id'] = '';
+		}
 	}
 
 	public function categoryView(&$route, &$data) {

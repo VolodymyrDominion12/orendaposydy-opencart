@@ -892,3 +892,11 @@ body.has-sticky { padding-bottom: calc(128px + env(safe-area-inset-bottom)); }
 .k-seo-text { margin-top: var(--space-8); padding: var(--space-6); background: var(--surface); border: var(--border-hair) solid var(--line); border-radius: 4px; color: var(--ink-muted); line-height: 1.6; }
 .k-seo-text h2, .k-seo-text h3 { color: var(--ink); margin-top: var(--space-4); margin-bottom: var(--space-2); }
 
+/* 015 Analytics & Consent Banner */
+.k-consent-banner { position: fixed; bottom: var(--space-4); left: var(--space-4); right: var(--space-4); max-width: 680px; margin: 0 auto; z-index: 1000; background: var(--night-raised, #1f191c); border: 1px solid var(--gold, #d4af37); border-radius: 8px; padding: var(--space-4) var(--space-6); box-shadow: 0 10px 30px rgba(0,0,0,0.4); animation: slideUp .4s ease; }
+@keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.k-consent-wrap { display: flex; flex-direction: column; gap: var(--space-3); }
+@media (min-width: 600px) { .k-consent-wrap { flex-direction: row; align-items: center; justify-content: space-between; } }
+.k-consent-text { font-size: 13px; line-height: 1.5; color: var(--ink, #fff); margin: 0; flex: 1; }
+.k-consent-btns { display: flex; gap: var(--space-2); flex-shrink: 0; }
+

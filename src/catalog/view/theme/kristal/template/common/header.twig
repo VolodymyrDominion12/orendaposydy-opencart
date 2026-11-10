@@ -32,8 +32,23 @@
 {% for analytic in analytics %}
 {{ analytic }}
 {% endfor %}
+{% if k_gtm_id %}
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','{{ k_gtm_id }}');</script>
+<!-- End Google Tag Manager -->
+{% endif %}
 </head>
 <body class="k-body">
+{% if k_gtm_id %}
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ k_gtm_id }}"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+{% endif %}
 {# SVG-спрайт іконок теми (лінійні 24×24, штрих 1.5 — брендбук). Використання: <svg class="k-ico"><use href="#i-phone"/></svg> #}
 <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
   <symbol id="i-plate" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5.5"/></symbol>
