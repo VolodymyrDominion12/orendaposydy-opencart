@@ -73,7 +73,10 @@
     }
 
     var formData = new FormData(form);
-    var action = form.getAttribute('action') || 'index.php?route=extension/kristal/lead/submit';
+    var action = form.getAttribute('action') || '/?route=extension/kristal/lead/submit';
+    if (action.indexOf('index.php?') !== -1) {
+      action = action.replace(/^.*?index\.php\?/, '/?');
+    }
 
     fetch(action, {
       method: 'POST',

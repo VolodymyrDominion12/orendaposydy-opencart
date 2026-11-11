@@ -50,7 +50,10 @@
       }
 
       var kitId = btn.getAttribute('data-kit-id');
-      var actionUrl = btn.getAttribute('data-action') || 'index.php?route=extension/kristal/kit/add';
+      var actionUrl = btn.getAttribute('data-action') || '/?route=extension/kristal/kit/add';
+      if (actionUrl.indexOf('index.php?') !== -1) {
+        actionUrl = actionUrl.replace(/^.*?index\.php\?/, '/?');
+      }
       var guests = getSelectedGuests();
 
       btn.classList.add('is-loading');

@@ -145,7 +145,7 @@ class ControllerStartupSeoUrl extends Controller {
 				} elseif (isset($this->request->get['manufacturer_id'])) {
 					$this->request->get['route'] = 'product/manufacturer/info';
 				} elseif (isset($this->request->get['information_id'])) {
-					$this->request->get['information_id'] = $url[1];
+					$this->request->get['route'] = 'information/information';
 				} elseif (isset($this->request->get['case_id'])) {
 					$this->request->get['route'] = 'extension/kristal/case/info';
 				} elseif (isset($this->request->get['post_id'])) {

@@ -194,7 +194,7 @@ class ControllerExtensionKristalTheme extends Controller {
 		self::$shared['k_search_href'] = $search;
 		self::$shared['k_search_route'] = isset($hidden['route']) && is_string($hidden['route']) ? $hidden['route'] : '';
 		self::$shared['k_search_js'] = $this->asset('js/kristal-search.js');
-		self::$shared['k_search_suggest'] = 'index.php?route=extension/kristal/search/suggest';
+		self::$shared['k_search_suggest'] = '/?route=extension/kristal/search/suggest';
 		self::$shared['k_search_q'] = '';
 
 		if (isset($this->request->get['route']) && $this->request->get['route'] === 'extension/kristal/search' && isset($this->request->get['q']) && is_scalar($this->request->get['q'])) {
@@ -204,7 +204,7 @@ class ControllerExtensionKristalTheme extends Controller {
 		// Ліди (009): форма 15 хв, 1 клік, дзвінок
 		$antispam = \Kristal\Antispam::fromConfig($this->config, $this->session->getId());
 		$antispamFields = $antispam->fields('lead');
-		self::$shared['k_lead_action'] = 'index.php?route=extension/kristal/lead/submit';
+		self::$shared['k_lead_action'] = '/?route=extension/kristal/lead/submit';
 		self::$shared['k_lead_js'] = $this->asset('js/kristal-lead.js');
 		self::$shared['k_antispam'] = $antispamFields;
 

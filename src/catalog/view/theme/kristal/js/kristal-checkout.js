@@ -209,7 +209,7 @@
     fd.append('cart_id', cartId);
     fd.append('quantity', quantity);
 
-    fetch('index.php?route=checkout/order/update', {
+    fetch('/?route=checkout/order/update', {
       method: 'POST',
       body: fd
     })
@@ -243,7 +243,7 @@
     var fd = new FormData();
     fd.append('cart_id', cartId);
 
-    fetch('index.php?route=checkout/order/remove', {
+    fetch('/?route=checkout/order/remove', {
       method: 'POST',
       body: fd
     })
@@ -293,8 +293,12 @@
     }
 
     var fd = new FormData(form);
+    var saveUrl = form.action || '/?route=checkout/order/save';
+    if (saveUrl.indexOf('index.php?') !== -1) {
+      saveUrl = saveUrl.replace(/^.*?index\.php\?/, '/?');
+    }
 
-    fetch(form.action || 'index.php?route=checkout/order/save', {
+    fetch(saveUrl, {
       method: 'POST',
       body: fd
     })

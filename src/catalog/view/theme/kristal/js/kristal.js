@@ -236,14 +236,14 @@
     var btn = form.querySelector('[type="submit"]');
     if (btn) btn.disabled = true;
 
-    fetch('index.php?route=checkout/cart/add', {
+    fetch('/?route=checkout/cart/add', {
       method: 'POST', credentials: 'same-origin',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest' },
       body: body.toString()
     }).then(function (r) { return r.json(); }).then(function (json) {
       if (!json || !json.success) throw new Error('cart');
       say(true);
-      return fetch('index.php?route=extension/kristal/catalog/count', { credentials: 'same-origin' })
+      return fetch('/?route=extension/kristal/catalog/count', { credentials: 'same-origin' })
         .then(function (r) { return r.json(); }).then(function (c) { setCount(c.count); });
     }).catch(function () { say(false); }).then(function () { if (btn) btn.disabled = false; });
   }

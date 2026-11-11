@@ -17,8 +17,10 @@
   var sendLeadBtn = calc.querySelector('[data-send-lead]');
   var toastEl = calc.querySelector('[data-calc-toast]');
 
-  var addUrl = calc.dataset.addUrl || 'index.php?route=extension/kristal/calculator/add';
-  var cartUrl = calc.dataset.cartUrl || 'index.php?route=checkout/order';
+  var addUrl = calc.dataset.addUrl || '/?route=extension/kristal/calculator/add';
+  var cartUrl = calc.dataset.cartUrl || '/?route=checkout/order';
+  if (addUrl.indexOf('index.php?') !== -1) { addUrl = addUrl.replace(/^.*?index\.php\?/, '/?'); }
+  if (cartUrl.indexOf('index.php?') !== -1) { cartUrl = cartUrl.replace(/^.*?index\.php\?/, '/?'); }
 
   // Посилання на поля лід-форми
   var leadGuestsInput = document.querySelector('[data-lead-guests]');
@@ -153,7 +155,7 @@
       total += lineTotal;
 
       var linkHtml = productId > 0
-        ? '<a href="index.php?route=product/product&product_id=' + productId + '">' + norm.name + '</a>'
+        ? '<a href="/?route=product/product&product_id=' + productId + '">' + norm.name + '</a>'
         : norm.name;
 
       var rowHtml = '<tr>' +
