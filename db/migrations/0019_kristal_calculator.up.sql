@@ -76,11 +76,4 @@ DELETE FROM `{{PREFIX}}event` WHERE `code` = 'kristal_calculator_menu';
 INSERT INTO `{{PREFIX}}event` (`code`, `trigger`, `action`, `status`, `sort_order`) VALUES
   ('kristal_calculator_menu', 'admin/view/common/column_left/before', 'extension/kristal/calculator/menu', 1, 0);
 
--- Права адміністратора на модуль калькулятора
-UPDATE `{{PREFIX}}user_group`
-SET `permission` = JSON_ARRAY_APPEND(
-  JSON_ARRAY_APPEND(`permission`, '$.access', 'extension/kristal/calculator'),
-  '$.modify', 'extension/kristal/calculator'
-)
-WHERE `user_group_id` = 1
-  AND `permission` NOT LIKE '%extension/kristal/calculator%';
+-- Права адміністратора на модуль калькулятора (встановлюються через систему прав або restore_admin_permissions.sql)
