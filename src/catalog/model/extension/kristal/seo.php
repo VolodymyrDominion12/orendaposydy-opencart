@@ -50,11 +50,14 @@ class ModelExtensionKristalSeo extends Model {
 	}
 
 	public function getSitemapCategories($store_id, $language_id) {
-		$sql = "SELECT c.category_id, c.date_modified
+		$sql = "SELECT c.category_id, c.date_modified,
+				GROUP_CONCAT(cp.path_id ORDER BY cp.level ASC SEPARATOR '_') AS path
 				FROM `" . DB_PREFIX . "category` c
 				JOIN `" . DB_PREFIX . "category_to_store` c2s ON (c.category_id = c2s.category_id)
+				JOIN `" . DB_PREFIX . "category_path` cp ON (cp.category_id = c.category_id)
 				WHERE c2s.store_id = '" . (int)$store_id . "'
 				AND c.status = '1'
+				GROUP BY c.category_id, c.date_modified
 				ORDER BY c.sort_order, c.category_id";
 
 		$query = $this->db->query($sql);
@@ -83,7 +86,11 @@ class ModelExtensionKristalSeo extends Model {
 			return array();
 		}
 
-		$sql = "SELECT `category_id`, `keyword` FROM `" . $table . "`";
+		$sql = "SELECT fp.category_id, fp.keyword,
+				GROUP_CONCAT(cp.path_id ORDER BY cp.level ASC SEPARATOR '_') AS path
+				FROM `" . $table . "` fp
+				JOIN `" . DB_PREFIX . "category_path` cp ON (cp.category_id = fp.category_id)
+				GROUP BY fp.category_id, fp.keyword";
 		$query = $this->db->query($sql);
 
 		return $query->rows;

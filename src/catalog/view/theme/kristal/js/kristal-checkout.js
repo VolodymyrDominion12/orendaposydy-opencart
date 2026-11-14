@@ -175,7 +175,7 @@
         if (!input) return;
         var min = parseInt(input.getAttribute('min'), 10) || 1;
         var cur = parseInt(input.value, 10) || min;
-        var step = (min >= 10) ? 10 : 1;
+        var step = 1;
 
         if (act === 'plus') {
           cur += step;

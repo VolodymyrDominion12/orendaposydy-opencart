@@ -91,3 +91,57 @@ POST на `index.php?route=checkout/cart/add` і `index.php?route=extension/kris
 2. Інформаційні сторінки (`seo_url.php`, 1 рядок) — футерні посилання.
 3. 301 зі старих коротких адрес (SQL).
 4. canonical підкатегорій і sitemap (тема/OCMOD) — окремим кроком.
+
+## Оновлення після фіксів (15:30)
+
+Виправлено й задеплоєно (7 файлів):
+
+- `catalog/controller/startup/seo_url.php` — `information_id` тепер ставить `route = information/information`.
+- `catalog/controller/extension/kristal/theme.php` — `action` лід-форм і URL підказок пошуку: `/?route=...`.
+- `catalog/view/theme/kristal/js/`: `kristal.js`, `kristal-lead.js`, `kristal-checkout.js`,
+  `kristal-kit.js`, `kristal-calc.js` — AJAX-запити на `/?route=...` (обхід 301 від LiteSpeed).
+
+Перевірено на проді:
+
+- `/pro-nas` → «О нас», `/dostavka-ta-oplata` → «Доставка», `/dlia-biznesu` → «Оплата»,
+  `/nashi-partneri` → «Наші партнери» — справжні сторінки, не головна.
+- `POST /?route=checkout/cart/add` → 200 `{"success":...}` (товар додається).
+- `POST /?route=extension/kristal/lead/submit` → 200 JSON (валідація/антиспам працює).
+- 301 зі старих адрес: `/stakani` → `/sklo-ta-kelykhy/sklianky`,
+  `/bilij-posud` → `/posud/tarilky`.
+- Меню повністю на нових ЧПУ.
+
+Локально: `make test-smoke` 57/57, `make lint` OK, `node --check` усіх JS OK,
+«До події» на мобільному 390 px додає товар, кошик показує позицію, зміна кількості працює.
+
+### Що лишилося
+
+- `/faq` — 404 «Інформаційну сторінку не знайдено» (сторінки FAQ немає в прод-БД;
+  у футері посилання немає, але якщо потрібна — створити info-сторінку або прибрати URL).
+- `canonical` підкатегорій без батьківського шляху — ядро `product/category.php`
+  (потрібен OCMOD, не правимо ядро напряму).
+- У sitemap немає дочірніх категорій; `.htaccess` на проді старіший за репозиторій.
+- `title` сторінки політики — «Политика Безопасности» (контент клієнта).
+
+## Canonical + sitemap: підготовлено (15:40)
+
+Код (2 файли + `.htaccess`) і SQL готові, перевірені на копії прода з реальними даними:
+
+- `catalog/controller/extension/kristal/seo.php` — новий обробник `headerView` на
+  `catalog/view/common/header/before`: для сторінки категорії ставить canonical
+  з повним `path` (`/posud/tarilky`), для фільтрів не втручається.
+- `catalog/model/extension/kristal/seo.php` — sitemap: `path` з `category_path`
+  (корінь → категорія), дочірні категорії з повними адресами.
+- `db/migrations/0027_kristal_seo_header_view` — подія для `headerView`.
+- `tools/sql/fix-category-path-levels-20261111.sql` — вирівнює `category_path`
+  (у контент-паку рівні були записані навпаки: `/tarilky/posud`).
+- `src/.htaccess` — 016 (gzip/Expires) + `sitemap.xml` → `extension/kristal/seo/sitemap`.
+
+Перевірено локально та на prod_copy:
+`/posud/tarilky` canonical → `/posud/tarilky`; sitemap → `/posud/tarilky`,
+`/stolovi-prybory/vydelky`, `/ekoposud/dereviani-doshky`; зворотних `/tarilky/posud` немає.
+`make test-smoke` — 57/57.
+
+**Не застосовано на прод:** FTP знову блокує IP (timeout). SQL для phpMyAdmin:
+`backups/for-phpmyadmin-0027-and-path-fix.sql`; файли — `backups/seo-fix-20261111.zip`
+(2 PHP + `.htaccess`). Після SQL — «Оновити» в адмінці.

@@ -452,7 +452,7 @@ class ControllerCheckoutOrder extends Controller {
 
 			$base_price = (float)$p['price'];
 			$quantity = (int)$p['quantity'];
-			$minimum = isset($rental['minimum']) ? max(1, (int)$rental['minimum']) : (isset($p['minimum']) ? (int)$p['minimum'] : 1);
+			$minimum = isset($rental['minimum']) ? max(1, (int)$rental['minimum']) : (isset($p['minimum']) ? max(1, (int)$p['minimum']) : 1);
 
 			$unit_price = \Kristal\Rental::unitPrice($quantity, $base_price, $itemDiscounts);
 			$line_total = $unit_price * $quantity;

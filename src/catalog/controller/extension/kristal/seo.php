@@ -1,5 +1,42 @@
 <?php
 class ControllerExtensionKristalSeo extends Controller {
+	/**
+	 * canonical категорії — повний шлях. Ядро product/category.php будує canonical
+	 * за останнім category_id, тому /posud/tarilky отримував canonical /tarilky.
+	 * Для фільтрів і SEO-сторінок фільтрів canonical дає extension/kristal/filter.
+	 */
+	public function headerView(&$route, &$data) {
+		if (!\Kristal\Theme::active($this->config)) {
+			return null;
+		}
+
+		$route_name = isset($this->request->get['route']) ? (string)$this->request->get['route'] : 'common/home';
+
+		if ($route_name !== 'product/category' || empty($this->request->get['path']) || isset($this->request->get['filter'])
+			|| $this->registry->get('kristal_filter_page')) {
+			return null;
+		}
+
+		$path = preg_replace('/[^0-9_]/', '', (string)$this->request->get['path']);
+		$page = isset($this->request->get['page']) ? (int)$this->request->get['page'] : 1;
+		$canonical = $this->url->link('product/category', 'path=' . $path . ($page > 1 ? '&page=' . $page : ''));
+
+		$links = array();
+
+		foreach (isset($data['links']) ? $data['links'] : array() as $link) {
+			if (in_array($link['rel'], array('canonical', 'prev', 'next'), true)) {
+				continue;
+			}
+
+			$links[] = $link;
+		}
+
+		$links[] = array('href' => $canonical, 'rel' => 'canonical');
+		$data['links'] = $links;
+
+		return null;
+	}
+
 	public function sitemap() {
 		$cache_key = 'kristal.sitemap';
 		$xml = $this->cache->get($cache_key);
@@ -25,7 +62,7 @@ class ControllerExtensionKristalSeo extends Controller {
 			$categories = $this->model_extension_kristal_seo->getSitemapCategories($store_id, $language_id);
 			foreach ($categories as $cat) {
 				$urls[] = array(
-					'loc'        => $this->url->link('product/category', 'path=' . $cat['category_id']),
+					'loc'        => $this->url->link('product/category', 'path=' . (!empty($cat['path']) ? $cat['path'] : $cat['category_id'])),
 					'lastmod'    => !empty($cat['date_modified']) ? $cat['date_modified'] : '',
 					'changefreq' => 'weekly',
 					'priority'   => '0.8'
@@ -35,7 +72,7 @@ class ControllerExtensionKristalSeo extends Controller {
 			// SEO-сторінки фільтрів (021)
 			$filter_pages = $this->model_extension_kristal_seo->getSitemapFilterPages();
 			foreach ($filter_pages as $fp) {
-				$cat_url = $this->url->link('product/category', 'path=' . $fp['category_id']);
+				$cat_url = $this->url->link('product/category', 'path=' . (!empty($fp['path']) ? $fp['path'] : $fp['category_id']));
 				$urls[] = array(
 					'loc'        => rtrim($cat_url, '/') . '/' . ltrim($fp['keyword'], '/'),
 					'lastmod'    => date('Y-m-d'),
@@ -92,6 +129,7 @@ class ControllerExtensionKristalSeo extends Controller {
 		}
 
 		$data['k_canonical'] = $canonical;
+
 
 		// 3. JSON-LD LocalBusiness на головній
 		$data['k_jsonld_localbusiness'] = '';
