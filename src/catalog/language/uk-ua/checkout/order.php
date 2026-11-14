@@ -49,6 +49,7 @@ $_['text_summary_title']    = 'Ваша подія';
 $_['text_items_count']      = 'позицій';
 $_['text_units_count']      = 'од.';
 $_['text_day_rate']         = 'за добу';
+$_['text_day_single']       = 'доба оренди';
 $_['text_days_count']       = 'діб оренди';
 $_['text_subtotal']         = 'Разом за оренду';
 $_['text_prepay']           = 'Передоплата 50%';

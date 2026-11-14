@@ -34,7 +34,7 @@ class ControllerCheckoutOrder extends Controller {
 
 			// Дати оренди за замовчуванням
 			$tomorrow = date('Y-m-d', strtotime('+1 day'));
-			$dateTo = date('Y-m-d', strtotime('+3 days')); // 2 доби
+			$dateTo = date('Y-m-d', strtotime('+2 days')); // 1 доба
 			$data['default_date_from'] = $tomorrow;
 			$data['default_date_to'] = $dateTo;
 			$data['min_date'] = $tomorrow;
@@ -289,10 +289,21 @@ class ControllerCheckoutOrder extends Controller {
 		}
 
 		// Підсумки
+		$mod100 = $days % 100;
+		$mod10  = $days % 10;
+		if ($mod100 >= 11 && $mod100 <= 14) {
+			$days_word = 'діб';
+		} elseif ($mod10 === 1) {
+			$days_word = 'доба';
+		} elseif ($mod10 >= 2 && $mod10 <= 4) {
+			$days_word = 'доби';
+		} else {
+			$days_word = 'діб';
+		}
 		$order_data['totals'] = array();
 		$order_data['totals'][] = array(
 			'code'       => 'sub_total',
-			'title'      => 'Вартість оренди (' . $days . ' діб)',
+			'title'      => 'Вартість оренди (' . $days . ' ' . $days_word . ')',
 			'value'      => $total_order,
 			'sort_order' => 1
 		);

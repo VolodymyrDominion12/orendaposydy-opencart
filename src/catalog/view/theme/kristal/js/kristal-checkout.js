@@ -19,6 +19,7 @@
   var sumUnits = document.getElementById('k-sum-units');
   var sumDayRate = document.getElementById('k-sum-day-rate');
   var sumDaysCount = document.getElementById('k-sum-days-count');
+  var sumDaysUnit = document.getElementById('k-sum-days-unit');
   var sumDaysMult = document.getElementById('k-sum-days-mult');
   var sumSubtotal = document.getElementById('k-sum-subtotal');
   var sumPrepay = document.getElementById('k-sum-prepay');
@@ -49,10 +50,17 @@
     return 1.0 + (days - 1) * 0.5;
   }
 
+  function dayWord(days) {
+    var mod100 = days % 100;
+    var mod10 = days % 10;
+    if (mod100 >= 11 && mod100 <= 14) return 'діб';
+    if (mod10 === 1) return 'доба';
+    if (mod10 >= 2 && mod10 <= 4) return 'доби';
+    return 'діб';
+  }
+
   function pluralDays(days) {
-    if (days === 1) return '1 доба';
-    if (days >= 2 && days <= 4) return days + ' доби';
-    return days + ' діб';
+    return days + ' ' + dayWord(days);
   }
 
   function updateTotals() {
@@ -61,6 +69,7 @@
 
     if (daysDisplay) daysDisplay.textContent = pluralDays(days);
     if (sumDaysCount) sumDaysCount.textContent = days;
+    if (sumDaysUnit) sumDaysUnit.textContent = dayWord(days) + ' оренди';
     if (sumDaysMult) sumDaysMult.textContent = '×' + mult.toFixed(1);
 
     // Initial total from text if not yet set

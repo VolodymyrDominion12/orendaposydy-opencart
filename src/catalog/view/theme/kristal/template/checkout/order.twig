@@ -104,7 +104,7 @@
             <label class="k-field"><span>{{ entry_date_from }}</span><input class="k-input" type="date" name="date_from" id="k-date-from" value="{{ default_date_from }}" min="{{ min_date }}" required></label>
             <label class="k-field"><span>{{ entry_date_to }}</span><input class="k-input" type="date" name="date_to" id="k-date-to" value="{{ default_date_to }}" min="{{ min_date }}" required></label>
           </div>
-          <p class="k-hint">Оренда: <b class="k-mono" style="color:var(--ink)" id="k-days-display">2 доби</b>. Повернення інвентарю до 12:00 наступного дня.</p>
+          <p class="k-hint">Оренда: <b class="k-mono" style="color:var(--ink)" id="k-days-display">1 доба</b>. Повернення інвентарю до 12:00 наступного дня.</p>
           <div class="k-radio-card" role="radiogroup" aria-label="Спосіб отримання">
             <label class="is-checked"><input type="radio" name="delivery_type" value="delivery" checked><b>{{ text_delivery }}</b><span>{{ text_delivery_sub }}</span></label>
             <label><input type="radio" name="delivery_type" value="pickup"><b>{{ text_pickup }}</b><span>{{ text_pickup_sub }}</span></label>
@@ -154,7 +154,7 @@
         <h2 class="k-h3" style="font-size:20px;margin-bottom:var(--space-4)">{{ text_summary_title }}</h2>
         <dl>
           <dt><span id="k-sum-positions">{{ count_positions }}</span> {{ text_items_count }}, <span id="k-sum-units">{{ total_units }}</span> {{ text_units_count }}</dt><dd id="k-sum-day-rate">{{ total_day }} / доба</dd>
-          <dt>× <span id="k-sum-days-count">2</span> {{ text_days_count }}</dt><dd id="k-sum-days-mult">×1.5</dd>
+          <dt>× <span id="k-sum-days-count">1</span> <span id="k-sum-days-unit">{{ text_day_single }}</span></dt><dd id="k-sum-days-mult">×1.0</dd>
           <dt>Доставка</dt><dd class="k-muted" style="font-family:var(--font-sans)">у кошторисі</dd>
           <dt class="k-sub">{{ text_subtotal }}</dt><dd class="k-sub" id="k-sum-subtotal">0 ₴</dd>
           <dt class="k-total">{{ text_prepay }}</dt><dd class="k-total" id="k-sum-prepay">0 ₴</dd>
