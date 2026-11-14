@@ -48,6 +48,9 @@ if [ -f "$DOCROOT/index.php" ]; then
         "$DOCROOT/download" 2>/dev/null || warn "не вдалось змінити власника частини каталогів"
 
     chmod -R u+rwX,g+rwX "$DOCROOT/system/storage" "$DOCROOT/image/cache" 2>/dev/null || true
+
+    # Локальний псевдонім для адмінки: kristal_admin -> admin
+    [ -L "$DOCROOT/kristal_admin" ] || ln -s admin "$DOCROOT/kristal_admin" 2>/dev/null || true
 else
     warn "у $DOCROOT немає index.php — файли OpenCart ще не скопійовані."
     warn "Дивіться docs/01-export-from-panel.md (як забрати сайт із хостингу)."

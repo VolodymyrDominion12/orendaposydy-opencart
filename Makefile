@@ -59,7 +59,7 @@ up: ## Підняти середовище
 	docker compose up -d
 	@echo ""
 	@echo "  Вітрина:  http://localhost:$$(grep -E '^WEB_PORT=' .env 2>/dev/null | cut -d= -f2 || echo 8090)/"
-	@echo "  Адмінка:  http://localhost:$$(grep -E '^WEB_PORT=' .env 2>/dev/null | cut -d= -f2 || echo 8090)/admin/"
+	@echo "  Адмінка:  http://localhost:$$(grep -E '^WEB_PORT=' .env 2>/dev/null | cut -d= -f2 || echo 8090)/kristal_admin/"
 	@echo "  База:     http://localhost:$$(grep -E '^ADMINER_PORT=' .env 2>/dev/null | cut -d= -f2 || echo 8091)/"
 	@echo "  Пошта:    http://localhost:$$(grep -E '^MAILPIT_UI_PORT=' .env 2>/dev/null | cut -d= -f2 || echo 8026)/"
 
@@ -205,7 +205,7 @@ php-version: ## Показати версії PHP, MariaDB і розширень
 
 url: ## Показати адреси локальних сервісів
 	@printf '  Вітрина:   http://localhost:%s/\n' "$$(grep -E '^WEB_PORT=' .env | cut -d= -f2)"
-	@printf '  Адмінка:   http://localhost:%s/admin/\n' "$$(grep -E '^WEB_PORT=' .env | cut -d= -f2)"
+	@printf '  Адмінка:   http://localhost:%s/kristal_admin/\n' "$$(grep -E '^WEB_PORT=' .env | cut -d= -f2)"
 	@printf '  База:      http://localhost:%s/\n' "$$(grep -E '^ADMINER_PORT=' .env | cut -d= -f2)"
 	@printf '  Пошта:     http://localhost:%s/\n' "$$(grep -E '^MAILPIT_UI_PORT=' .env | cut -d= -f2)"
 	@printf '  Прод:      https://orendaposudu.com/\n'

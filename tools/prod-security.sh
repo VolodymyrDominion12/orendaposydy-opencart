@@ -211,45 +211,44 @@ if [ "$UNDO" -eq 1 ]; then
     exit 0
 fi
 
-[ "$CUR" = "admin" ] || die "Адмінку вже перейменовано (REMOTE_ADMIN_DIR=$CUR). Відкат: --undo"
-printf '%s\n' "$NAMES" | grep -qx admin || die "На проді немає теки admin/"
-
 if [ -z "$NAME" ]; then
     # od, а не tr </dev/urandom | head: з pipefail tr отримує SIGPIPE і скрипт падає (141)
     NAME="kr-$(od -An -N6 -tx1 /dev/urandom | tr -d ' \n')"
 fi
 [[ "$NAME" =~ ^[a-z0-9][a-z0-9_-]{5,40}$ ]] || die "Назва теки: латиниця/цифри/-/_, 6–41 символ"
+[ "$CUR" != "$NAME" ] || die "Адмінка вже має назву $NAME (REMOTE_ADMIN_DIR=$CUR)"
+printf '%s\n' "$NAMES" | grep -qx "$CUR" || die "На проді немає теки $CUR/"
 printf '%s\n' "$NAMES" | grep -qx "$NAME" && die "Тека $NAME уже є на проді"
 
 BK="$BK_ROOT/$STAMP"; mkdir -p "$BK"; chmod 700 "$BK_ROOT" "$BK"
 # У dry-run копія з паролем БД не потрібна — прибираємо на виході
 [ "$APPLY" -eq 1 ] || trap 'rm -rf "$BK"; rmdir "$BK_ROOT" 2>/dev/null || true' EXIT
 # shellcheck disable=SC2046
-curl $(ftp_opts) --fail -o "$BK/config.php.orig" "$(ftp_url_raw admin/config.php)" 2>/dev/null || die "не вдалося забрати admin/config.php"
+curl $(ftp_opts) --fail -o "$BK/config.php.orig" "$(ftp_url_raw "${CUR}/config.php")" 2>/dev/null || die "не вдалося забрати ${CUR}/config.php"
 chmod 600 "$BK/config.php.orig"
-sed -E "/define\('(HTTP_SERVER|HTTPS_SERVER|DIR_APPLICATION)'/ s#/admin/'#/${NAME}/'#" "$BK/config.php.orig" > "$BK/config.php.new"
+sed -E "/define\('(HTTP_SERVER|HTTPS_SERVER|DIR_APPLICATION)'/ s#/${CUR}/'#/${NAME}/'#" "$BK/config.php.orig" > "$BK/config.php.new"
 chmod 600 "$BK/config.php.new"
 CHANGED="$(diff "$BK/config.php.orig" "$BK/config.php.new" | grep -c '^>' || true)"
 
-step "Перейменування адмінки: admin/ → ${NAME}/"
+step "Перейменування адмінки: ${CUR}/ → ${NAME}/"
 printf '  Бекап бойового конфігу: %s\n' "${BK#"$PROJECT_ROOT"/}/config.php.orig"
-printf '  Зміни в admin/config.php (паролі не показуємо):\n'
+printf '  Зміни в %s/config.php (паролі не показуємо):\n' "$CUR"
 diff "$BK/config.php.orig" "$BK/config.php.new" | grep '^[<>]' | grep -v -i pass | sed 's/^/    /' || true
 [ "$CHANGED" = "3" ] || die "Очікувалось рівно 3 змінених рядки (HTTP_SERVER, HTTPS_SERVER, DIR_APPLICATION), а є ${CHANGED} — конфіг нестандартний, зробіть вручну"
 printf '\n  Нова адреса: %s%s/%s/%s\n' "$C_BOLD" "$PROD" "$NAME" "$C_RESET"
 printf '  Збережіть її в менеджері паролів. Менеджери, які зараз в адмінці, вилетять на вхід.\n'
-[ "$APPLY" -eq 1 ] || { printf '  (у dry-run назва щоразу нова; задати свою: --name kr-xxxx / make sec-rename-admin NAME=…)\n'; }
+[ "$APPLY" -eq 1 ] || { printf '  (задати іншу назву: --name kr-xxxx / make sec-rename-admin NAME=…)\n'; }
 confirm "Перейменувати адмінку"
 
 rollback() {
-    warn "Відкат: ${NAME}/ → admin/, конфіг із бекапу"
-    ftp_q "RNFR /${SITE_DIR}/${NAME}" "RNTO /${SITE_DIR}/admin" || err "не вдалося перейменувати назад — File Manager: ${NAME} → admin"
+    warn "Відкат: ${NAME}/ → ${CUR}/, конфіг із бекапу"
+    ftp_q "RNFR /${SITE_DIR}/${NAME}" "RNTO /${SITE_DIR}/${CUR}" || err "не вдалося перейменувати назад — File Manager: ${NAME} → ${CUR}"
     # shellcheck disable=SC2046
-    curl $(ftp_opts) --fail -T "$BK/config.php.orig" "$(ftp_url_raw admin/config.php)" 2>/dev/null \
-        || err "не вдалося повернути конфіг — залийте ${BK}/config.php.orig у admin/config.php"
+    curl $(ftp_opts) --fail -T "$BK/config.php.orig" "$(ftp_url_raw "${CUR}/config.php")" 2>/dev/null \
+        || err "не вдалося повернути конфіг — залийте ${BK}/config.php.orig у ${CUR}/config.php"
 }
 
-ftp_q "RNFR /${SITE_DIR}/admin" "RNTO /${SITE_DIR}/${NAME}" || die "FTP-перейменування не вдалося — нічого не змінено"
+ftp_q "RNFR /${SITE_DIR}/${CUR}" "RNTO /${SITE_DIR}/${NAME}" || die "FTP-перейменування не вдалося — нічого не змінено"
 # shellcheck disable=SC2046
 if ! curl $(ftp_opts) --fail -T "$BK/config.php.new" "$(ftp_url_raw "${NAME}/config.php")" 2>/dev/null; then
     err "не вдалося залити новий конфіг"; rollback; exit 1
@@ -257,12 +256,12 @@ fi
 
 sleep 2
 NEW_OK=0; admin_ok "$NAME" && NEW_OK=1
-OLD_CODE="$(http_code "$PROD/admin/")"
+OLD_CODE="$(http_code "$PROD/${CUR}/")"
 if [ "$NEW_OK" -ne 1 ]; then
     err "${PROD}/${NAME}/ не показує форму входу"; rollback; exit 1
 fi
 ok "${PROD}/${NAME}/ — форма входу"
-[ "$OLD_CODE" = "404" ] && ok "/admin/ → 404" || warn "/admin/ → ${OLD_CODE} (очікувався 404)"
+[ "$OLD_CODE" = "404" ] && ok "/${CUR}/ → 404" || warn "/${CUR}/ → ${OLD_CODE} (очікувався 404)"
 set_env_admin "$NAME"
 ok "REMOTE_ADMIN_DIR=${NAME} записано в .env — деплой тепер заливає адмінку туди"
 printf '\n  Далі: увійдіть, «Панель стану → шестерня → Оновити»; make test-security BASE=%s\n' "$PROD"

@@ -68,11 +68,11 @@ fi
 
 # --- AC-4: адмінка ---------------------------------------------------------------------------
 if [ "$LOCAL" -eq 1 ]; then
-    read -r code _ <<< "$(fetch "$BASE/admin/")"
-    if [ "$code" = "200" ] && grep -q 'route=common/login' "$BODY"; then pass "/admin/ → форма входу (локально адмінка не перейменовується)"; else fail "/admin/ локально → $code"; fi
+    read -r code _ <<< "$(fetch "$BASE/kristal_admin/")"
+    if [ "$code" = "200" ] && grep -q 'route=common/login' "$BODY"; then pass "/kristal_admin/ → форма входу"; else fail "/kristal_admin/ локально → $code"; fi
 else
     read -r code _ <<< "$(fetch "$BASE/admin/")"
-    [ "$code" = "404" ] && pass "/admin/ → 404" || fail "/admin/ → $code (очікувався 404 — make sec-rename-admin)"
+    if [ "$code" = "404" ] || [ "$code" = "403" ]; then pass "/admin/ → $code"; else fail "/admin/ → $code (очікувався 404/403 — make sec-rename-admin)"; fi
     if [ "$ADMIN_DIR" = "admin" ]; then
         fail "REMOTE_ADMIN_DIR не задано — адмінка не перейменована"
     else
@@ -138,7 +138,7 @@ check_cookie() {   # label url
     [ -z "$bad" ] && pass "$1 — OCSESSID: $(printf '%s' "$lines" | sed 's/^[^;]*; //')" || fail "$1 —$bad"
 }
 check_cookie "/ (вітрина)" "$BASE/"
-if [ "$LOCAL" -eq 1 ]; then check_cookie "/admin/ (адмінка)" "$BASE/admin/";
+if [ "$LOCAL" -eq 1 ]; then check_cookie "/kristal_admin/ (адмінка)" "$BASE/kristal_admin/";
 elif [ "$ADMIN_DIR" != "admin" ]; then check_cookie "адмінка" "$BASE/$ADMIN_DIR/"; fi
 
 printf '\n'

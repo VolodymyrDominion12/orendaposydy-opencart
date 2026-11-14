@@ -166,15 +166,16 @@ write_catalog_config() {
 
 write_admin_config() {
     local f="$DOCROOT/admin/config.php"
+    local admin_path="${LOCAL_ADMIN_DIR:-kristal_admin}"
     backup_if_exists "$f"
     {
         header_block
         echo "// HTTP"
-        echo "define('HTTP_SERVER', '${SITE_URL}admin/');"
+        echo "define('HTTP_SERVER', '${SITE_URL}${admin_path}/');"
         echo "define('HTTP_CATALOG', '${SITE_URL}');"
         echo
         echo "// HTTPS"
-        echo "define('HTTPS_SERVER', '${SITE_URL}admin/');"
+        echo "define('HTTPS_SERVER', '${SITE_URL}${admin_path}/');"
         echo "define('HTTPS_CATALOG', '${SITE_URL}');"
         echo
         dir_block "admin" "view/template"
@@ -184,7 +185,8 @@ write_admin_config() {
         echo "// OpenCart API"
         echo "define('OPENCART_SERVER', 'https://www.opencart.com/');"
     } > "$f"
-    echo "  створено admin/config.php (адмінка)"
+    echo "  створено admin/config.php (адмінка: /${admin_path}/)"
+    [ -L "$DOCROOT/${admin_path}" ] || ln -s admin "$DOCROOT/${admin_path}" 2>/dev/null || true
 }
 
 echo "Генерую локальні config.php"

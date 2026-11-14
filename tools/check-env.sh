@@ -187,7 +187,7 @@ fi
 rm -f "$BODY_FILE"
 
 ADMIN_BODY="$(mktemp)"
-ACODE="$(curl -s -o "$ADMIN_BODY" -m 15 -w '%{http_code}' "http://localhost:${WEB_PORT}/admin/" 2>/dev/null || echo 000)"
+ACODE="$(curl -s -o "$ADMIN_BODY" -m 15 -w '%{http_code}' "http://localhost:${WEB_PORT}/kristal_admin/" 2>/dev/null || echo 000)"
 if [ "$ACODE" != "200" ]; then
     problem "адмінка не відповідає (HTTP $ACODE)"
 elif grep -qi 'ionCube PHP Loader needs to be installed' "$ADMIN_BODY"; then

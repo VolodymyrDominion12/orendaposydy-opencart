@@ -91,7 +91,7 @@ show_urls() {
     local base="http://localhost:${WEB_PORT}/"
     printf '\n%sГотово. Куди дивитись:%s\n' "$C_BOLD" "$C_RESET"
     printf '  Вітрина:   %s\n' "$base"
-    printf '  Адмінка:   %sadmin/\n' "$base"
+    printf '  Адмінка:   %skristal_admin/\n' "$base"
     printf '  База:      http://localhost:%s/  (сервер db)\n' "${ADMINER_PORT:-8081}"
     printf '  Пошта:     http://localhost:%s/\n' "${MAILPIT_UI_PORT:-8025}"
 }
@@ -105,8 +105,9 @@ show_urls() {
 is_protected() {
     local p="$1"
     case "$p" in
-        config.php|./config.php)               return 0 ;;
+        config.php|./config.php|*/config.php)  return 0 ;;
         admin/config.php|./admin/config.php)   return 0 ;;
+        kristal_admin|./kristal_admin)         return 0 ;;
         system/storage/*|./system/storage/*)   return 0 ;;
         image/cache/*|./image/cache/*)         return 0 ;;
         .git|.git/*|*/.git/*)                  return 0 ;;
