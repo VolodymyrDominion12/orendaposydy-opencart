@@ -183,11 +183,13 @@
     });
   }
 
-  doc.addEventListener('click', function (e) {
-    var step = e.target.closest('[data-k-step]');
-    if (!step) return;
-    var form = step.closest('form'), input = form.querySelector('input[name="quantity"]');
-    var min = minOf(form), max = maxOf(form), delta = parseInt(step.getAttribute('data-k-step'), 10);
+  function applyStep(step, mult) {
+    var form = step.closest('form');
+    if (!form) return;
+    var input = form.querySelector('input[name="quantity"]');
+    if (!input) return;
+    var min = minOf(form), max = maxOf(form);
+    var delta = (parseInt(step.getAttribute('data-k-step'), 10) || 0) * (mult || 1);
     var val = (parseInt(input.value, 10) || min) + delta;
     var hint = form.querySelector('.k-card__hint, .k-buy__hint');
     if (val < min) {
@@ -201,6 +203,73 @@
       if (hint) hint.textContent = '';
     }
     updateSum(form);
+  }
+
+  var holdDelay = null, holdTick = null, holdBtn = null, holdStart = 0, holdRepeated = false;
+  function stopHold() {
+    clearTimeout(holdDelay);
+    clearInterval(holdTick);
+    holdDelay = null;
+    holdTick = null;
+    holdBtn = null;
+  }
+
+  doc.addEventListener('pointerdown', function (e) {
+    var step = e.target.closest ? e.target.closest('[data-k-step]') : null;
+    if (!step || (e.button && e.button !== 0)) return;
+    stopHold();
+    holdBtn = step;
+    holdStart = Date.now();
+    holdRepeated = false;
+    holdDelay = setTimeout(function () {
+      holdTick = setInterval(function () {
+        if (!holdBtn || !doc.body.contains(holdBtn)) { stopHold(); return; }
+        holdRepeated = true;
+        var elapsed = Date.now() - holdStart;
+        var mult = elapsed >= 4000 ? 25 : elapsed >= 2500 ? 10 : elapsed >= 1200 ? 5 : 1;
+        applyStep(holdBtn, mult);
+      }, 90);
+    }, 380);
+  });
+  doc.addEventListener('pointerout', function (e) {
+    if (holdBtn && (!e.relatedTarget || !holdBtn.contains(e.relatedTarget))) stopHold();
+  });
+  doc.addEventListener('pointerup', stopHold, true);
+  doc.addEventListener('pointercancel', stopHold, true);
+  window.addEventListener('blur', stopHold);
+
+  doc.addEventListener('click', function (e) {
+    var step = e.target.closest('[data-k-step]');
+    if (step) {
+      if (holdRepeated) { holdRepeated = false; return; }
+      applyStep(step, 1);
+      return;
+    }
+    var tier = e.target.closest('[data-k-tiers] [data-k-from]');
+    if (tier) pickTier(tier);
+  });
+
+  function pickTier(cell) {
+    var form = doc.querySelector('[data-k-buy]');
+    if (!form) return;
+    var input = form.querySelector('input[name="quantity"]');
+    if (!input) return;
+    var from = Math.max(minOf(form), parseInt(cell.getAttribute('data-k-from'), 10) || minOf(form));
+    var max = maxOf(form);
+    if (max > 0 && from > max) from = max;
+    input.value = from;
+    var hint = form.querySelector('.k-card__hint, .k-buy__hint');
+    if (hint) hint.textContent = '';
+    clamp(form);
+    updateSum(form);
+  }
+
+  doc.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    var tier = e.target.closest ? e.target.closest('[data-k-tiers] [data-k-from]') : null;
+    if (!tier) return;
+    e.preventDefault();
+    pickTier(tier);
   });
 
   doc.addEventListener('input', function (e) {
@@ -422,3 +491,431 @@
     if (!panel.hidden && !panel.contains(e.target) && !e.target.closest('[data-k-search-open]')) close(false);
   });
 })();
+
+/* ---------- Барабанний вибір кількості («як на будильнику») ----------
+   Відкривається при натисканні на число всередині будь-якого .k-qty (картка товару, каталог, кошик).
+   3 незалежні барабани (Сотні · Десятки · Одиниці) + швидкі чіпи + прямий ввід числа. */
+(function () {
+  'use strict';
+
+  var doc = document, root = doc.documentElement;
+  var ITEM_H = 44;
+  var FOCUSABLE = 'button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+  var modal = null, panel = null, titleEl = null, numInput = null, unitEl = null, boundsEl = null;
+  var sumEl = null, presetsEl = null, confirmBtn = null, closeBtn = null;
+  var drums = { h: null, t: null, o: null };
+  var opts = { h: [], t: [], o: [] };
+
+  var state = {
+    input: null, opener: null, min: 1, max: 0, unit: 'шт',
+    prices: null, isEvent: false, maxHundreds: 2000,
+    settleTimer: null, programmaticUntil: 0, lastPointerDown: 0
+  };
+
+  function fmtMoney(n) {
+    var r = Math.round(n * 100) / 100, whole = Math.abs(r - Math.round(r)) < 0.005;
+    var s = whole ? String(Math.round(r)) : r.toFixed(2).replace('.', ',');
+    return s.replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0') + '\u00a0₴';
+  }
+
+  function clampVal(v) {
+    var n = isNaN(v) ? state.min : v;
+    if (n < state.min) n = state.min;
+    if (state.max > 0 && n > state.max) n = state.max;
+    return n;
+  }
+
+  function pad2(n) { return n === 0 ? '00' : String(n); }
+
+  function buildModal() {
+    if (modal) return;
+    modal = doc.createElement('div');
+    modal.className = 'k-qpick';
+    modal.hidden = true;
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-labelledby', 'k-qpick-title');
+
+    modal.innerHTML =
+      '<div class="k-qpick__panel" tabindex="-1">' +
+        '<div class="k-qpick__head">' +
+          '<h3 class="k-qpick__title" id="k-qpick-title">Кількість</h3>' +
+          '<button type="button" class="k-qpick__close" aria-label="Закрити">' +
+            '<svg class="k-ico" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>' +
+          '</button>' +
+        '</div>' +
+        '<div class="k-qpick__top">' +
+          '<label class="k-qpick__edit">' +
+            '<input type="number" class="k-qpick__num" inputmode="numeric" aria-label="Введіть кількість">' +
+            '<span class="k-qpick__unit">шт</span>' +
+          '</label>' +
+          '<span class="k-qpick__bounds"></span>' +
+        '</div>' +
+        '<div class="k-qpick__sum" hidden></div>' +
+        '<div class="k-qpick__presets" role="group" aria-label="Швидкий вибір"></div>' +
+        '<div class="k-qpick__labels" aria-hidden="true"><span>Сотні</span><span>Десятки</span><span>Одиниці</span></div>' +
+        '<div class="k-qpick__stage">' +
+          '<div class="k-qpick__band" aria-hidden="true"></div>' +
+          '<div class="k-qpick__drum" data-drum="h" aria-label="Сотні"></div>' +
+          '<div class="k-qpick__drum" data-drum="t" aria-label="Десятки"></div>' +
+          '<div class="k-qpick__drum" data-drum="o" aria-label="Одиниці"></div>' +
+          '<div class="k-qpick__fade" aria-hidden="true"></div>' +
+        '</div>' +
+        '<button type="button" class="k-btn k-btn--primary k-btn--block" data-qpick-ok>Обрати</button>' +
+      '</div>';
+
+    doc.body.appendChild(modal);
+    panel = modal.querySelector('.k-qpick__panel');
+    titleEl = modal.querySelector('.k-qpick__title');
+    numInput = modal.querySelector('.k-qpick__num');
+    unitEl = modal.querySelector('.k-qpick__unit');
+    boundsEl = modal.querySelector('.k-qpick__bounds');
+    sumEl = modal.querySelector('.k-qpick__sum');
+    presetsEl = modal.querySelector('.k-qpick__presets');
+    confirmBtn = modal.querySelector('[data-qpick-ok]');
+    closeBtn = modal.querySelector('.k-qpick__close');
+    drums.h = modal.querySelector('[data-drum="h"]');
+    drums.t = modal.querySelector('[data-drum="t"]');
+    drums.o = modal.querySelector('[data-drum="o"]');
+
+    closeBtn.addEventListener('click', function () { close(true); });
+    modal.addEventListener('click', function (e) { if (e.target === modal) close(true); });
+    confirmBtn.addEventListener('click', confirm);
+
+    presetsEl.addEventListener('click', function (e) {
+      var chip = e.target.closest('.k-qpick__chip');
+      if (!chip) return;
+      var v = clampVal(parseInt(chip.getAttribute('data-val'), 10));
+      numInput.value = v;
+      updateMeta(v, false);
+      rollToValue(v, true);
+    });
+
+    numInput.addEventListener('input', function () {
+      var raw = parseInt(numInput.value, 10);
+      if (isNaN(raw) || raw < 0) { updateMeta(state.min, false); return; }
+      if (state.max === 0 && raw > state.maxHundreds + 99 && raw <= 10000) {
+        state.maxHundreds = Math.min(10000, Math.ceil(raw / 100) * 100);
+        populateDrum('h', makeHundreds(state.maxHundreds));
+      }
+      var c = clampVal(raw);
+      updateMeta(raw, raw !== c);
+      rollToValue(Math.min(raw, state.maxHundreds + 99), false);
+    });
+    numInput.addEventListener('blur', function () {
+      var c = clampVal(parseInt(numInput.value, 10));
+      numInput.value = c;
+      updateMeta(c, false);
+      rollToValue(c, true);
+    });
+    numInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); confirm(); }
+    });
+
+    modal.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { e.preventDefault(); close(true); return; }
+      if (e.key !== 'Tab') return;
+      var items = Array.prototype.filter.call(modal.querySelectorAll(FOCUSABLE), function (el) { return el.offsetParent !== null; });
+      if (!items.length) return;
+      var first = items[0], last = items[items.length - 1];
+      if (e.shiftKey && doc.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && doc.activeElement === last) { e.preventDefault(); first.focus(); }
+    });
+
+    setupDrumEvents('h');
+    setupDrumEvents('t');
+    setupDrumEvents('o');
+  }
+
+  function makeHundreds(limit) {
+    var arr = [];
+    for (var i = 0; i <= limit; i += 100) arr.push({ v: i, label: String(i) });
+    return arr;
+  }
+
+  function populateDrum(key, list) {
+    var el = drums[key];
+    var html = '<div class="k-qpick__pad" aria-hidden="true"></div>';
+    for (var i = 0; i < list.length; i++) {
+      html += '<button type="button" class="k-qpick__opt" data-idx="' + i + '" data-val="' + list[i].v + '">' + list[i].label + '</button>';
+    }
+    html += '<div class="k-qpick__pad" aria-hidden="true"></div>';
+    el.innerHTML = html;
+    opts[key] = Array.prototype.slice.call(el.querySelectorAll('.k-qpick__opt'));
+  }
+
+  function drumIdx(key) {
+    var list = opts[key];
+    if (!list.length) return 0;
+    var idx = Math.round(drums[key].scrollTop / ITEM_H);
+    return Math.max(0, Math.min(list.length - 1, idx));
+  }
+
+  function drumVal(key) {
+    var list = opts[key];
+    if (!list.length) return 0;
+    return parseInt(list[drumIdx(key)].getAttribute('data-val'), 10) || 0;
+  }
+
+  function highlightDrum(key) {
+    var idx = drumIdx(key), list = opts[key];
+    for (var i = 0; i < list.length; i++) {
+      list[i].classList.toggle('is-on', i === idx);
+    }
+  }
+
+  var drag = null, suppressClickUntil = 0;
+  function setupDrumEvents(key) {
+    var el = drums[key];
+    el.addEventListener('scroll', function () {
+      highlightDrum(key);
+      if (Date.now() < state.programmaticUntil) return;
+      var raw = drumVal('h') + drumVal('t') + drumVal('o');
+      var clamped = clampVal(raw);
+      if (doc.activeElement !== numInput) numInput.value = raw;
+      updateMeta(raw, raw !== clamped);
+      clearTimeout(state.settleTimer);
+      state.settleTimer = setTimeout(function () {
+        if (modal.hidden || drag) return;
+        var settled = drumVal('h') + drumVal('t') + drumVal('o');
+        var target = clampVal(settled);
+        if (settled !== target) {
+          numInput.value = target;
+          updateMeta(target, false);
+          rollToValue(target, true);
+        }
+      }, 150);
+    }, { passive: true });
+
+    el.addEventListener('touchstart', function () { state.programmaticUntil = 0; }, { passive: true });
+    el.addEventListener('wheel', function () { state.programmaticUntil = 0; }, { passive: true });
+
+    el.addEventListener('pointerdown', function (e) {
+      if (e.pointerType !== 'mouse' || e.button !== 0) return;
+      state.programmaticUntil = 0;
+      drag = { el: el, startY: e.clientY, startTop: el.scrollTop, moved: false };
+    });
+
+    el.addEventListener('click', function (e) {
+      if (Date.now() < suppressClickUntil) return;
+      var opt = e.target.closest('.k-qpick__opt');
+      if (!opt) return;
+      state.programmaticUntil = 0;
+      var idx = parseInt(opt.getAttribute('data-idx'), 10) || 0;
+      el.scrollTo({ top: idx * ITEM_H, behavior: 'smooth' });
+    });
+  }
+
+  doc.addEventListener('pointermove', function (e) {
+    if (!drag) return;
+    var dy = e.clientY - drag.startY;
+    if (!drag.moved && Math.abs(dy) > 5) {
+      drag.moved = true;
+      drag.el.style.scrollSnapType = 'none';
+    }
+    if (drag.moved) drag.el.scrollTop = drag.startTop - dy;
+  });
+
+  function endDrag() {
+    if (!drag) return;
+    if (drag.moved) {
+      var el = drag.el;
+      el.style.scrollSnapType = '';
+      var top = Math.round(el.scrollTop / ITEM_H) * ITEM_H;
+      el.scrollTo({ top: top, behavior: 'smooth' });
+      suppressClickUntil = Date.now() + 140;
+    }
+    drag = null;
+  }
+  doc.addEventListener('pointerup', endDrag);
+  doc.addEventListener('pointercancel', endDrag);
+
+  function scrollDrumToVal(key, val, smooth) {
+    var list = opts[key], idx = 0;
+    for (var i = 0; i < list.length; i++) {
+      if (parseInt(list[i].getAttribute('data-val'), 10) === val) { idx = i; break; }
+    }
+    var top = idx * ITEM_H;
+    drums[key].scrollTo({ top: top, behavior: smooth ? 'smooth' : 'auto' });
+    highlightDrum(key);
+  }
+
+  function rollToValue(v, smooth) {
+    var safe = Math.max(0, Math.min(state.maxHundreds + 99, v));
+    var h = Math.min(state.maxHundreds, Math.floor(safe / 100) * 100);
+    var rem = safe - h;
+    var t = Math.min(90, Math.floor(rem / 10) * 10);
+    var o = Math.min(9, rem - t);
+    state.programmaticUntil = Date.now() + (smooth ? 420 : 80);
+    scrollDrumToVal('h', h, smooth);
+    scrollDrumToVal('t', t, smooth);
+    scrollDrumToVal('o', o, smooth);
+  }
+
+  function updateMeta(rawVal, warn) {
+    var qty = clampVal(rawVal);
+    var boundsText = 'мін. ' + state.min + ' ' + state.unit;
+    if (state.max > 0) boundsText += ' · макс. ' + state.max + ' ' + state.unit;
+    boundsEl.textContent = boundsText;
+    boundsEl.classList.toggle('is-warn', Boolean(warn));
+    confirmBtn.textContent = 'Обрати ' + qty + ' ' + state.unit;
+
+    if (state.prices && state.prices.length) {
+      var price = state.prices[0][1];
+      for (var i = 0; i < state.prices.length; i++) {
+        if (qty >= state.prices[i][0]) price = state.prices[i][1];
+      }
+      sumEl.hidden = false;
+      sumEl.innerHTML = state.isEvent
+        ? qty + ' × ' + fmtMoney(price) + ' = <b>' + fmtMoney(qty * price) + '</b>'
+        : qty + ' ' + state.unit + ' × ' + fmtMoney(price) + ' = <b>' + fmtMoney(qty * price) + '</b> / доба';
+    } else {
+      sumEl.hidden = true;
+    }
+
+    var chips = presetsEl.querySelectorAll('.k-qpick__chip');
+    for (var j = 0; j < chips.length; j++) {
+      chips[j].classList.toggle('is-on', parseInt(chips[j].getAttribute('data-val'), 10) === qty);
+    }
+  }
+
+  function buildPresets() {
+    var set = [state.min];
+    if (state.prices) {
+      for (var i = 0; i < state.prices.length; i++) set.push(state.prices[i][0]);
+    }
+    [25, 50, 100, 150, 200, 300, 500].forEach(function (v) { set.push(v); });
+    if (state.max > 0) set.push(state.max);
+
+    var filtered = [];
+    for (var k = 0; k < set.length; k++) {
+      var n = parseInt(set[k], 10);
+      if (!(n >= state.min)) continue;
+      if (state.max > 0 && n > state.max) continue;
+      if (filtered.indexOf(n) === -1) filtered.push(n);
+    }
+    filtered.sort(function (a, b) { return a - b; });
+    filtered = filtered.slice(0, 7);
+
+    var html = '';
+    for (var m = 0; m < filtered.length; m++) {
+      var val = filtered[m];
+      var lbl = (val === state.min && state.min > 1) ? 'мін. ' + val : String(val);
+      html += '<button type="button" class="k-qpick__chip" data-val="' + val + '">' + lbl + '</button>';
+    }
+    presetsEl.innerHTML = html;
+    presetsEl.hidden = filtered.length < 2;
+  }
+
+  function resolveTitle(input) {
+    var buy = input.closest('.k-buy');
+    if (buy) {
+      var h1 = buy.querySelector('.k-h1');
+      if (h1) return h1.textContent.trim();
+    }
+    var card = input.closest('.k-card');
+    if (card) {
+      var cn = card.querySelector('.k-card__name');
+      if (cn) return cn.textContent.trim();
+    }
+    var line = input.closest('.k-line');
+    if (line) {
+      var ln = line.querySelector('.k-line__name');
+      if (ln) return ln.textContent.trim();
+    }
+    return 'Кількість';
+  }
+
+  function open(input, byKey) {
+    buildModal();
+    clearTimeout(state.settleTimer);
+    state.lastPointerDown = 0;
+    state.input = input;
+    state.opener = byKey ? input : null;
+
+    var form = input.closest('form[data-k-add]');
+    var box = input.closest('.k-qty');
+    state.min = Math.max(1, parseInt(input.getAttribute('min') || (form && form.getAttribute('data-k-min')) || (box && box.getAttribute('data-min')), 10) || 1);
+    state.max = parseInt(input.getAttribute('max') || (form && form.getAttribute('data-k-max')) || (box && box.getAttribute('data-max')), 10) || 0;
+    state.unit = (form && form.getAttribute('data-k-unit')) || 'шт';
+    state.isEvent = Boolean(form && form.getAttribute('data-k-event') === '1');
+    state.prices = null;
+    if (form && form.hasAttribute('data-k-buy')) {
+      try {
+        var parsed = JSON.parse(form.getAttribute('data-k-prices') || '[]');
+        if (parsed && parsed.length) state.prices = parsed;
+      } catch (err) { state.prices = null; }
+    }
+
+    var cur = clampVal(parseInt(input.value, 10) || state.min);
+    state.maxHundreds = state.max > 0
+      ? Math.floor(state.max / 100) * 100
+      : Math.max(2000, Math.min(10000, Math.ceil((cur + 200) / 100) * 100));
+
+    populateDrum('h', makeHundreds(state.maxHundreds));
+    var tens = [];
+    for (var t = 0; t <= (state.max > 0 && state.max < 10 ? 0 : 90); t += 10) tens.push({ v: t, label: pad2(t) });
+    populateDrum('t', tens);
+    var ones = [];
+    for (var o = 0; o <= (state.max > 0 && state.max < 10 ? state.max : 9); o++) ones.push({ v: o, label: String(o) });
+    populateDrum('o', ones);
+
+    titleEl.textContent = resolveTitle(input);
+    unitEl.textContent = state.unit;
+    numInput.min = state.min;
+    if (state.max > 0) numInput.max = state.max; else numInput.removeAttribute('max');
+    numInput.value = cur;
+
+    buildPresets();
+    updateMeta(cur, false);
+
+    modal.hidden = false;
+    root.classList.add('k-lock');
+    rollToValue(cur, false);
+    if (panel.focus) panel.focus({ preventScroll: true });
+  }
+
+  function close(restore) {
+    if (!modal || modal.hidden) return;
+    clearTimeout(state.settleTimer);
+    modal.hidden = true;
+    root.classList.remove('k-lock');
+    if (restore && state.opener && state.opener.focus) state.opener.focus();
+    state.input = null;
+    state.opener = null;
+  }
+
+  function confirm() {
+    if (!state.input) { close(false); return; }
+    var raw = parseInt(numInput.value, 10);
+    if (isNaN(raw)) raw = drumVal('h') + drumVal('t') + drumVal('o');
+    var finalVal = clampVal(raw);
+    var target = state.input;
+    close(true);
+    target.value = finalVal;
+    target.dispatchEvent(new Event('input', { bubbles: true }));
+    target.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+
+  doc.addEventListener('pointerdown', function (e) {
+    if (e.target && e.target.closest && e.target.closest('.k-qty input')) {
+      state.lastPointerDown = Date.now();
+    }
+  }, true);
+
+  doc.addEventListener('focusin', function (e) {
+    var inp = e.target && e.target.closest ? e.target.closest('.k-qty input') : null;
+    if (inp && Date.now() - state.lastPointerDown < 500) {
+      inp.blur();
+    }
+  }, true);
+
+  doc.addEventListener('click', function (e) {
+    var inp = e.target && e.target.closest ? e.target.closest('.k-qty input') : null;
+    if (!inp || inp.disabled || inp.readOnly) return;
+    e.preventDefault();
+    open(inp, e.detail === 0);
+  });
+})();
+

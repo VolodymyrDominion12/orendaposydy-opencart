@@ -40,7 +40,7 @@
         <p class="k-label">{{ kc_tiers }}</p>
         <div class="k-tiers" data-k-tiers>
           {% for tier in kc.tiers %}
-          <div data-k-from="{{ tier.from }}"{% if loop.first %} class="is-on"{% endif %}><span>{{ tier.label }}</span><b>{{ tier.price }}</b></div>
+          <div data-k-from="{{ tier.from }}" role="button" tabindex="0"{% if loop.first %} class="is-on"{% endif %}><span>{{ tier.label }}</span><b>{{ tier.price }}</b></div>
           {% endfor %}
         </div>
       </div>
