@@ -102,12 +102,12 @@
         {% if product.k.excerpt %}<p class="k-card__excerpt">{{ product.k.excerpt }}</p>{% endif %}
         {% if product.k.price %}<p class="k-card__price"><span class="k-price">{{ product.k.price }}</span> <span class="k-buy__unit">{{ product.k.per }}</span></p>{% endif %}
         {% if product.k.min_text %}<p class="k-card__meta">{{ product.k.min_text }}</p>{% endif %}
-        {% if product.k.best %}<p class="k-card__vol">{{ product.k.best }}</p>{% endif %}
-        <form class="k-card__foot" action="{{ product.href }}" method="get" data-k-add data-k-min="{{ product.k.minimum }}" data-k-hint="{{ product.k.min_hint }}">
+        {% if product.k.stock_text %}<p class="k-card__vol{% if not product.k.in_stock %} k-card__vol--out{% endif %}">{{ product.k.stock_text }}</p>{% endif %}
+        <form class="k-card__foot" action="{{ product.href }}" method="get" data-k-add data-k-min="{{ product.k.minimum }}" data-k-hint="{{ product.k.min_hint }}"{% if product.k.max_qty %} data-k-max="{{ product.k.max_qty }}" data-k-max-hint="{{ product.k.max_hint }}"{% endif %}>
           <input type="hidden" name="product_id" value="{{ product.product_id }}">
           <div class="k-qty">
             <button type="button" data-k-step="-1" aria-label="{{ kc_less }}"><svg class="k-ico"><use href="#i-minus"/></svg></button>
-            <input type="number" name="quantity" value="{{ product.k.minimum }}" min="{{ product.k.minimum }}" inputmode="numeric" aria-label="{{ kc_qty }}: {{ product.name }}">
+            <input type="number" name="quantity" value="{{ product.k.minimum }}" min="{{ product.k.minimum }}"{% if product.k.max_qty %} max="{{ product.k.max_qty }}"{% endif %} inputmode="numeric" aria-label="{{ kc_qty }}: {{ product.name }}">
             <button type="button" data-k-step="1" aria-label="{{ kc_more_qty }}"><svg class="k-ico"><use href="#i-plus"/></svg></button>
           </div>
           <button class="k-btn k-btn--secondary k-btn--sm" type="submit">{{ kc_add }}</button>

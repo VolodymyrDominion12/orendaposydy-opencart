@@ -15,7 +15,7 @@ class ModelExtensionKristalCatalog extends Model {
 			return array();
 		}
 
-		$query = $this->db->query("SELECT p.product_id, p.sku, p.price, p.minimum, p.image, pd.name, pd.description_excerpt,
+		$query = $this->db->query("SELECT p.product_id, p.sku, p.price, p.quantity, p.minimum, p.image, pd.name, pd.description_excerpt,
 				r.unit, r.deposit, r.breakage_price, r.washing_included, r.is_hit
 			FROM `" . DB_PREFIX . "product` p
 			LEFT JOIN `" . DB_PREFIX . "product_description` pd ON (pd.product_id = p.product_id AND pd.language_id = '" . (int)$this->config->get('config_language_id') . "')

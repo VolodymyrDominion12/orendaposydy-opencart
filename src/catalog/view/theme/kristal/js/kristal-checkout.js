@@ -183,11 +183,12 @@
         var input = line.querySelector('.k-qty-input');
         if (!input) return;
         var min = parseInt(input.getAttribute('min'), 10) || 1;
+        var max = parseInt(input.getAttribute('max'), 10) || 0;
         var cur = parseInt(input.value, 10) || min;
         var step = 1;
 
         if (act === 'plus') {
-          cur += step;
+          cur = max > 0 ? Math.min(max, cur + step) : cur + step;
         } else if (act === 'minus') {
           cur = Math.max(min, cur - step);
         }
@@ -206,8 +207,10 @@
 
       var cartId = line.getAttribute('data-cart-id');
       var min = parseInt(input.getAttribute('min'), 10) || 1;
+      var max = parseInt(input.getAttribute('max'), 10) || 0;
       var val = parseInt(input.value, 10) || min;
       if (val < min) val = min;
+      if (max > 0 && val > max) val = max;
       input.value = val;
       updateLineQty(cartId, val, line);
     });

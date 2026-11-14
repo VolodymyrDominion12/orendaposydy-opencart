@@ -145,14 +145,21 @@
   }
 
   function minOf(form) { return Math.max(1, parseInt(form.getAttribute('data-k-min'), 10) || 1); }
+  function maxOf(form) {
+    var m = parseInt(form.getAttribute('data-k-max'), 10);
+    return m > 0 ? m : 0;
+  }
 
-  // Кількість не менша за мінімум: виправляємо й пояснюємо
+  // Кількість у межах [мінімум, залишок]: виправляємо й пояснюємо
   function clamp(form) {
     var input = form.querySelector('input[name="quantity"]'), hint = form.querySelector('.k-card__hint, .k-buy__hint');
-    var min = minOf(form), val = parseInt(input.value, 10);
+    var min = minOf(form), max = maxOf(form), val = parseInt(input.value, 10);
     if (!(val >= min)) {
       input.value = min;
       if (hint) hint.textContent = form.getAttribute('data-k-hint') || '';
+    } else if (max > 0 && val > max) {
+      input.value = max;
+      if (hint) hint.textContent = form.getAttribute('data-k-max-hint') || '';
     }
     return parseInt(input.value, 10);
   }
@@ -180,9 +187,19 @@
     var step = e.target.closest('[data-k-step]');
     if (!step) return;
     var form = step.closest('form'), input = form.querySelector('input[name="quantity"]');
-    var min = minOf(form), val = (parseInt(input.value, 10) || min) + parseInt(step.getAttribute('data-k-step'), 10);
-    input.value = Math.max(min, val);
-    clamp(form);
+    var min = minOf(form), max = maxOf(form), delta = parseInt(step.getAttribute('data-k-step'), 10);
+    var val = (parseInt(input.value, 10) || min) + delta;
+    var hint = form.querySelector('.k-card__hint, .k-buy__hint');
+    if (val < min) {
+      input.value = min;
+      if (hint && delta < 0) hint.textContent = form.getAttribute('data-k-hint') || '';
+    } else if (max > 0 && val > max) {
+      input.value = max;
+      if (hint && delta > 0) hint.textContent = form.getAttribute('data-k-max-hint') || '';
+    } else {
+      input.value = val;
+      if (hint) hint.textContent = '';
+    }
     updateSum(form);
   });
 

@@ -186,6 +186,9 @@ class ControllerExtensionKristalCatalog extends Controller {
 		$rental = \Kristal\Rental::normalize($row && $row['unit'] !== null ? $row : null);
 		$price = $row ? (float)$row['price'] : 0.0;
 		$minimum = $row ? max(1, (int)$row['minimum']) : 1;
+		$stock = $row ? max(0, (int)$row['quantity']) : 0;
+		$in_stock = $stock > 0;
+		$max_qty = ($stock > 0 && $stock >= $minimum) ? $stock : 0;
 		$product_discounts = isset($discounts[$id]) ? $discounts[$id] : array();
 		$unit = \Kristal\Rental::unit($rental['unit']);
 		$best = \Kristal\Rental::bestTier($minimum, $price, $product_discounts);
@@ -197,18 +200,23 @@ class ControllerExtensionKristalCatalog extends Controller {
 		}
 
 		return array(
-			'price'     => $price > 0 ? \Kristal\Rental::money($price) : '',
-			'price_raw' => $price,
-			'per'       => $rental['unit'] === 'event' ? $this->language->get('kc_per_event') : sprintf($this->language->get('kc_per_day'), $unit),
-			'unit'      => $unit,
-			'minimum'   => $minimum,
-			'min_text'  => $minimum > 1 ? sprintf($this->language->get('kc_min'), $minimum, $unit) : '',
-			'min_hint'  => sprintf($this->language->get('kc_min_hint'), $minimum, $unit),
-			'best'      => $best ? sprintf($this->language->get('kc_best'), $best['from'], $unit, \Kristal\Rental::money($best['price'])) : '',
-			'is_hit'    => $rental['is_hit'],
-			'excerpt'   => htmlspecialchars($excerpt, ENT_QUOTES, 'UTF-8'),
-			'img'       => $this->model_extension_kristal_media->image($row ? $row['image'] : '', ModelExtensionKristalMedia::CARD),
-			'eager'     => $eager
+			'price'      => $price > 0 ? \Kristal\Rental::money($price) : '',
+			'price_raw'  => $price,
+			'per'        => $rental['unit'] === 'event' ? $this->language->get('kc_per_event') : sprintf($this->language->get('kc_per_day'), $unit),
+			'unit'       => $unit,
+			'minimum'    => $minimum,
+			'min_text'   => $minimum > 1 ? sprintf($this->language->get('kc_min'), $minimum, $unit) : '',
+			'min_hint'   => sprintf($this->language->get('kc_min_hint'), $minimum, $unit),
+			'stock'      => $stock,
+			'in_stock'   => $in_stock,
+			'stock_text' => $in_stock ? sprintf($this->language->get('kc_stock'), $stock, $unit) : $this->language->get('kc_out_of_stock'),
+			'max_qty'    => $max_qty,
+			'max_hint'   => $max_qty > 0 ? sprintf($this->language->get('kc_max_hint'), $max_qty, $unit) : '',
+			'best'       => $best ? sprintf($this->language->get('kc_best'), $best['from'], $unit, \Kristal\Rental::money($best['price'])) : '',
+			'is_hit'     => $rental['is_hit'],
+			'excerpt'    => htmlspecialchars($excerpt, ENT_QUOTES, 'UTF-8'),
+			'img'        => $this->model_extension_kristal_media->image($row ? $row['image'] : '', ModelExtensionKristalMedia::CARD),
+			'eager'      => $eager
 		);
 	}
 
