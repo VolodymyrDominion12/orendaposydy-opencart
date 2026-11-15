@@ -492,9 +492,9 @@
   });
 })();
 
-/* ---------- Барабанний вибір кількості («як на будильнику») ----------
+/* ---------- Барабанний вибір кількості («як на будильнику» — 2 колонки) ----------
    Відкривається при натисканні на число всередині будь-якого .k-qty (картка товару, каталог, кошик).
-   3 незалежні барабани (Сотні · Десятки · Одиниці) + швидкі чіпи + прямий ввід числа. */
+   2 барабани як у телефонному будильнику (Сотні · Десятки / Шт) + швидкі чіпи + ручний ввід. */
 (function () {
   'use strict';
 
@@ -502,10 +502,12 @@
   var ITEM_H = 44;
   var FOCUSABLE = 'button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-  var modal = null, panel = null, titleEl = null, numInput = null, unitEl = null, boundsEl = null;
-  var sumEl = null, presetsEl = null, confirmBtn = null, closeBtn = null;
-  var drums = { h: null, t: null, o: null };
-  var opts = { h: [], t: [], o: [] };
+  var modal = null, panel = null, titleEl = null, subEl = null;
+  var manualWrap = null, manualToggle = null, numInput = null, unitEl = null;
+  var sumEl = null, formulaEl = null, totalEl = null, presetsEl = null, bandMidEl = null;
+  var confirmBtn = null, closeBtn = null;
+  var drums = { h: null, t: null };
+  var opts = { h: [], t: [] };
 
   var state = {
     input: null, opener: null, min: 1, max: 0, unit: 'шт',
@@ -526,7 +528,7 @@
     return n;
   }
 
-  function pad2(n) { return n === 0 ? '00' : String(n); }
+  function pad2(n) { return n < 10 ? '0' + n : String(n); }
 
   function buildModal() {
     if (modal) return;
@@ -540,48 +542,67 @@
     modal.innerHTML =
       '<div class="k-qpick__panel" tabindex="-1">' +
         '<div class="k-qpick__head">' +
-          '<h3 class="k-qpick__title" id="k-qpick-title">Кількість</h3>' +
+          '<div class="k-qpick__titles">' +
+            '<h3 class="k-qpick__title" id="k-qpick-title">Вибір кількості</h3>' +
+            '<p class="k-qpick__sub" data-qpick-sub></p>' +
+          '</div>' +
           '<button type="button" class="k-qpick__close" aria-label="Закрити">' +
             '<svg class="k-ico" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>' +
           '</button>' +
         '</div>' +
-        '<div class="k-qpick__top">' +
+        '<div class="k-qpick__presets" role="group" aria-label="Швидкий вибір"></div>' +
+        '<div class="k-qpick__labels" aria-hidden="true"><span>Сотні</span><span>Десятки / Шт</span></div>' +
+        '<div class="k-qpick__stage">' +
+          '<div class="k-qpick__band" aria-hidden="true"><span class="k-qpick__band-mid" data-qpick-mid></span></div>' +
+          '<div class="k-qpick__drum" data-drum="h" aria-label="Сотні"></div>' +
+          '<div class="k-qpick__drum" data-drum="t" aria-label="Десятки та одиниці"></div>' +
+          '<div class="k-qpick__fade" aria-hidden="true"></div>' +
+        '</div>' +
+        '<div class="k-qpick__sum" hidden>' +
+          '<span data-qpick-formula></span>' +
+          '<b data-qpick-total></b>' +
+        '</div>' +
+        '<div class="k-qpick__manual" hidden>' +
           '<label class="k-qpick__edit">' +
             '<input type="number" class="k-qpick__num" inputmode="numeric" aria-label="Введіть кількість">' +
             '<span class="k-qpick__unit">шт</span>' +
           '</label>' +
-          '<span class="k-qpick__bounds"></span>' +
         '</div>' +
-        '<div class="k-qpick__sum" hidden></div>' +
-        '<div class="k-qpick__presets" role="group" aria-label="Швидкий вибір"></div>' +
-        '<div class="k-qpick__labels" aria-hidden="true"><span>Сотні</span><span>Десятки</span><span>Одиниці</span></div>' +
-        '<div class="k-qpick__stage">' +
-          '<div class="k-qpick__band" aria-hidden="true"></div>' +
-          '<div class="k-qpick__drum" data-drum="h" aria-label="Сотні"></div>' +
-          '<div class="k-qpick__drum" data-drum="t" aria-label="Десятки"></div>' +
-          '<div class="k-qpick__drum" data-drum="o" aria-label="Одиниці"></div>' +
-          '<div class="k-qpick__fade" aria-hidden="true"></div>' +
-        '</div>' +
-        '<button type="button" class="k-btn k-btn--primary k-btn--block" data-qpick-ok>Обрати</button>' +
+        '<button type="button" class="k-qpick__manual-btn" data-qpick-manual-btn>Ввести вручну ⌨</button>' +
+        '<button type="button" class="k-btn k-btn--primary k-btn--block" data-qpick-ok>Готово</button>' +
       '</div>';
 
     doc.body.appendChild(modal);
     panel = modal.querySelector('.k-qpick__panel');
     titleEl = modal.querySelector('.k-qpick__title');
+    subEl = modal.querySelector('[data-qpick-sub]');
+    manualWrap = modal.querySelector('.k-qpick__manual');
+    manualToggle = modal.querySelector('[data-qpick-manual-btn]');
     numInput = modal.querySelector('.k-qpick__num');
     unitEl = modal.querySelector('.k-qpick__unit');
-    boundsEl = modal.querySelector('.k-qpick__bounds');
     sumEl = modal.querySelector('.k-qpick__sum');
+    formulaEl = modal.querySelector('[data-qpick-formula]');
+    totalEl = modal.querySelector('[data-qpick-total]');
     presetsEl = modal.querySelector('.k-qpick__presets');
+    bandMidEl = modal.querySelector('[data-qpick-mid]');
     confirmBtn = modal.querySelector('[data-qpick-ok]');
     closeBtn = modal.querySelector('.k-qpick__close');
     drums.h = modal.querySelector('[data-drum="h"]');
     drums.t = modal.querySelector('[data-drum="t"]');
-    drums.o = modal.querySelector('[data-drum="o"]');
 
     closeBtn.addEventListener('click', function () { close(true); });
     modal.addEventListener('click', function (e) { if (e.target === modal) close(true); });
     confirmBtn.addEventListener('click', confirm);
+
+    manualToggle.addEventListener('click', function () {
+      var show = manualWrap.hidden;
+      manualWrap.hidden = !show;
+      manualToggle.hidden = show;
+      if (show) {
+        numInput.focus();
+        numInput.select();
+      }
+    });
 
     presetsEl.addEventListener('click', function (e) {
       var chip = e.target.closest('.k-qpick__chip');
@@ -625,7 +646,6 @@
 
     setupDrumEvents('h');
     setupDrumEvents('t');
-    setupDrumEvents('o');
   }
 
   function makeHundreds(limit) {
@@ -634,11 +654,20 @@
     return arr;
   }
 
+  function makeTensUnits(maxLimit) {
+    var arr = [];
+    var cap = (maxLimit > 0 && maxLimit < 100) ? maxLimit : 99;
+    for (var i = 0; i <= cap; i++) {
+      arr.push({ v: i, label: pad2(i) });
+    }
+    return arr;
+  }
+
   function populateDrum(key, list) {
     var el = drums[key];
     var html = '<div class="k-qpick__pad" aria-hidden="true"></div>';
     for (var i = 0; i < list.length; i++) {
-      html += '<button type="button" class="k-qpick__opt" data-idx="' + i + '" data-val="' + list[i].v + '">' + list[i].label + '</button>';
+      html += '<button type="button" class="k-qpick__opt" tabindex="-1" data-idx="' + i + '" data-val="' + list[i].v + '">' + list[i].label + '</button>';
     }
     html += '<div class="k-qpick__pad" aria-hidden="true"></div>';
     el.innerHTML = html;
@@ -671,14 +700,14 @@
     el.addEventListener('scroll', function () {
       highlightDrum(key);
       if (Date.now() < state.programmaticUntil) return;
-      var raw = drumVal('h') + drumVal('t') + drumVal('o');
+      var raw = drumVal('h') + drumVal('t');
       var clamped = clampVal(raw);
       if (doc.activeElement !== numInput) numInput.value = raw;
       updateMeta(raw, raw !== clamped);
       clearTimeout(state.settleTimer);
       state.settleTimer = setTimeout(function () {
         if (modal.hidden || drag) return;
-        var settled = drumVal('h') + drumVal('t') + drumVal('o');
+        var settled = drumVal('h') + drumVal('t');
         var target = clampVal(settled);
         if (settled !== target) {
           numInput.value = target;
@@ -744,22 +773,24 @@
   function rollToValue(v, smooth) {
     var safe = Math.max(0, Math.min(state.maxHundreds + 99, v));
     var h = Math.min(state.maxHundreds, Math.floor(safe / 100) * 100);
-    var rem = safe - h;
-    var t = Math.min(90, Math.floor(rem / 10) * 10);
-    var o = Math.min(9, rem - t);
+    var t = Math.min(99, safe - h);
     state.programmaticUntil = Date.now() + (smooth ? 420 : 80);
     scrollDrumToVal('h', h, smooth);
     scrollDrumToVal('t', t, smooth);
-    scrollDrumToVal('o', o, smooth);
   }
 
   function updateMeta(rawVal, warn) {
     var qty = clampVal(rawVal);
+    var subParts = [];
+    if (state.prodName) subParts.push(state.prodName);
     var boundsText = 'мін. ' + state.min + ' ' + state.unit;
     if (state.max > 0) boundsText += ' · макс. ' + state.max + ' ' + state.unit;
-    boundsEl.textContent = boundsText;
-    boundsEl.classList.toggle('is-warn', Boolean(warn));
-    confirmBtn.textContent = 'Обрати ' + qty + ' ' + state.unit;
+    subParts.push(boundsText);
+    subEl.textContent = subParts.join(' · ');
+    subEl.classList.toggle('is-warn', Boolean(warn));
+
+    bandMidEl.textContent = qty + ' ' + state.unit;
+    confirmBtn.textContent = 'Готово (' + qty + ' ' + state.unit + ')';
 
     if (state.prices && state.prices.length) {
       var price = state.prices[0][1];
@@ -767,9 +798,8 @@
         if (qty >= state.prices[i][0]) price = state.prices[i][1];
       }
       sumEl.hidden = false;
-      sumEl.innerHTML = state.isEvent
-        ? qty + ' × ' + fmtMoney(price) + ' = <b>' + fmtMoney(qty * price) + '</b>'
-        : qty + ' ' + state.unit + ' × ' + fmtMoney(price) + ' = <b>' + fmtMoney(qty * price) + '</b> / доба';
+      formulaEl.textContent = (state.isEvent ? qty : qty + ' ' + state.unit) + ' × ' + fmtMoney(price) + ' = ';
+      totalEl.textContent = fmtMoney(qty * price) + (state.isEvent ? '' : ' / доба');
     } else {
       sumEl.hidden = true;
     }
@@ -785,7 +815,7 @@
     if (state.prices) {
       for (var i = 0; i < state.prices.length; i++) set.push(state.prices[i][0]);
     }
-    [25, 50, 100, 150, 200, 300, 500].forEach(function (v) { set.push(v); });
+    [25, 50, 100, 150, 200, 300].forEach(function (v) { set.push(v); });
     if (state.max > 0) set.push(state.max);
 
     var filtered = [];
@@ -796,13 +826,12 @@
       if (filtered.indexOf(n) === -1) filtered.push(n);
     }
     filtered.sort(function (a, b) { return a - b; });
-    filtered = filtered.slice(0, 7);
+    filtered = filtered.slice(0, 6);
 
     var html = '';
     for (var m = 0; m < filtered.length; m++) {
       var val = filtered[m];
-      var lbl = (val === state.min && state.min > 1) ? 'мін. ' + val : String(val);
-      html += '<button type="button" class="k-qpick__chip" data-val="' + val + '">' + lbl + '</button>';
+      html += '<button type="button" class="k-qpick__chip" data-val="' + val + '">' + val + '</button>';
     }
     presetsEl.innerHTML = html;
     presetsEl.hidden = filtered.length < 2;
@@ -824,7 +853,7 @@
       var ln = line.querySelector('.k-line__name');
       if (ln) return ln.textContent.trim();
     }
-    return 'Кількість';
+    return '';
   }
 
   function open(input, byKey) {
@@ -840,6 +869,7 @@
     state.max = parseInt(input.getAttribute('max') || (form && form.getAttribute('data-k-max')) || (box && box.getAttribute('data-max')), 10) || 0;
     state.unit = (form && form.getAttribute('data-k-unit')) || 'шт';
     state.isEvent = Boolean(form && form.getAttribute('data-k-event') === '1');
+    state.prodName = resolveTitle(input);
     state.prices = null;
     if (form && form.hasAttribute('data-k-buy')) {
       try {
@@ -854,18 +884,14 @@
       : Math.max(2000, Math.min(10000, Math.ceil((cur + 200) / 100) * 100));
 
     populateDrum('h', makeHundreds(state.maxHundreds));
-    var tens = [];
-    for (var t = 0; t <= (state.max > 0 && state.max < 10 ? 0 : 90); t += 10) tens.push({ v: t, label: pad2(t) });
-    populateDrum('t', tens);
-    var ones = [];
-    for (var o = 0; o <= (state.max > 0 && state.max < 10 ? state.max : 9); o++) ones.push({ v: o, label: String(o) });
-    populateDrum('o', ones);
+    populateDrum('t', makeTensUnits(state.max));
 
-    titleEl.textContent = resolveTitle(input);
     unitEl.textContent = state.unit;
     numInput.min = state.min;
     if (state.max > 0) numInput.max = state.max; else numInput.removeAttribute('max');
     numInput.value = cur;
+    manualWrap.hidden = true;
+    manualToggle.hidden = false;
 
     buildPresets();
     updateMeta(cur, false);
@@ -888,8 +914,8 @@
 
   function confirm() {
     if (!state.input) { close(false); return; }
-    var raw = parseInt(numInput.value, 10);
-    if (isNaN(raw)) raw = drumVal('h') + drumVal('t') + drumVal('o');
+    var raw = !manualWrap.hidden ? parseInt(numInput.value, 10) : (drumVal('h') + drumVal('t'));
+    if (isNaN(raw)) raw = drumVal('h') + drumVal('t');
     var finalVal = clampVal(raw);
     var target = state.input;
     close(true);
@@ -918,4 +944,5 @@
     open(inp, e.detail === 0);
   });
 })();
+
 
