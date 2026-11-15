@@ -2,7 +2,7 @@
 
 <footer class="k-footer" id="contacts">
   <div class="k-wrap">
-    <div class="k-footer__grid k-footer__grid--3">
+    <div class="k-footer__grid{% if not k_catering_pages %} k-footer__grid--3{% endif %}">
       <div>
         <a class="k-logo k-footer__logo" href="{{ k_home }}" aria-label="{{ k_home_aria }}"><img src="{{ k_logo }}" width="44" height="44" alt="" loading="lazy"><span class="k-logo__word">{{ k_brand }}</span></a>
         <p class="k-muted k-footer__tagline">{{ k_tagline }}</p>
@@ -44,6 +44,19 @@
           {% for top in k_cats %}
           <li><a href="{{ top.href }}">{{ top.name }}</a></li>
           {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+      {% if k_catering_pages %}
+      <div>
+        <h4>{{ k_catering_nav }}</h4>
+        <ul>
+          {% for page in k_catering_pages %}
+          <li><a href="{{ page.href }}">{{ page.title|e }}</a></li>
+          {% endfor %}
+          {% if k_catering_hub %}
+          <li><a href="{{ k_catering_hub }}">{{ k_catering_all }}</a></li>
+          {% endif %}
         </ul>
       </div>
       {% endif %}

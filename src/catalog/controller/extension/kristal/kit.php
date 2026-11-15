@@ -137,6 +137,19 @@ class ControllerExtensionKristalKit extends Controller {
 		// FAQ під конкретну подію
 		$data['faq'] = $this->getFaqForEvent($event_type);
 
+		// Крос-посилання на напрямок приготування страв (028)
+		$catering_map = array(
+			'wedding'   => array('route' => 'extension/kristal/catering/wedding', 'title' => 'Весільне меню та welcome-фуршет під ключ'),
+			'buffet'    => array('route' => 'extension/kristal/catering/buffet', 'title' => 'Фуршетні страви та комплекси для кава-брейку'),
+			'corporate' => array('route' => 'extension/kristal/catering/banquet', 'title' => 'Банкетні страви та комплекси меню для корпоративів'),
+			'catering'  => array('route' => 'extension/kristal/catering', 'title' => 'Ми можемо для Вас приготувати: фуршет, банкет, кава-брейк')
+		);
+		$cross = isset($catering_map[$event_type]) ? $catering_map[$event_type] : $catering_map['catering'];
+		$data['catering_crosslink'] = array(
+			'title' => $cross['title'],
+			'href'  => $this->url->link($cross['route'])
+		);
+
 		// Schema.org FAQPage JSON-LD
 		$faq_schema = array(
 			'@context'   => 'https://schema.org',

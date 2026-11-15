@@ -108,4 +108,20 @@ class ModelExtensionKristalSeo extends Model {
 
 		return $query->rows;
 	}
+
+	public function getSitemapCateringPages() {
+		$table = DB_PREFIX . "kristal_catering_page";
+		$check = $this->db->query("SHOW TABLES LIKE '" . $table . "'");
+
+		if (!$check->num_rows) {
+			return array();
+		}
+
+		$query = $this->db->query("SELECT `code`, DATE(`updated_at`) AS date_modified
+			FROM `" . $table . "`
+			WHERE `status` = '1'
+			ORDER BY `sort_order` ASC");
+
+		return $query->rows;
+	}
 }

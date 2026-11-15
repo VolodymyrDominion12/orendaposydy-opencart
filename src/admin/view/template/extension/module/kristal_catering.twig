@@ -1,0 +1,390 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" onclick="$('.tab-content > .tab-pane.active form').submit();" data-toggle="tooltip" title="{{ button_save_section|e }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    {% if success %}
+    <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    <div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ text_note }}</div>
+
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_edit }}</h3>
+      </div>
+      <div class="panel-body">
+        <ul class="nav nav-tabs">
+          <li{% if active_tab == 'general' %} class="active"{% endif %}><a href="#tab-general" data-toggle="tab">{{ tab_general }}</a></li>
+          {% for page in pages %}
+          <li{% if active_tab == 'page_' ~ page.page_id %} class="active"{% endif %}><a href="#tab-page-{{ page.page_id }}" data-toggle="tab">{{ page.title|e }}</a></li>
+          {% endfor %}
+        </ul>
+
+        <div class="tab-content" style="padding-top: 20px;">
+          <!-- Загальні налаштування -->
+          <div class="tab-pane{% if active_tab == 'general' %} active{% endif %}" id="tab-general">
+            <form action="{{ action }}" method="post" class="form-horizontal">
+              <input type="hidden" name="save_mode" value="settings">
+              <input type="hidden" name="active_tab" value="general">
+              <div class="form-group">
+                <label class="col-sm-3 control-label" for="input-status">{{ entry_status }}</label>
+                <div class="col-sm-9">
+                  <select name="status" id="input-status" class="form-control">
+                    <option value="1"{% if status %} selected="selected"{% endif %}>{{ text_enabled }}</option>
+                    <option value="0"{% if not status %} selected="selected"{% endif %}>{{ text_disabled }}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-3 control-label" for="input-show-header">{{ entry_show_header }}</label>
+                <div class="col-sm-9">
+                  <select name="show_header" id="input-show-header" class="form-control">
+                    <option value="1"{% if show_header %} selected="selected"{% endif %}>{{ text_yes }}</option>
+                    <option value="0"{% if not show_header %} selected="selected"{% endif %}>{{ text_no }}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-3 control-label" for="input-show-home">{{ entry_show_home }}</label>
+                <div class="col-sm-9">
+                  <select name="show_home" id="input-show-home" class="form-control">
+                    <option value="1"{% if show_home %} selected="selected"{% endif %}>{{ text_yes }}</option>
+                    <option value="0"{% if not show_home %} selected="selected"{% endif %}>{{ text_no }}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-offset-3 col-sm-9">
+                  <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> {{ button_save_section }}</button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- Вкладки 4 напрямків -->
+          {% for page in pages %}
+          {% set pid = page.page_id %}
+          <div class="tab-pane{% if active_tab == 'page_' ~ pid %} active{% endif %}" id="tab-page-{{ pid }}">
+            <form action="{{ action }}" method="post" class="form-horizontal">
+              <input type="hidden" name="save_mode" value="page">
+              <input type="hidden" name="active_tab" value="page_{{ pid }}">
+              <input type="hidden" name="page_id" value="{{ pid }}">
+
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ entry_page_status }}</label>
+                <div class="col-sm-4">
+                  <select name="status" class="form-control">
+                    <option value="1"{% if page.status %} selected="selected"{% endif %}>{{ text_enabled }}</option>
+                    <option value="0"{% if not page.status %} selected="selected"{% endif %}>{{ text_disabled }}</option>
+                  </select>
+                </div>
+                <label class="col-sm-2 control-label">{{ entry_sort_order }}</label>
+                <div class="col-sm-4">
+                  <input type="number" name="sort_order" value="{{ page.sort_order }}" class="form-control">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ entry_title }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="title" value="{{ page.title|e }}" class="form-control" maxlength="160">
+                  <p class="help-block">URL: <code>/{{ page.slug|e }}</code></p>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ entry_short_desc }}</label>
+                <div class="col-sm-10">
+                  <textarea name="short_desc" rows="2" class="form-control" maxlength="280">{{ page.short_desc|e }}</textarea>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ entry_hero_label }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="hero_label" value="{{ page.hero_label|e }}" class="form-control" maxlength="120">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ entry_hero_title }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="hero_title" value="{{ page.hero_title|e }}" class="form-control" maxlength="160">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ entry_hero_lead }}</label>
+                <div class="col-sm-10">
+                  <textarea name="hero_lead" rows="3" class="form-control" maxlength="500">{{ page.hero_lead|e }}</textarea>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ entry_hero_image }}</label>
+                <div class="col-sm-10">
+                  <a href="" id="thumb-image-{{ pid }}" data-toggle="image" class="img-thumbnail"><img src="{{ page.thumb }}" alt="" title="" data-placeholder="{{ placeholder }}"></a>
+                  <input type="hidden" name="hero_image" value="{{ page.hero_image|e }}" id="input-image-{{ pid }}">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ entry_facts }}</label>
+                <div class="col-sm-10">
+                  <textarea name="facts_text" rows="3" class="form-control">{{ page.facts_text|e }}</textarea>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ entry_meta_title }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="meta_title" value="{{ page.meta_title|e }}" class="form-control" maxlength="160">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ entry_meta_description }}</label>
+                <div class="col-sm-10">
+                  <textarea name="meta_description" rows="2" class="form-control" maxlength="300">{{ page.meta_description|e }}</textarea>
+                </div>
+              </div>
+
+              <hr>
+              <h3>{{ heading_kits }}</h3>
+              <div id="kits-container-{{ pid }}">
+                {% for kit in page.kits %}
+                {% set kidx = loop.index0 %}
+                <div class="well k-admin-kit-row">
+                  <input type="hidden" name="kits[{{ kidx }}][kit_id]" value="{{ kit.kit_id }}">
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label">{{ entry_kit_name }}</label>
+                    <div class="col-sm-4">
+                      <input type="text" name="kits[{{ kidx }}][name]" value="{{ kit.name|e }}" class="form-control" maxlength="160">
+                    </div>
+                    <label class="col-sm-2 control-label">{{ entry_kit_tier }}</label>
+                    <div class="col-sm-4">
+                      <select name="kits[{{ kidx }}][tier]" class="form-control">
+                        <option value="basic"{% if kit.tier == 'basic' %} selected="selected"{% endif %}>{{ text_tier_basic }}</option>
+                        <option value="standard"{% if kit.tier == 'standard' %} selected="selected"{% endif %}>{{ text_tier_standard }}</option>
+                        <option value="premium"{% if kit.tier == 'premium' %} selected="selected"{% endif %}>{{ text_tier_premium }}</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label">{{ entry_kit_badge }}</label>
+                    <div class="col-sm-4">
+                      <input type="text" name="kits[{{ kidx }}][badge]" value="{{ kit.badge|e }}" class="form-control" maxlength="64">
+                    </div>
+                    <label class="col-sm-2 control-label">{{ entry_kit_price_label }}</label>
+                    <div class="col-sm-4">
+                      <input type="text" name="kits[{{ kidx }}][price_label]" value="{{ kit.price_label|e }}" class="form-control" maxlength="80" placeholder="Порожньо = Розрахунок за запитом">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label">{{ entry_kit_subtitle }}</label>
+                    <div class="col-sm-6">
+                      <input type="text" name="kits[{{ kidx }}][subtitle]" value="{{ kit.subtitle|e }}" class="form-control" maxlength="160">
+                    </div>
+                    <label class="col-sm-2 control-label">{{ entry_kit_min_guests }}</label>
+                    <div class="col-sm-2">
+                      <input type="number" name="kits[{{ kidx }}][min_guests]" value="{{ kit.min_guests }}" min="1" class="form-control">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label">{{ entry_kit_items }}</label>
+                    <div class="col-sm-6">
+                      <textarea name="kits[{{ kidx }}][items_text]" rows="5" class="form-control">{{ kit.items_text|e }}</textarea>
+                      <p class="help-block">{{ help_kit_items }}</p>
+                    </div>
+                    <label class="col-sm-1 control-label">{{ entry_sort_order }}</label>
+                    <div class="col-sm-1">
+                      <input type="number" name="kits[{{ kidx }}][sort_order]" value="{{ kit.sort_order }}" class="form-control">
+                    </div>
+                    <div class="col-sm-2">
+                      <select name="kits[{{ kidx }}][status]" class="form-control" style="margin-bottom:8px;">
+                        <option value="1"{% if kit.status %} selected="selected"{% endif %}>{{ text_enabled }}</option>
+                        <option value="0"{% if not kit.status %} selected="selected"{% endif %}>{{ text_disabled }}</option>
+                      </select>
+                      <a href="{{ kit.delete_href }}" onclick="return confirm('{{ text_confirm_delete|e }}');" class="btn btn-danger btn-sm btn-block"><i class="fa fa-trash"></i> {{ button_delete_kit }}</a>
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+              <div class="form-group">
+                <div class="col-sm-12">
+                  <button type="button" class="btn btn-default" onclick="addCateringKit({{ pid }});"><i class="fa fa-plus-circle"></i> {{ button_add_kit }}</button>
+                </div>
+              </div>
+
+              <hr>
+              <h3>{{ heading_dishes }}</h3>
+              <div id="dishes-container-{{ pid }}">
+                {% for group in page.dishes_list %}
+                {% set didx = loop.index0 %}
+                <div class="well k-admin-dish-row">
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label">{{ entry_dish_group_title }}</label>
+                    <div class="col-sm-4">
+                      <input type="text" name="dishes[{{ didx }}][title]" value="{{ group.title|e }}" class="form-control" maxlength="160">
+                    </div>
+                    <label class="col-sm-2 control-label">{{ entry_dish_group_desc }}</label>
+                    <div class="col-sm-3">
+                      <input type="text" name="dishes[{{ didx }}][desc]" value="{{ group.desc|e }}" class="form-control" maxlength="280">
+                    </div>
+                    <div class="col-sm-1 text-right">
+                      <button type="button" class="btn btn-danger" onclick="$(this).closest('.k-admin-dish-row').remove();"><i class="fa fa-minus-circle"></i></button>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label">{{ entry_dish_group_items }}</label>
+                    <div class="col-sm-10">
+                      <textarea name="dishes[{{ didx }}][items_text]" rows="4" class="form-control">{{ group.items_text|e }}</textarea>
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+              <div class="form-group">
+                <div class="col-sm-12">
+                  <button type="button" class="btn btn-default" onclick="addDishGroup({{ pid }});"><i class="fa fa-plus-circle"></i> {{ button_add_group }}</button>
+                </div>
+              </div>
+
+              <hr>
+              <h3>{{ heading_faq }}</h3>
+              <div id="faq-container-{{ pid }}">
+                {% for item in page.faq_list %}
+                {% set fidx = loop.index0 %}
+                <div class="well k-admin-faq-row">
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label">{{ entry_faq_q }}</label>
+                    <div class="col-sm-9">
+                      <input type="text" name="faq[{{ fidx }}][q]" value="{{ item.q|e }}" class="form-control" maxlength="240">
+                    </div>
+                    <div class="col-sm-1 text-right">
+                      <button type="button" class="btn btn-danger" onclick="$(this).closest('.k-admin-faq-row').remove();"><i class="fa fa-minus-circle"></i></button>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label">{{ entry_faq_a }}</label>
+                    <div class="col-sm-10">
+                      <textarea name="faq[{{ fidx }}][a]" rows="2" class="form-control" maxlength="1000">{{ item.a|e }}</textarea>
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+              <div class="form-group">
+                <div class="col-sm-12">
+                  <button type="button" class="btn btn-default" onclick="addFaqRow({{ pid }});"><i class="fa fa-plus-circle"></i> {{ button_add_faq }}</button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div class="col-sm-12">
+                  <button type="submit" class="btn btn-primary btn-lg"><i class="fa fa-save"></i> {{ button_save_section }} («{{ page.title|e }}»)</button>
+                </div>
+              </div>
+            </form>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var kCateringIdx = 1000;
+
+function addCateringKit(pid) {
+  var box = $('#kits-container-' + pid);
+  var idx = kCateringIdx++;
+  var html = '<div class="well k-admin-kit-row">'
+    + '<input type="hidden" name="kits[' + idx + '][kit_id]" value="0">'
+    + '<div class="form-group">'
+    + '<label class="col-sm-2 control-label">{{ entry_kit_name|e('js') }}</label>'
+    + '<div class="col-sm-4"><input type="text" name="kits[' + idx + '][name]" value="" class="form-control" maxlength="160"></div>'
+    + '<label class="col-sm-2 control-label">{{ entry_kit_tier|e('js') }}</label>'
+    + '<div class="col-sm-4"><select name="kits[' + idx + '][tier]" class="form-control"><option value="basic">{{ text_tier_basic|e('js') }}</option><option value="standard" selected>{{ text_tier_standard|e('js') }}</option><option value="premium">{{ text_tier_premium|e('js') }}</option></select></div>'
+    + '</div>'
+    + '<div class="form-group">'
+    + '<label class="col-sm-2 control-label">{{ entry_kit_badge|e('js') }}</label>'
+    + '<div class="col-sm-4"><input type="text" name="kits[' + idx + '][badge]" value="" class="form-control" maxlength="64"></div>'
+    + '<label class="col-sm-2 control-label">{{ entry_kit_price_label|e('js') }}</label>'
+    + '<div class="col-sm-4"><input type="text" name="kits[' + idx + '][price_label]" value="" class="form-control" maxlength="80"></div>'
+    + '</div>'
+    + '<div class="form-group">'
+    + '<label class="col-sm-2 control-label">{{ entry_kit_subtitle|e('js') }}</label>'
+    + '<div class="col-sm-6"><input type="text" name="kits[' + idx + '][subtitle]" value="" class="form-control" maxlength="160"></div>'
+    + '<label class="col-sm-2 control-label">{{ entry_kit_min_guests|e('js') }}</label>'
+    + '<div class="col-sm-2"><input type="number" name="kits[' + idx + '][min_guests]" value="15" min="1" class="form-control"></div>'
+    + '</div>'
+    + '<div class="form-group">'
+    + '<label class="col-sm-2 control-label">{{ entry_kit_items|e('js') }}</label>'
+    + '<div class="col-sm-6"><textarea name="kits[' + idx + '][items_text]" rows="4" class="form-control"></textarea></div>'
+    + '<label class="col-sm-1 control-label">{{ entry_sort_order|e('js') }}</label>'
+    + '<div class="col-sm-1"><input type="number" name="kits[' + idx + '][sort_order]" value="4" class="form-control"></div>'
+    + '<div class="col-sm-2"><select name="kits[' + idx + '][status]" class="form-control"><option value="1" selected>{{ text_enabled|e('js') }}</option><option value="0">{{ text_disabled|e('js') }}</option></select></div>'
+    + '</div>'
+    + '</div>';
+  box.append(html);
+}
+
+function addDishGroup(pid) {
+  var box = $('#dishes-container-' + pid);
+  var idx = kCateringIdx++;
+  var html = '<div class="well k-admin-dish-row">'
+    + '<div class="form-group">'
+    + '<label class="col-sm-2 control-label">{{ entry_dish_group_title|e('js') }}</label>'
+    + '<div class="col-sm-4"><input type="text" name="dishes[' + idx + '][title]" value="" class="form-control" maxlength="160"></div>'
+    + '<label class="col-sm-2 control-label">{{ entry_dish_group_desc|e('js') }}</label>'
+    + '<div class="col-sm-3"><input type="text" name="dishes[' + idx + '][desc]" value="" class="form-control" maxlength="280"></div>'
+    + '<div class="col-sm-1 text-right"><button type="button" class="btn btn-danger" onclick="$(this).closest(\'.k-admin-dish-row\').remove();"><i class="fa fa-minus-circle"></i></button></div>'
+    + '</div>'
+    + '<div class="form-group">'
+    + '<label class="col-sm-2 control-label">{{ entry_dish_group_items|e('js') }}</label>'
+    + '<div class="col-sm-10"><textarea name="dishes[' + idx + '][items_text]" rows="4" class="form-control"></textarea></div>'
+    + '</div>'
+    + '</div>';
+  box.append(html);
+}
+
+function addFaqRow(pid) {
+  var box = $('#faq-container-' + pid);
+  var idx = kCateringIdx++;
+  var html = '<div class="well k-admin-faq-row">'
+    + '<div class="form-group">'
+    + '<label class="col-sm-2 control-label">{{ entry_faq_q|e('js') }}</label>'
+    + '<div class="col-sm-9"><input type="text" name="faq[' + idx + '][q]" value="" class="form-control" maxlength="240"></div>'
+    + '<div class="col-sm-1 text-right"><button type="button" class="btn btn-danger" onclick="$(this).closest(\'.k-admin-faq-row\').remove();"><i class="fa fa-minus-circle"></i></button></div>'
+    + '</div>'
+    + '<div class="form-group">'
+    + '<label class="col-sm-2 control-label">{{ entry_faq_a|e('js') }}</label>'
+    + '<div class="col-sm-10"><textarea name="faq[' + idx + '][a]" rows="2" class="form-control" maxlength="1000"></textarea></div>'
+    + '</div>'
+    + '</div>';
+  box.append(html);
+}
+</script>
+{{ footer }}

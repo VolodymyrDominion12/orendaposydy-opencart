@@ -1,0 +1,99 @@
+{{ header }}
+
+<section class="k-ehero">
+  <div class="k-photo" style="background:linear-gradient(135deg,#1f1a1d 0%,#2d2427 100%)"></div>
+  <div class="k-wrap">
+    <ol class="k-crumbs" style="padding:0">
+      {% for crumb in breadcrumbs %}
+        {% if loop.last %}
+          <li aria-current="page">{{ crumb.text }}</li>
+        {% else %}
+          <li><a href="{{ crumb.href }}">{{ crumb.text }}</a></li>
+        {% endif %}
+      {% endfor %}
+    </ol>
+    <span class="k-label k-label--gold">{{ text_hub_label }}</span>
+    <h1 class="k-display" style="max-width:18ch">{{ text_hub_title }}</h1>
+    <p class="k-lead" style="color:var(--ink)">{{ text_hub_lead }}</p>
+    <div class="k-btns">
+      <a class="k-btn k-btn--primary" href="#lead">{{ text_btn_calc }}</a>
+      <a class="k-btn k-btn--secondary" href="#formats">{{ text_hub_formats_label }}</a>
+    </div>
+  </div>
+</section>
+
+<section class="k-section" id="formats">
+  <div class="k-wrap">
+    <div class="k-section__head">
+      <div>
+        <span class="k-label">{{ text_hub_formats_label }}</span>
+        <h2 class="k-h2">{{ text_hub_formats_title }}</h2>
+      </div>
+    </div>
+    <div class="k-catering-cards">
+      {% for item in pages %}
+      <a class="k-catering-card" href="{{ item.href }}">
+        <div class="k-catering-card__top">
+          <svg class="k-ico"><use href="#i-{{ item.icon }}"/></svg>
+          <span class="k-label k-label--gold">{{ '%02d'|format(loop.index) }}</span>
+        </div>
+        <h3 class="k-h3">{{ item.title }}</h3>
+        <p class="k-muted">{{ item.short_desc|e }}</p>
+        <span class="k-catering-card__go">{{ text_btn_more }} <svg class="k-ico k-ico--sm"><use href="#i-arrow"/></svg></span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="k-section k-section--sunken k-section--line">
+  <div class="k-wrap">
+    <div class="k-section__head">
+      <div>
+        <span class="k-label k-label--gold">{{ text_hub_why_label }}</span>
+        <h2 class="k-h2">{{ text_hub_why_title }}</h2>
+      </div>
+    </div>
+    <ol class="k-steps">
+      <li><h3 class="k-h3">{{ text_hub_why1_t }}</h3><p class="k-muted">{{ text_hub_why1 }}</p></li>
+      <li><h3 class="k-h3">{{ text_hub_why2_t }}</h3><p class="k-muted">{{ text_hub_why2 }}</p></li>
+      <li><h3 class="k-h3">{{ text_hub_why3_t }}</h3><p class="k-muted">{{ text_hub_why3 }}</p></li>
+      <li><h3 class="k-h3">{{ text_hub_why4_t }}</h3><p class="k-muted">{{ text_hub_why4 }}</p></li>
+    </ol>
+  </div>
+</section>
+
+<section class="k-section" id="lead">
+  <div class="k-wrap k-leadbox">
+    <div class="k-leadbox__alt">
+      <span class="k-label k-label--gold">{{ text_lead_label }}</span>
+      <h2 class="k-h2">{{ text_lead_title }}</h2>
+      <p class="k-muted">{{ text_lead_lead }}</p>
+      <div class="k-messengers" style="margin-top:var(--space-4)">
+        {% if k_phone_tel %}<a class="k-btn k-btn--ghost" href="{{ k_phone_tel }}"><svg class="k-ico"><use href="#i-phone"/></svg><span class="k-mono">{{ k_phone_display }}</span></a>{% endif %}
+        {% if k_viber_href %}<a class="k-btn k-btn--ghost" href="{{ k_viber_href }}"><svg class="k-ico"><use href="#i-viber"/></svg>Viber</a>{% endif %}
+        {% if k_telegram_href %}<a class="k-btn k-btn--ghost" href="{{ k_telegram_href }}" rel="noopener"><svg class="k-ico"><use href="#i-telegram"/></svg>Telegram</a>{% endif %}
+      </div>
+    </div>
+    <form class="k-panel k-panel--gold k-form" action="{{ k_lead_action }}" method="post" data-k-lead>
+      <input type="hidden" name="type" value="calc_15m">
+      <input type="hidden" name="source_url" value="{{ canonical }}">
+      <input type="hidden" name="{{ k_antispam_token_name }}" value="{{ k_antispam_token }}">
+      <div class="k-hp" aria-hidden="true"><input type="text" name="{{ k_antispam_hp_name }}" tabindex="-1" autocomplete="off"></div>
+      <div class="k-form__row">
+        <label class="k-field"><span>Дата події</span><input class="k-input" type="date" name="event_date" min="{{ min_event_date }}"></label>
+        <label class="k-field"><span>Кількість гостей</span><input class="k-input" type="number" name="guests" inputmode="numeric" min="1" placeholder="Напр., 30"></label>
+      </div>
+      <div class="k-form__row">
+        <label class="k-field"><span>Ваше ім'я</span><input class="k-input" type="text" name="name" autocomplete="name" placeholder="Як до вас звертатися"></label>
+        <label class="k-field"><span>Телефон *</span><input class="k-input" type="tel" name="phone" autocomplete="tel" placeholder="+380" required></label>
+      </div>
+      <label class="k-field"><span>Формат і побажання</span><textarea class="k-input" name="comment" rows="2" placeholder="{{ text_comment_placeholder }}"></textarea></label>
+      <button class="k-btn k-btn--primary k-btn--block" type="submit">{{ text_btn_calc }}</button>
+      <p class="k-hint">Розрахунок безкоштовний і ні до чого не зобов'язує. Натискаючи кнопку, ви погоджуєтеся з {% if k_privacy_href %}<a href="{{ k_privacy_href }}" style="text-decoration:underline">політикою конфіденційності</a>{% else %}політикою конфіденційності{% endif %}.</p>
+    </form>
+  </div>
+</section>
+
+{% if jsonld %}{{ jsonld }}{% endif %}
+{{ footer }}

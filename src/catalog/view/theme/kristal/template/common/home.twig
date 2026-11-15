@@ -43,6 +43,36 @@
 </section>
 {% endif %}
 
+{% if kh_catering %}
+<section class="k-section k-section--line k-catering-home">
+  <div class="k-wrap">
+    <div class="k-section__head">
+      <div>
+        <span class="k-label k-label--gold">{{ kh_catering_label }}</span>
+        <h2 class="k-h2">{{ kh_catering_title }}</h2>
+        <p class="k-muted">{{ kh_catering_lead }}</p>
+      </div>
+      {% if kh_catering_hub %}
+      <a class="k-btn k-btn--ghost k-btn--sm" href="{{ kh_catering_hub }}">{{ kh_catering_all }} <svg class="k-ico k-ico--sm"><use href="#i-arrow"/></svg></a>
+      {% endif %}
+    </div>
+    <div class="k-catering-cards">
+      {% for item in kh_catering %}
+      <a class="k-catering-card" href="{{ item.href }}">
+        <div class="k-catering-card__top">
+          <svg class="k-ico"><use href="#i-{{ item.icon }}"/></svg>
+          <span class="k-label k-label--gold">{{ '%02d'|format(loop.index) }}</span>
+        </div>
+        <h3 class="k-h3">{{ item.title }}</h3>
+        <p class="k-muted k-small">{{ item.short_desc|e }}</p>
+        <span class="k-catering-card__go">{{ kh_catering_more }} <svg class="k-ico k-ico--sm"><use href="#i-arrow"/></svg></span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
 {% if kh_hits %}
 <section class="k-section k-section--sunken">
   <div class="k-wrap">

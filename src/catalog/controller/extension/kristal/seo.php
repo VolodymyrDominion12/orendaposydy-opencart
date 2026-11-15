@@ -102,6 +102,32 @@ class ControllerExtensionKristalSeo extends Controller {
 				);
 			}
 
+			// Ми можемо для Вас приготувати (028)
+			$catering_pages = $this->model_extension_kristal_seo->getSitemapCateringPages();
+			if ($catering_pages && $this->config->get('module_kristal_catering_status')) {
+				$urls[] = array(
+					'loc'        => $this->url->link('extension/kristal/catering'),
+					'changefreq' => 'weekly',
+					'priority'   => '0.8'
+				);
+				$catering_routes = array(
+					'buffet'      => 'extension/kristal/catering/buffet',
+					'banquet'     => 'extension/kristal/catering/banquet',
+					'coffeebreak' => 'extension/kristal/catering/coffeebreak',
+					'wedding'     => 'extension/kristal/catering/wedding'
+				);
+				foreach ($catering_pages as $cp) {
+					if (isset($catering_routes[$cp['code']])) {
+						$urls[] = array(
+							'loc'        => $this->url->link($catering_routes[$cp['code']]),
+							'lastmod'    => !empty($cp['date_modified']) ? $cp['date_modified'] : '',
+							'changefreq' => 'weekly',
+							'priority'   => '0.8'
+						);
+					}
+				}
+			}
+
 			$xml = \Kristal\Seo::buildSitemapXml($urls);
 			$this->cache->set($cache_key, $xml);
 		}

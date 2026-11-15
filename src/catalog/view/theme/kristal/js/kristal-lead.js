@@ -158,16 +158,31 @@
   function openModal(modalId, options) {
     var modal = document.getElementById(modalId);
     if (!modal) return;
-
     options = options || {};
+
+    var form = modal.querySelector('form[data-k-lead]');
+    if (form) {
+      if (!form.dataset.kOrigHtml) {
+        form.dataset.kOrigHtml = form.innerHTML;
+      } else if (form.querySelector('.k-lead-success')) {
+        form.innerHTML = form.dataset.kOrigHtml;
+        initPhoneInputs(form);
+      }
+      var errBox = form.querySelector('.k-lead-error');
+      if (errBox) {
+        errBox.textContent = '';
+        errBox.hidden = true;
+      }
+    }
+
     var titleEl = modal.querySelector('[data-k-modal-title]');
     if (titleEl && options.title) {
       titleEl.textContent = options.title;
     }
 
     var typeInput = modal.querySelector('input[name="type"]');
-    if (typeInput && options.type) {
-      typeInput.value = options.type;
+    if (typeInput) {
+      typeInput.value = options.type || 'quick_order';
     }
 
     var prodIdInput = modal.querySelector('input[name="product_id"]');
@@ -180,10 +195,18 @@
       qtyInput.value = options.quantity || 1;
     }
 
+    var commentInput = modal.querySelector('textarea[name="comment"]');
+    if (commentInput) {
+      commentInput.value = options.comment || '';
+    }
+
     var descEl = modal.querySelector('[data-k-modal-desc]');
     if (descEl) {
       if (options.productName) {
         descEl.textContent = options.productName + (options.quantity ? ' × ' + options.quantity + ' шт' : '');
+        descEl.hidden = false;
+      } else if (options.desc) {
+        descEl.textContent = options.desc;
         descEl.hidden = false;
       } else {
         descEl.textContent = '';
@@ -248,6 +271,26 @@
           title: 'Замовити зворотний дзвінок',
           type: 'callback'
         });
+      }
+
+      var btnCatering = e.target.closest('[data-k-catering-select]');
+      if (btnCatering) {
+        var cTitle = btnCatering.dataset.kCateringTitle || 'Замовити прорахунок меню';
+        var cComment = btnCatering.dataset.kCateringComment || '';
+        var leadModal = document.getElementById('k-lead-modal');
+        if (leadModal) {
+          e.preventDefault();
+          openModal('k-lead-modal', {
+            title: cTitle,
+            type: 'calc_15m',
+            comment: cComment
+          });
+        } else {
+          var leadComment = document.querySelector('#lead textarea[name="comment"]');
+          if (leadComment && cComment) {
+            leadComment.value = cComment;
+          }
+        }
       }
 
       var closeBtn = e.target.closest('[data-k-modal-close]');

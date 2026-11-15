@@ -170,19 +170,32 @@ class ControllerExtensionKristalTheme extends Controller {
 		$social = $nap['social'];
 		unset($social['telegram']);
 
+		$catering_pages = array();
+		$catering_hub = '';
+
+		if ($this->config->get('module_kristal_catering_status') && $this->config->get('module_kristal_catering_show_header')) {
+			$this->load->model('extension/kristal/catering');
+			$catering_pages = $this->model_extension_kristal_catering->getMenuPages();
+			if ($catering_pages) {
+				$catering_hub = $this->url->link('extension/kristal/catering');
+			}
+		}
+
 		self::$shared = array(
-			'k_nap'        => $nap,
-			'k_phone'      => $nap['primary_phone'],
-			'k_viber'      => $viber,
-			'k_telegram'   => $telegram,
-			'k_social'     => $social,
-			'k_hours'      => $hours,
-			'k_cats'       => $this->model_extension_kristal_menu->getTree(),
-			'k_logo'       => 'catalog/view/theme/kristal/image/emblem-96.webp',
+			'k_nap'              => $nap,
+			'k_phone'            => $nap['primary_phone'],
+			'k_viber'            => $viber,
+			'k_telegram'         => $telegram,
+			'k_social'           => $social,
+			'k_hours'            => $hours,
+			'k_cats'             => $this->model_extension_kristal_menu->getTree(),
+			'k_catering_pages'   => $catering_pages,
+			'k_catering_hub'     => $catering_hub,
+			'k_logo'             => 'catalog/view/theme/kristal/image/emblem-96.webp',
 			// Корінь сайту замість index.php?route=common/home (ядро не має ЧПУ для головної)
-			'k_home'       => !empty($this->request->server['HTTPS']) ? $this->config->get('config_ssl') : $this->config->get('config_url'),
-			'k_cart_href'  => $this->url->link('checkout/order'),
-			'k_cart_count' => $this->cartPositions()
+			'k_home'             => !empty($this->request->server['HTTPS']) ? $this->config->get('config_ssl') : $this->config->get('config_url'),
+			'k_cart_href'        => $this->url->link('checkout/order'),
+			'k_cart_count'       => $this->cartPositions()
 		);
 
 		// Пошук (027): адреса з кешу (без запиту oc_seo_url на кожній сторінці); без ЧПУ — route прихованим полем форми

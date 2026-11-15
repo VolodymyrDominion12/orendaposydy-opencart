@@ -87,6 +87,18 @@ class ControllerExtensionKristalHome extends Controller {
 
 		$data['kh_catalog_href'] = $tree ? $tree[0]['href'] : '';
 
+		// Напрямки приготування страв (028): з кешу kristal.catering.menu.* (0 запитів)
+		$data['kh_catering'] = array();
+		$data['kh_catering_hub'] = '';
+
+		if ($this->config->get('module_kristal_catering_status') && $this->config->get('module_kristal_catering_show_home')) {
+			$this->load->model('extension/kristal/catering');
+			$data['kh_catering'] = $this->model_extension_kristal_catering->getMenuPages();
+			if ($data['kh_catering']) {
+				$data['kh_catering_hub'] = $this->url->link('extension/kristal/catering');
+			}
+		}
+
 		// Хіти: картки 005 з кешу (ціни, посилання, зображення) — скидається збереженням товару (kristal.*)
 		$key = 'kristal.home.hits.' . (int)$this->config->get('config_store_id') . '.' . (int)$this->config->get('config_language_id');
 		$hits = $this->cache->get($key);

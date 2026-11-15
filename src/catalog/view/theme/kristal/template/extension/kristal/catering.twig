@@ -1,0 +1,196 @@
+{{ header }}
+
+<section class="k-ehero">
+  {% if hero_media %}
+  <div class="k-photo"><img src="{{ hero_media.src }}"{% if hero_media.srcset %} srcset="{{ hero_media.srcset }}" sizes="100vw"{% endif %} width="{{ hero_media.width }}" height="{{ hero_media.height }}" alt="{{ page.hero_title|e }}" fetchpriority="high"></div>
+  {% else %}
+  <div class="k-photo" style="background:linear-gradient(135deg,#1f1a1d 0%,#2d2427 100%)"></div>
+  {% endif %}
+  <div class="k-wrap">
+    <ol class="k-crumbs" style="padding:0">
+      {% for crumb in breadcrumbs %}
+        {% if loop.last %}
+          <li aria-current="page">{{ crumb.text }}</li>
+        {% else %}
+          <li><a href="{{ crumb.href }}">{{ crumb.text }}</a></li>
+        {% endif %}
+      {% endfor %}
+    </ol>
+    {% if page.hero_label %}<span class="k-label k-label--gold">{{ page.hero_label|e }}</span>{% endif %}
+    <h1 class="k-display" style="max-width:18ch">{{ page.hero_title|e }}</h1>
+    <p class="k-lead" style="color:var(--ink)">{{ page.hero_lead|e }}</p>
+    {% if page.facts %}
+    <div class="k-ehero__facts">
+      {% for fact in page.facts %}
+        <span><svg class="k-ico"><use href="#i-check"/></svg>{{ fact|e }}</span>
+      {% endfor %}
+    </div>
+    {% endif %}
+    <div class="k-btns">
+      <a class="k-btn k-btn--primary" href="#lead">{{ text_btn_calc }}</a>
+      {% if page.kits %}<a class="k-btn k-btn--secondary" href="#sets">{{ text_btn_kits }}</a>{% endif %}
+    </div>
+  </div>
+</section>
+
+{% if all_pages %}
+<nav class="k-catering-tabs" aria-label="{{ text_catering_hub }}">
+  <div class="k-wrap">
+    <a class="k-pill" href="{{ hub_href }}">{{ text_all_formats }}</a>
+    {% for item in all_pages %}
+      <a class="k-pill{% if item.code == page.code %} is-active{% endif %}" href="{{ item.href }}"{% if item.code == page.code %} aria-current="page"{% endif %}>{{ item.title|e }}</a>
+    {% endfor %}
+  </div>
+</nav>
+{% endif %}
+
+{% if page.kits %}
+<section class="k-section" id="sets">
+  <div class="k-wrap">
+    <div class="k-section__head">
+      <div>
+        <span class="k-label">{{ text_sets_label }}</span>
+        <h2 class="k-h2">{{ text_sets_title }}</h2>
+        <p class="k-muted">{{ text_sets_lead }}</p>
+      </div>
+    </div>
+    <div class="k-sets">
+      {% for kit in page.kits %}
+        <article class="k-set{% if kit.tier == 'standard' %} k-set--best{% endif %}">
+          {% if kit.badge %}
+            <span class="k-badge k-badge--new">{{ kit.badge|e }}</span>
+          {% endif %}
+          <span class="k-label{% if kit.tier == 'standard' %} k-label--gold{% endif %}">{{ kit.name|e }}</span>
+          <div class="k-set__price{% if not kit.price_label %} k-set__price--req{% endif %}">
+            {% if kit.price_label %}{{ kit.price_label|e }}{% else %}{{ text_price_on_request }}{% endif %}
+          </div>
+          {% if kit.subtitle %}<div class="k-set__total">{{ kit.subtitle|e }}</div>{% endif %}
+          {% if kit.items %}
+            <ul class="k-list">
+              {% for item in kit.items %}
+                <li class="{% if not item.included %}is-off{% endif %}">
+                  {% if item.included %}
+                    <svg class="k-ico"><use href="#i-check"/></svg>
+                  {% else %}
+                    <svg class="k-ico"><use href="#i-minus"/></svg>
+                  {% endif %}
+                  {{ item.text|e }}
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+          <a href="#lead"
+             class="k-btn {% if kit.tier == 'standard' %}k-btn--primary{% else %}k-btn--ghost{% endif %} k-btn--block"
+             data-k-catering-select
+             data-k-catering-title="{{ text_modal_prefix|e }}{{ kit.name|e }}"
+             data-k-catering-comment="{{ text_comment_tpl|format(page.title, kit.name, kit.min_guests)|e }}">
+            {{ text_btn_choose_kit }}
+          </a>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if page.dishes %}
+<section class="k-section k-section--sunken k-section--line" id="dishes">
+  <div class="k-wrap">
+    <div class="k-section__head">
+      <div>
+        <span class="k-label k-label--gold">{{ text_dishes_label }}</span>
+        <h2 class="k-h2">{{ text_dishes_title }}</h2>
+      </div>
+    </div>
+    <div class="k-catering-dishes">
+      {% for group in page.dishes %}
+        <article class="k-catering-dish">
+          <h3 class="k-h3">{{ group.title|e }}</h3>
+          {% if group.desc %}<p class="k-muted k-small">{{ group.desc|e }}</p>{% endif %}
+          {% if group.items %}
+            <ul class="k-list">
+              {% for dish in group.items %}
+                <li><svg class="k-ico"><use href="#i-check"/></svg>{{ dish|e }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if addons %}
+<section class="k-section">
+  <div class="k-wrap">
+    <div class="k-section__head">
+      <div>
+        <span class="k-label">{{ text_addons_label }}</span>
+        <h2 class="k-h2">{{ text_addons_title }}</h2>
+      </div>
+    </div>
+    <div class="k-addons">
+      {% for addon in addons %}
+        <a class="k-addon" href="{{ addon.href }}">
+          <svg class="k-ico"><use href="#{{ addon.icon }}"/></svg>
+          <b>{{ addon.name }}</b>
+          <span class="k-muted k-small">{{ addon.desc }}{% if addon.price %}<span class="k-mono k-gold">{{ addon.price }}</span>{% endif %}</span>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if page.faq %}
+<section class="k-section k-section--line">
+  <div class="k-wrap">
+    <span class="k-label">{{ text_faq_label }}</span>
+    <h2 class="k-h2 k-faq__title">{{ text_faq_title }}</h2>
+    <div class="k-faq">
+      {% for item in page.faq %}
+        <details{% if loop.first %} open{% endif %}>
+          <summary>{{ item.q|e }} <svg class="k-ico"><use href="#i-plus"/></svg></summary>
+          <p>{{ item.a|e }}</p>
+        </details>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="k-section k-section--sunken" id="lead">
+  <div class="k-wrap k-leadbox">
+    <div class="k-leadbox__alt">
+      <span class="k-label k-label--gold">{{ text_lead_label }}</span>
+      <h2 class="k-h2">{{ text_lead_title }}</h2>
+      <p class="k-muted">{{ text_lead_lead }}</p>
+      <div class="k-messengers" style="margin-top:var(--space-4)">
+        {% if k_phone_tel %}<a class="k-btn k-btn--ghost" href="{{ k_phone_tel }}"><svg class="k-ico"><use href="#i-phone"/></svg><span class="k-mono">{{ k_phone_display }}</span></a>{% endif %}
+        {% if k_viber_href %}<a class="k-btn k-btn--ghost" href="{{ k_viber_href }}"><svg class="k-ico"><use href="#i-viber"/></svg>Viber</a>{% endif %}
+        {% if k_telegram_href %}<a class="k-btn k-btn--ghost" href="{{ k_telegram_href }}" rel="noopener"><svg class="k-ico"><use href="#i-telegram"/></svg>Telegram</a>{% endif %}
+      </div>
+    </div>
+    <form class="k-panel k-panel--gold k-form" action="{{ k_lead_action }}" method="post" data-k-lead>
+      <input type="hidden" name="type" value="calc_15m">
+      <input type="hidden" name="source_url" value="{{ canonical }}">
+      <input type="hidden" name="{{ k_antispam_token_name }}" value="{{ k_antispam_token }}">
+      <div class="k-hp" aria-hidden="true"><input type="text" name="{{ k_antispam_hp_name }}" tabindex="-1" autocomplete="off"></div>
+      <div class="k-form__row">
+        <label class="k-field"><span>Дата події</span><input class="k-input" type="date" name="event_date" min="{{ min_event_date }}"></label>
+        <label class="k-field"><span>Кількість гостей</span><input class="k-input" type="number" name="guests" inputmode="numeric" min="1" placeholder="Напр., 30"></label>
+      </div>
+      <div class="k-form__row">
+        <label class="k-field"><span>Ваше ім'я</span><input class="k-input" type="text" name="name" autocomplete="name" placeholder="Як до вас звертатися"></label>
+        <label class="k-field"><span>Телефон *</span><input class="k-input" type="tel" name="phone" autocomplete="tel" placeholder="+380" required></label>
+      </div>
+      <label class="k-field"><span>Коментар або побажання щодо меню</span><textarea class="k-input" name="comment" rows="2" placeholder="{{ text_comment_placeholder }}">Формат: {{ page.title|e }}</textarea></label>
+      <button class="k-btn k-btn--primary k-btn--block" type="submit">{{ text_btn_calc }}</button>
+      <p class="k-hint">Розрахунок безкоштовний і ні до чого не зобов'язує. Натискаючи кнопку, ви погоджуєтеся з {% if k_privacy_href %}<a href="{{ k_privacy_href }}" style="text-decoration:underline">політикою конфіденційності</a>{% else %}політикою конфіденційності{% endif %}.</p>
+    </form>
+  </div>
+</section>
+
+{% if jsonld %}{{ jsonld }}{% endif %}
+{{ footer }}

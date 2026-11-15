@@ -62,3 +62,10 @@
 /posud/tarilky/bili                                      200                    # 021: SEO-сторінка фільтра
 /mebli/stiltsi/plastykovi                                200                    # 021: SEO-сторінка фільтра
 /posud/tarilky/nemaie-takoi                              404                    # 021: невідома адреса в категорії
+
+# 028: «Ми можемо для Вас приготувати» (kristal_catering)
+/gotuemo                                                   200                    # 028: оглядова сторінка кейтерингу
+/furshetni-stravy                                          200                    # 028: фуршетні страви
+/banketni-stravy                                           200                    # 028: банкетні страви
+/kava-breik                                                200                    # 028: кава-брейк
+/vesilne-meniu                                             200                    # 028: весільне меню

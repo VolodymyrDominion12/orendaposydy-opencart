@@ -1020,3 +1020,71 @@ body.has-sticky { padding-bottom: calc(128px + env(safe-area-inset-bottom)); }
 }
 .k-qpick__manual-btn:hover { border-color: var(--gold-deep); color: var(--gold-text); }
 .k-qpick__manual-btn[hidden] { display: none; }
+
+/* ========================================================================
+   028 — «Ми можемо для Вас приготувати» (kristal_catering)
+   ======================================================================== */
+.k-panel--gold { border-color: var(--gold-deep); border-top: 2px solid var(--gold); }
+
+.k-nav__a { white-space: nowrap; }
+.k-nav__a--catering .k-ico { color: var(--gold-text); }
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .k-header .k-wrap { gap: var(--space-3); }
+  .k-nav__a { font-size: 14px; padding: 0 var(--space-2); }
+}
+
+@media (min-width: 1024px) {
+  .k-mega--catering { left: -120px; width: min(720px, 80vw); grid-template-columns: 1.5fr 1fr; gap: var(--space-6); }
+  .k-mega--catering .k-mega__promo { grid-column: auto; grid-row: auto; }
+}
+.k-mega__list { display: grid; gap: var(--space-2); align-content: start; }
+.k-mega__item { display: flex; gap: var(--space-3); align-items: start; padding: var(--space-3); border: var(--border-hair) solid var(--line); border-radius: var(--radius-sm); background: var(--night); transition: border-color .15s; }
+.k-mega__item:hover { border-color: var(--gold); }
+.k-mega__item .k-ico { color: var(--gold-text); flex: none; margin-top: 2px; }
+.k-mega__item span { display: grid; gap: 2px; min-width: 0; }
+.k-mega__item b { font-size: 15px; line-height: 1.3; color: var(--ink); }
+.k-mega__item small { font-size: 13px; line-height: 1.4; color: var(--ink-muted); }
+
+/* Сітка 4 напрямків на головній і /gotuemo */
+.k-catering-cards { display: grid; grid-template-columns: 1fr; gap: var(--space-4); }
+@media (min-width: 768px) { .k-catering-cards { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .k-catering-cards { grid-template-columns: repeat(4, 1fr); } }
+.k-catering-card {
+  background: var(--night-raised); border: var(--border-hair) solid var(--line); border-top: 2px solid var(--gold-deep);
+  border-radius: var(--radius-md); padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-3);
+  transition: border-color .2s, box-shadow .2s;
+}
+.k-catering-card:hover { border-color: var(--gold); box-shadow: var(--shadow-card); }
+.k-catering-card__top { display: flex; align-items: center; justify-content: space-between; }
+.k-catering-card__top .k-ico { color: var(--gold-text); width: 32px; height: 32px; }
+.k-catering-card__go { margin-top: auto; padding-top: var(--space-2); display: inline-flex; align-items: center; gap: var(--space-2); color: var(--gold-text); font-weight: 700; font-size: 14px; }
+
+/* Панель перемикання форматів на міні-лендінгах */
+.k-catering-tabs { background: var(--night-sunken); border-bottom: var(--border-hair) solid var(--line); padding: var(--space-3) 0; }
+.k-catering-tabs .k-wrap { display: flex; gap: var(--space-2); overflow-x: auto; scrollbar-width: none; }
+.k-catering-tabs .k-wrap::-webkit-scrollbar { display: none; }
+@media (min-width: 768px) { .k-catering-tabs .k-wrap { flex-wrap: wrap; overflow: visible; } }
+.k-pill {
+  flex: none; display: inline-flex; align-items: center; min-height: 44px; padding: 0 var(--space-4);
+  border: var(--border-hair) solid var(--line); border-radius: var(--radius-sm);
+  background: var(--night); color: var(--ink); font-size: 14px; font-weight: 500; white-space: nowrap;
+  transition: border-color .15s, background .15s, color .15s;
+}
+.k-pill:hover { border-color: var(--ink-muted); }
+.k-pill.is-active { border-color: var(--gold); background: var(--gold); color: var(--on-gold); font-weight: 700; }
+
+/* Ціна «Розрахунок за запитом» на картці комплексу */
+.k-set__price--req { font-family: var(--font-sans); font-size: 20px; line-height: 1.25; font-weight: 700; }
+
+/* Асортимент страв на міні-лендінгах */
+.k-catering-dishes { display: grid; gap: var(--space-4); }
+@media (min-width: 768px) { .k-catering-dishes { grid-template-columns: repeat(2, 1fr); gap: var(--space-6); } }
+.k-catering-dish {
+  background: var(--night-raised); border: var(--border-hair) solid var(--line); border-radius: var(--radius-md);
+  padding: var(--space-6); display: grid; gap: var(--space-3); align-content: start;
+}
+
+/* Крос-банер на сторінках оренди посуду (event.twig) */
+.k-catering-banner { margin-top: var(--space-6); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-4); }
+.k-catering-banner > div { display: grid; gap: var(--space-1); }
+

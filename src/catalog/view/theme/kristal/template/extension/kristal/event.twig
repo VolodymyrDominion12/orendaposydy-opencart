@@ -100,6 +100,15 @@
           </a>
         {% endfor %}
       </div>
+      {% if catering_crosslink %}
+      <div class="k-panel k-panel--gold k-catering-banner">
+        <div>
+          <span class="k-label k-label--gold">Ми можемо для Вас приготувати</span>
+          <p class="k-h3">{{ catering_crosslink.title }}</p>
+        </div>
+        <a class="k-btn k-btn--primary" href="{{ catering_crosslink.href }}">Дивитись пропозиції <svg class="k-ico k-ico--sm"><use href="#i-arrow"/></svg></a>
+      </div>
+      {% endif %}
     </div>
   </section>
 

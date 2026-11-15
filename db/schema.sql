@@ -652,6 +652,44 @@ CREATE TABLE `oc_kristal_case_product` (
   PRIMARY KEY (`case_id`,`product_id`),
   KEY `idx_product_id` (`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `oc_kristal_catering_kit` (
+  `kit_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `page_id` int(11) unsigned NOT NULL,
+  `tier` varchar(32) NOT NULL DEFAULT 'standard',
+  `name` varchar(160) NOT NULL,
+  `badge` varchar(64) NOT NULL DEFAULT '',
+  `subtitle` varchar(160) NOT NULL DEFAULT '',
+  `price_label` varchar(80) NOT NULL DEFAULT '',
+  `min_guests` int(11) NOT NULL DEFAULT 15,
+  `items` text NOT NULL,
+  `sort_order` int(11) NOT NULL DEFAULT 0,
+  `status` tinyint(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`kit_id`),
+  KEY `idx_page_status_sort` (`page_id`,`status`,`sort_order`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `oc_kristal_catering_page` (
+  `page_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `code` varchar(32) NOT NULL,
+  `slug` varchar(64) NOT NULL,
+  `title` varchar(160) NOT NULL,
+  `short_desc` varchar(280) NOT NULL DEFAULT '',
+  `hero_label` varchar(120) NOT NULL DEFAULT '',
+  `hero_title` varchar(160) NOT NULL DEFAULT '',
+  `hero_lead` varchar(500) NOT NULL DEFAULT '',
+  `hero_image` varchar(255) NOT NULL DEFAULT '',
+  `facts` text NOT NULL,
+  `dishes` text NOT NULL,
+  `faq` text NOT NULL,
+  `meta_title` varchar(160) NOT NULL DEFAULT '',
+  `meta_description` varchar(300) NOT NULL DEFAULT '',
+  `sort_order` int(11) NOT NULL DEFAULT 0,
+  `status` tinyint(1) NOT NULL DEFAULT 1,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`page_id`),
+  UNIQUE KEY `uq_code` (`code`),
+  UNIQUE KEY `uq_slug` (`slug`),
+  KEY `idx_status_sort` (`status`,`sort_order`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 CREATE TABLE `oc_kristal_filter_page` (
   `filter_page_id` int(11) NOT NULL AUTO_INCREMENT,
   `category_id` int(11) NOT NULL,
