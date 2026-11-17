@@ -174,7 +174,7 @@
       if (!btn) return;
 
       var line = btn.closest('.k-line');
-      if (!line) return;
+      if (!line || line.getAttribute('data-removed') === '1') return;
 
       var cartId = line.getAttribute('data-cart-id');
       var act = btn.getAttribute('data-act');
@@ -203,7 +203,7 @@
       var input = e.target.closest('.k-qty-input');
       if (!input) return;
       var line = input.closest('.k-line');
-      if (!line) return;
+      if (!line || line.getAttribute('data-removed') === '1') return;
 
       var cartId = line.getAttribute('data-cart-id');
       var min = parseInt(input.getAttribute('min'), 10) || 1;
@@ -216,72 +216,160 @@
     });
   }
 
-  function updateLineQty(cartId, quantity, line) {
-    var fd = new FormData();
-    fd.append('cart_id', cartId);
-    fd.append('quantity', quantity);
+  // Скільки запитів зміни кошика ще в дорозі. Перед оформленням чекаємо їх,
+  // інакше замовлення може піти зі старою кількістю.
+  var pendingCartOps = 0;
+  var cartIdleWaiters = [];
 
-    fetch('/?route=checkout/order/update', {
-      method: 'POST',
-      body: fd
-    })
-    .then(function(res) { return res.json(); })
-    .then(function(data) {
-      if (data && data.success) {
-        currentDayTotal = data.total_day_raw;
-        if (sumDayRate) sumDayRate.textContent = data.total_day + ' / доба';
-        if (sumPositions) sumPositions.textContent = data.count_positions;
-        if (sumUnits) sumUnits.textContent = data.total_units;
+  function beginCartOp() {
+    pendingCartOps++;
+  }
 
-        // Оновити суму цього рядка
-        if (data.products) {
-          data.products.forEach(function(p) {
-            if (p.cart_id == cartId) {
-              var sumEl = line.querySelector('.k-line__sum');
-              if (sumEl) sumEl.textContent = p.total;
-            }
-          });
-        }
-        updateTotals();
-        updateHeaderCart(data.cart_count);
-      }
-    })
-    .catch(function(err) {
-      console.error('Update error:', err);
+  function endCartOp() {
+    if (pendingCartOps > 0) pendingCartOps--;
+    if (pendingCartOps === 0 && cartIdleWaiters.length) {
+      var waiters = cartIdleWaiters.slice();
+      cartIdleWaiters = [];
+      waiters.forEach(function(resolve) { resolve(); });
+    }
+  }
+
+  function whenCartIdle() {
+    if (pendingCartOps === 0) return Promise.resolve();
+    return new Promise(function(resolve) {
+      cartIdleWaiters.push(resolve);
     });
   }
 
-  function removeLine(cartId, line) {
-    var fd = new FormData();
-    fd.append('cart_id', cartId);
+  // Запити до кошика виконуємо по черзі: інакше відповіді можуть прийти
+  // не в тому порядку й підсумок покаже старі суми.
+  var cartOpQueue = Promise.resolve();
 
-    fetch('/?route=checkout/order/remove', {
-      method: 'POST',
-      body: fd
-    })
-    .then(function(res) { return res.json(); })
-    .then(function(data) {
-      if (data && data.empty) {
-        window.location.reload();
-      } else if (data && data.success) {
-        line.style.opacity = '0';
-        line.style.transform = 'translateX(20px)';
-        line.style.transition = 'all .3s ease';
-        setTimeout(function() {
-          if (line.parentNode) line.parentNode.removeChild(line);
-        }, 300);
+  function enqueueCartOp(fn) {
+    var result = cartOpQueue.then(fn, fn);
+    cartOpQueue = result.then(function() {}, function() {});
+    return result;
+  }
 
-        currentDayTotal = data.total_day_raw;
-        if (sumDayRate) sumDayRate.textContent = data.total_day + ' / доба';
-        if (sumPositions) sumPositions.textContent = data.count_positions;
-        if (sumUnits) sumUnits.textContent = data.total_units;
-        updateTotals();
-        updateHeaderCart(data.cart_count);
+  // Якщо change не встиг спрацювати (наприклад, клік по кнопці одразу після
+  // введення), надсилаємо актуальне значення поля перед оформленням.
+  function flushQtyInputs() {
+    if (!cartLines) return;
+    cartLines.querySelectorAll('.k-qty-input').forEach(function(input) {
+      var line = input.closest('.k-line');
+      if (!line || line.getAttribute('data-removed') === '1') return;
+
+      var min = parseInt(input.getAttribute('min'), 10) || 1;
+      var max = parseInt(input.getAttribute('max'), 10) || 0;
+      var val = parseInt(input.value, 10);
+      if (isNaN(val)) val = min;
+      if (val < min) val = min;
+      if (max > 0 && val > max) val = max;
+      input.value = val;
+
+      var sent = parseInt(line.getAttribute('data-qty'), 10);
+      if (isNaN(sent) || sent !== val) {
+        updateLineQty(line.getAttribute('data-cart-id'), val, line);
       }
-    })
-    .catch(function(err) {
-      console.error('Remove error:', err);
     });
+  }
+
+  function updateLineQty(cartId, quantity, line) {
+    var seq = (parseInt(line.getAttribute('data-qty-seq'), 10) || 0) + 1;
+    line.setAttribute('data-qty-seq', seq);
+    line.setAttribute('data-qty', quantity);
+    beginCartOp();
+
+    var run = function() {
+      var fd = new FormData();
+      fd.append('cart_id', cartId);
+      fd.append('quantity', quantity);
+
+      return fetch('/?route=checkout/order/update', {
+        method: 'POST',
+        body: fd
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        // Відповідь на застарілий запит або вже видалену позицію не перемальовує суми.
+        if (parseInt(line.getAttribute('data-qty-seq'), 10) !== seq) return;
+        if (line.getAttribute('data-removed') === '1') return;
+
+        if (data && data.success) {
+          currentDayTotal = data.total_day_raw;
+          if (sumDayRate) sumDayRate.textContent = data.total_day + ' / доба';
+          if (sumPositions) sumPositions.textContent = data.count_positions;
+          if (sumUnits) sumUnits.textContent = data.total_units;
+
+          // Оновити суму цього рядка та кількість, яку підтвердив сервер
+          if (data.products) {
+            data.products.forEach(function(p) {
+              if (p.cart_id == cartId) {
+                var sumEl = line.querySelector('.k-line__sum');
+                if (sumEl) sumEl.textContent = p.total;
+
+                var unitEl = line.querySelector('.k-line__unit');
+                if (unitEl) unitEl.textContent = p.unit_price;
+
+                var qtyInput = line.querySelector('.k-qty-input');
+                if (qtyInput && document.activeElement !== qtyInput) {
+                  qtyInput.value = p.quantity;
+                }
+                line.setAttribute('data-qty', p.quantity);
+              }
+            });
+          }
+          updateTotals();
+          updateHeaderCart(data.cart_count);
+        }
+      })
+      .catch(function(err) {
+        console.error('Update error:', err);
+      });
+    };
+
+    return enqueueCartOp(run).then(function() { endCartOp(); }, function() { endCartOp(); });
+  }
+
+  function removeLine(cartId, line) {
+    line.setAttribute('data-removed', '1');
+    beginCartOp();
+
+    var run = function() {
+      var fd = new FormData();
+      fd.append('cart_id', cartId);
+
+      return fetch('/?route=checkout/order/remove', {
+        method: 'POST',
+        body: fd
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (data && data.empty) {
+          window.location.reload();
+        } else if (data && data.success) {
+          line.style.opacity = '0';
+          line.style.transform = 'translateX(20px)';
+          line.style.transition = 'all .3s ease';
+          setTimeout(function() {
+            if (line.parentNode) line.parentNode.removeChild(line);
+          }, 300);
+
+          currentDayTotal = data.total_day_raw;
+          if (sumDayRate) sumDayRate.textContent = data.total_day + ' / доба';
+          if (sumPositions) sumPositions.textContent = data.count_positions;
+          if (sumUnits) sumUnits.textContent = data.total_units;
+          updateTotals();
+          updateHeaderCart(data.cart_count);
+        }
+      })
+      .catch(function(err) {
+        console.error('Remove error:', err);
+        line.removeAttribute('data-removed');
+      });
+    };
+
+    return enqueueCartOp(run).then(function() { endCartOp(); }, function() { endCartOp(); });
   }
 
   function updateHeaderCart(count) {
@@ -304,48 +392,52 @@
       formErrors.textContent = '';
     }
 
-    var fd = new FormData(form);
-    var saveUrl = form.action || '/?route=checkout/order/save';
-    if (saveUrl.indexOf('index.php?') !== -1) {
-      saveUrl = saveUrl.replace(/^.*?index\.php\?/, '/?');
-    }
+    flushQtyInputs();
 
-    fetch(saveUrl, {
-      method: 'POST',
-      body: fd
-    })
-    .then(function(res) { return res.json(); })
-    .then(function(data) {
-      if (data && data.success && data.redirect) {
-        window.location.href = data.redirect;
-      } else if (data && data.error) {
-        if (btnSubmit) btnSubmit.disabled = false;
-        updateTotals();
+    whenCartIdle().then(function() {
+      var fd = new FormData(form);
+      var saveUrl = form.action || '/?route=checkout/order/save';
+      if (saveUrl.indexOf('index.php?') !== -1) {
+        saveUrl = saveUrl.replace(/^.*?index\.php\?/, '/?');
+      }
 
-        var messages = [];
-        for (var k in data.error) {
-          if (data.error.hasOwnProperty(k)) {
-            messages.push(data.error[k]);
+      fetch(saveUrl, {
+        method: 'POST',
+        body: fd
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (data && data.success && data.redirect) {
+          window.location.href = data.redirect;
+        } else if (data && data.error) {
+          if (btnSubmit) btnSubmit.disabled = false;
+          updateTotals();
+
+          var messages = [];
+          for (var k in data.error) {
+            if (data.error.hasOwnProperty(k)) {
+              messages.push(data.error[k]);
+            }
           }
+          if (formErrors) {
+            formErrors.textContent = messages.join('. ');
+            formErrors.style.display = 'block';
+            formErrors.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        } else {
+          if (btnSubmit) btnSubmit.disabled = false;
+          updateTotals();
         }
-        if (formErrors) {
-          formErrors.textContent = messages.join('. ');
-          formErrors.style.display = 'block';
-          formErrors.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      } else {
+      })
+      .catch(function(err) {
+        console.error('Save error:', err);
         if (btnSubmit) btnSubmit.disabled = false;
         updateTotals();
-      }
-    })
-    .catch(function(err) {
-      console.error('Save error:', err);
-      if (btnSubmit) btnSubmit.disabled = false;
-      updateTotals();
-      if (formErrors) {
-        formErrors.textContent = 'Помилка зв\'язку з сервером. Спробуйте ще раз.';
-        formErrors.style.display = 'block';
-      }
+        if (formErrors) {
+          formErrors.textContent = 'Помилка зв\'язку з сервером. Спробуйте ще раз.';
+          formErrors.style.display = 'block';
+        }
+      });
     });
   });
 

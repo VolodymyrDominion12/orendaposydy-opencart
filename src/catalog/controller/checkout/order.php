@@ -54,6 +54,10 @@ class ControllerCheckoutOrder extends Controller {
 		$data['action_save']   = $this->url->link('checkout/order/save', '', true);
 		$data['catalog_href']  = $this->url->link('common/home');
 
+		// Версія за часом зміни, щоб браузер не тримав старий JS місяць із кешу.
+		$checkout_js = DIR_TEMPLATE . 'kristal/js/kristal-checkout.js';
+		$data['k_checkout_js'] = 'catalog/view/theme/kristal/js/kristal-checkout.js' . (is_file($checkout_js) ? '?v=' . filemtime($checkout_js) : '');
+
 		$data['header'] = $this->load->controller('common/header');
 		$data['footer'] = $this->load->controller('common/footer');
 

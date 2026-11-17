@@ -70,13 +70,13 @@
           <div class="k-block__title"><span class="k-mono">01</span><h2 class="k-h3" style="font-size:20px">{{ text_block_items }}</h2></div>
           <div id="k-cart-lines">
             {% for p in products %}
-              <div class="k-line" data-cart-id="{{ p.cart_id }}" data-pid="{{ p.product_id }}">
+              <div class="k-line" data-cart-id="{{ p.cart_id }}" data-pid="{{ p.product_id }}" data-qty="{{ p.quantity }}">
                 <div class="k-photo">
                   <img src="{{ p.image.src }}" srcset="{{ p.image.srcset }}" width="{{ p.image.width }}" height="{{ p.image.height }}" alt="{{ p.name|e }}" loading="lazy">
                 </div>
                 <div class="k-line__info">
                   <a class="k-line__name" href="{{ p.href }}">{{ p.name }}</a>
-                  <span class="k-card__meta">{% if p.sku %}{{ p.sku }} · {% endif %}{{ p.unit_price }} × доба</span>
+                  <span class="k-card__meta">{% if p.sku %}{{ p.sku }} · {% endif %}<span class="k-line__unit">{{ p.unit_price }}</span> × доба</span>
                 </div>
                 <div class="k-line__ctrl">
                   <div class="k-qty" data-cart-id="{{ p.cart_id }}" data-min="{{ p.minimum }}"{% if p.max_qty %} data-max="{{ p.max_qty }}"{% endif %}>
@@ -85,7 +85,7 @@
                     <button type="button" class="k-qty-btn" data-act="plus" aria-label="Більше"><svg class="k-ico k-ico--sm"><use href="#i-plus"/></svg></button>
                   </div>
                   <span class="k-line__sum">{{ p.total }}</span>
-                  <button class="k-line__del" type="button" data-act="del" aria-label="Прибрати"><svg class="k-ico"><use href="#i-trash"/></svg></button>
+                  <button class="k-line__del" type="button" data-act="del" aria-label="{{ text_remove }}" title="{{ text_remove }}"><svg class="k-ico k-ico--sm"><use href="#i-close"/></svg></button>
                 </div>
               </div>
             {% endfor %}
@@ -170,7 +170,7 @@
 </div>
 
 {% if not empty %}
-<script src="catalog/view/theme/kristal/js/kristal-checkout.js" defer></script>
+<script src="{{ k_checkout_js }}" defer></script>
 {% endif %}
 
 {{ footer }}

@@ -18,6 +18,7 @@ $_['text_block_items']      = 'Що берете';
 $_['text_block_dates']      = 'Дати й доставка';
 $_['text_block_contacts']   = 'Контакти';
 $_['text_block_booking']    = 'Бронювання та оплата';
+$_['text_remove']           = 'Видалити позицію';
 
 // Form fields
 $_['entry_date_from']       = 'Отримання';
