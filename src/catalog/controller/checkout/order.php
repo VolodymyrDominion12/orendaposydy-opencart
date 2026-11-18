@@ -342,17 +342,19 @@ class ControllerCheckoutOrder extends Controller {
 		if ($payment_method === 'oplata') {
 			// Fondy онлайн передоплата
 			$fondy_url = $this->getFondyCheckoutUrl($order_id, $order_data);
-			if ($fondy_url) {
-				$this->cart->clear();
-				$json['success'] = true;
-				$json['redirect'] = $fondy_url;
-			} else {
-				// Якщо Fondy недоступний (локально без ключів), реєструємо як заявку
-				$this->model_checkout_order->addOrderHistory($order_id, 1, 'Заявка без оплати (шлюз онлайн-оплати не відповів)', true);
-				$this->cart->clear();
-				$json['success'] = true;
-				$json['redirect'] = $this->url->link('checkout/success');
-			}
+
+			// Заявку реєструємо й сповіщаємо менеджера одразу, ще до переходу на шлюз:
+			// якщо клієнт не завершить оплату, замовлення не загубиться (010/AC-12).
+			$this->model_checkout_order->addOrderHistory(
+				$order_id,
+				1,
+				$fondy_url ? 'Заявка створена, очікує онлайн-оплати' : 'Заявка без оплати (шлюз онлайн-оплати не відповів)',
+				true
+			);
+
+			$this->cart->clear();
+			$json['success'] = true;
+			$json['redirect'] = $fondy_url ? $fondy_url : $this->url->link('checkout/success');
 		} else {
 			// Заявка без оплати (статус 1 = "Нове замовлення")
 			$this->model_checkout_order->addOrderHistory($order_id, 1, 'Заявка без оплати (через сайт)', true);

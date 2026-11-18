@@ -116,6 +116,108 @@ class Notify {
 	}
 
 	/**
+	 * Безпечне скорочення HTML-тексту до ліміту Telegram (4096 символів).
+	 *
+	 * Ріже по межі рядка (якщо вона близько до ліміту), не розриває HTML-теги
+	 * та сутності (&amp;), закриває відкриті теги перед позначкою про скорочення.
+	 *
+	 * @param string $html
+	 * @param int $limit
+	 * @return string
+	 */
+	public static function truncateTelegram($html, $limit = 4096) {
+		$html = (string)$html;
+		$limit = (int)$limit;
+
+		if ($limit < 256) {
+			$limit = 256;
+		}
+
+		if (mb_strlen($html, 'UTF-8') <= $limit) {
+			return $html;
+		}
+
+		$suffix = "\n\n… (повідомлення скорочено)";
+		$reserve = mb_strlen($suffix, 'UTF-8') + 64;
+		$max = $limit - $reserve;
+
+		if ($max < 1) {
+			$max = $limit;
+			$suffix = '';
+		}
+
+		$cut = mb_substr($html, 0, $max, 'UTF-8');
+
+		// Не розриваємо тег: якщо останній '<' не має закритого '>', відкидаємо його.
+		$last_open = mb_strrpos($cut, '<', 0, 'UTF-8');
+		$last_close = mb_strrpos($cut, '>', 0, 'UTF-8');
+
+		if ($last_open !== false && ($last_close === false || $last_open > $last_close)) {
+			$cut = mb_substr($cut, 0, $last_open, 'UTF-8');
+		}
+
+		// Не розриваємо HTML-сутність: якщо останній '&' не має ';', відкидаємо його.
+		$amp = mb_strrpos($cut, '&', 0, 'UTF-8');
+
+		if ($amp !== false) {
+			$semi = mb_strrpos($cut, ';', 0, 'UTF-8');
+
+			if ($semi === false || $semi < $amp) {
+				$cut = mb_substr($cut, 0, $amp, 'UTF-8');
+			}
+		}
+
+		// Краще обірвати на межі рядка, якщо до неї не більше 300 символів.
+		$nl = mb_strrpos($cut, "\n", 0, 'UTF-8');
+
+		if ($nl !== false && $nl > 0 && (mb_strlen($cut, 'UTF-8') - $nl) < 300) {
+			$cut = mb_substr($cut, 0, $nl, 'UTF-8');
+		}
+
+		$closers = '';
+
+		foreach (array_reverse(self::openTelegramTags($cut)) as $tag) {
+			$closers .= '</' . $tag . '>';
+		}
+
+		return $cut . $closers . $suffix;
+	}
+
+	/**
+	 * Відкриті HTML-теги в тексті (для коректного закриття після скорочення).
+	 *
+	 * @param string $html
+	 * @return array
+	 */
+	private static function openTelegramTags($html) {
+		$stack = array();
+
+		if (preg_match_all('/<(\/?)([a-zA-Z][a-zA-Z0-9]*)(?:\s[^>]*)?>/', (string)$html, $matches, PREG_SET_ORDER)) {
+			foreach ($matches as $match) {
+				$closing = ($match[1] === '/');
+				$name = strtolower($match[2]);
+
+				if (in_array($name, array('br', 'hr', 'img'), true)) {
+					continue;
+				}
+
+				if ($closing) {
+					for ($i = count($stack) - 1; $i >= 0; $i--) {
+						if ($stack[$i] === $name) {
+							array_splice($stack, $i, 1);
+							break;
+						}
+					}
+				} else {
+					$stack[] = $name;
+				}
+			}
+		}
+
+		return $stack;
+	}
+
+	/**
 	 * Відправка сповіщення в один Telegram-чат.
 	 *
 	 * @param string $token
@@ -126,7 +228,7 @@ class Notify {
 	 */
 	public static function sendTelegram($token, $chatId, $htmlText, $timeout = 5) {
 		$tg = new Telegram($token, $timeout, 3);
-		$res = $tg->send($chatId, $htmlText);
+		$res = $tg->send($chatId, self::truncateTelegram($htmlText, 4096));
 
 		return array(
 			'ok' => !empty($res['ok']),

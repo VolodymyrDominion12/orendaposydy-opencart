@@ -18,10 +18,10 @@ class ModelExtensionKristalNotify extends Model {
 			return false;
 		}
 
-		// Захист від дублювання: якщо це замовлення вже успішно надіслано в будь-який канал
-		$check = $this->db->query("SELECT log_id FROM `" . DB_PREFIX . "kristal_notify_log` 
-			WHERE `entity_id` = '" . $orderId . "' AND `event_type` = 'order' AND `status` = 'sent' LIMIT 1");
-		if ($check->num_rows > 0) {
+		// Захист від дублювання — окремо за кожним каналом (AC-15).
+		$sentChannels = $this->getSentChannels('order', $orderId);
+
+		if ($this->allEnabledChannelsSent($sentChannels)) {
 			return false;
 		}
 
@@ -63,7 +63,7 @@ class ModelExtensionKristalNotify extends Model {
 		$summary = \Kristal\Notify::makeSummary('order', $orderId, $order);
 
 		// 1. Telegram
-		if ($this->config->get('module_kristal_notify_telegram_status')) {
+		if ($this->config->get('module_kristal_notify_telegram_status') && !in_array('telegram', $sentChannels, true)) {
 			$token = (string)$this->config->get('module_kristal_notify_telegram_token');
 			if ($token === '') {
 				$token = (string)$this->config->get('module_kristal_core_tg_token');
@@ -71,7 +71,7 @@ class ModelExtensionKristalNotify extends Model {
 
 			$chats = \Kristal\Notify::parseChatIds($this->config->get('module_kristal_notify_telegram_chats'));
 			if (!empty($chats) && $token !== '') {
-				$adminUrl = HTTP_SERVER . 'admin/index.php?route=sale/order/info&order_id=' . $orderId;
+				$adminUrl = $this->adminUrl('sale/order/info', 'order_id=' . $orderId);
 				$text = \Kristal\Notify::formatOrderTelegram($order, $adminUrl);
 
 				foreach ($chats as $chatId) {
@@ -83,7 +83,7 @@ class ModelExtensionKristalNotify extends Model {
 		}
 
 		// 2. Email
-		if ($this->config->get('module_kristal_notify_email_status')) {
+		if ($this->config->get('module_kristal_notify_email_status') && !in_array('email', $sentChannels, true)) {
 			$emails = \Kristal\Notify::parseEmails($this->config->get('module_kristal_notify_email_to'));
 			if (empty($emails)) {
 				$defEmail = (string)$this->config->get('config_email');
@@ -150,7 +150,7 @@ class ModelExtensionKristalNotify extends Model {
 		}
 
 		// 3. Webhook
-		if ($this->config->get('module_kristal_notify_webhook_status')) {
+		if ($this->config->get('module_kristal_notify_webhook_status') && !in_array('webhook', $sentChannels, true)) {
 			$url = trim((string)$this->config->get('module_kristal_notify_webhook_url'));
 			$secret = trim((string)$this->config->get('module_kristal_notify_webhook_secret'));
 
@@ -206,7 +206,7 @@ class ModelExtensionKristalNotify extends Model {
 
 			$chats = \Kristal\Notify::parseChatIds($this->config->get('module_kristal_notify_telegram_chats'));
 			if (!empty($chats) && $token !== '') {
-				$adminUrl = HTTP_SERVER . 'admin/index.php?route=extension/kristal/lead';
+				$adminUrl = $this->adminUrl('extension/kristal/lead');
 				$text = \Kristal\Notify::formatLeadTelegram($lead, $adminUrl);
 
 				foreach ($chats as $chatId) {
@@ -293,5 +293,87 @@ class ModelExtensionKristalNotify extends Model {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Канали, у які це замовлення/лід уже успішно надіслано.
+	 *
+	 * @param string $eventType
+	 * @param int $entityId
+	 * @return array
+	 */
+	private function getSentChannels($eventType, $entityId) {
+		$query = $this->db->query("SELECT `channel` FROM `" . DB_PREFIX . "kristal_notify_log` 
+			WHERE `entity_id` = '" . (int)$entityId . "' 
+			AND `event_type` = '" . $this->db->escape($eventType) . "' 
+			AND `status` = 'sent' LIMIT 10");
+
+		$channels = array();
+
+		foreach ($query->rows as $row) {
+			$channels[] = $row['channel'];
+		}
+
+		return array_values(array_unique($channels));
+	}
+
+	/**
+	 * Чи всі увімкнені канали вже отримали сповіщення (або каналів немає).
+	 *
+	 * @param array $sentChannels
+	 * @return bool
+	 */
+	private function allEnabledChannelsSent(array $sentChannels) {
+		$channels = array(
+			'telegram' => 'module_kristal_notify_telegram_status',
+			'email'    => 'module_kristal_notify_email_status',
+			'webhook'  => 'module_kristal_notify_webhook_status'
+		);
+
+		$enabled = 0;
+		$done = 0;
+
+		foreach ($channels as $channel => $setting) {
+			if (!$this->config->get($setting)) {
+				continue;
+			}
+
+			$enabled++;
+
+			if (in_array($channel, $sentChannels, true)) {
+				$done++;
+			}
+		}
+
+		return $enabled === 0 || $done === $enabled;
+	}
+
+	/**
+	 * Посилання на об'єкт в адмінці з урахуванням перейменованої теки (017).
+	 *
+	 * @param string $route
+	 * @param string $params
+	 * @return string
+	 */
+	private function adminUrl($route, $params = '') {
+		$dir = trim((string)$this->config->get('module_kristal_notify_admin_dir'), '/');
+
+		if ($dir === '') {
+			$dir = 'admin';
+		}
+
+		$base = HTTP_SERVER;
+
+		if (defined('HTTPS_SERVER') && HTTPS_SERVER) {
+			$base = HTTPS_SERVER;
+		}
+
+		$url = rtrim($base, '/') . '/' . $dir . '/index.php?route=' . $route;
+
+		if ($params !== '') {
+			$url .= '&' . $params;
+		}
+
+		return $url;
 	}
 }

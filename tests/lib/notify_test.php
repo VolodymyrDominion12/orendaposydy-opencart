@@ -80,3 +80,57 @@ test('makeSummary: стислий опис без персональних да�
 	$leadSummary = Notify::makeSummary('lead', 12, array('type' => 'call'));
 	assert_same('Заявка #12 (call)', $leadSummary);
 });
+
+test('truncateTelegram: короткий текст не змінюється', function () {
+	$text = '<b>Крістал</b> — тест';
+	assert_same($text, \Kristal\Notify::truncateTelegram($text));
+});
+
+test('truncateTelegram: довгий текст ріжеться до ліміту з позначкою', function () {
+	$text = str_repeat('а', 5000);
+	$out = \Kristal\Notify::truncateTelegram($text);
+
+	assert_true(mb_strlen($out, 'UTF-8') <= 4096);
+	assert_true(strpos($out, 'повідомлення скорочено') !== false);
+});
+
+test('truncateTelegram: закриває відкриті HTML-теги', function () {
+	$text = '<b>' . str_repeat('а', 5000) . '</b>';
+	$out = \Kristal\Notify::truncateTelegram($text);
+
+	assert_true(mb_strlen($out, 'UTF-8') <= 4096);
+	assert_true(strpos($out, '<b>') === 0);
+	assert_true(strpos($out, '</b>') !== false);
+});
+
+test('truncateTelegram: не розриває HTML-сутність', function () {
+	$text = str_repeat('a', 4001) . '&amp;' . str_repeat('b', 200);
+	$out = \Kristal\Notify::truncateTelegram($text);
+	$body = str_replace("\n\n… (повідомлення скорочено)", '', $out);
+
+	assert_true(mb_strlen($out, 'UTF-8') <= 4096);
+
+	$amp = strrpos($body, '&');
+	$semi = strrpos($body, ';');
+	assert_true($amp === false || ($semi !== false && $semi > $amp));
+});
+
+test('truncateTelegram: не залишає обірваний тег', function () {
+	$text = str_repeat('a', 4002) . '<b>жирний</b>';
+	$out = \Kristal\Notify::truncateTelegram($text);
+	$body = str_replace("\n\n… (повідомлення скорочено)", '', $out);
+
+	assert_true(mb_strlen($out, 'UTF-8') <= 4096);
+
+	$open = strrpos($body, '<');
+	$close = strrpos($body, '>');
+	assert_true($open === false || ($close !== false && $close > $open));
+});
+
+test('truncateTelegram: закриває посилання <a>', function () {
+	$text = '<a href="https://x.test/?a=1&amp;b=2">' . str_repeat('а', 5000) . '</a>';
+	$out = \Kristal\Notify::truncateTelegram($text);
+
+	assert_true(mb_strlen($out, 'UTF-8') <= 4096);
+	assert_true(strpos($out, '</a>') !== false);
+});

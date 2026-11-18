@@ -116,3 +116,11 @@ CREATE TABLE IF NOT EXISTS `{{PREFIX}}kristal_order_rental` (
 - `make migrate-down V=0016`
 - Повернення попередньої версії контролера `checkout/order.php`
 - `make clear-cache`
+
+## 7. Виправлення 2026-11-18 (AC-12: онлайн-оплата не губить заявку)
+- У `catalog/controller/checkout/order.php::save()` для `payment_method = oplata`:
+  - `getFondyCheckoutUrl()` формує посилання;
+  - `addOrderHistory($order_id, 1, ..., true)` викликається **до** редіректу на Fondy (і при недоступному шлюзі — один раз, без дублювання);
+  - далі кошик очищується, клієнт переходить на Fondy або `/success`.
+- Ризик: клієнт отримує лист-підтвердження до оплати; менеджер отримує заявку одразу. Повторний callback Fondy не дублює Telegram завдяки перевірці за каналами в 023.
+- Відкат: повернути попередній блок `if ($fondy_url) { ... } else { ... }`.

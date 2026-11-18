@@ -29,6 +29,18 @@
     </div>
     {% endif %}
 
+    {% if warn_master_off %}
+    <div class="alert alert-warning alert-dismissible"><i class="fa fa-exclamation-triangle"></i> {{ text_warn_master_off }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+
+    {% if not event_registered %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ text_warn_event_missing }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+
     <div class="panel panel-default">
       <div class="panel-heading">
         <h3 class="panel-title"><i class="fa fa-bell"></i> {{ text_edit }}</h3>
@@ -53,6 +65,53 @@
                     <option value="1"{% if module_kristal_notify_status %} selected="selected"{% endif %}>{{ text_enabled }}</option>
                     <option value="0"{% if not module_kristal_notify_status %} selected="selected"{% endif %}>{{ text_disabled }}</option>
                   </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="col-sm-2 control-label">{{ text_module_state }}</label>
+                <div class="col-sm-10">
+                  <table class="table table-condensed table-bordered" style="margin-bottom:0; max-width:760px;">
+                    <tr>
+                      <td style="width:45%;">{{ text_state_master }}</td>
+                      <td>
+                        {% if module_kristal_notify_status %}
+                        <span class="label label-success">{{ text_state_yes }}</span>
+                        {% else %}
+                        <span class="label label-danger">{{ text_state_no }}</span>
+                        {% endif %}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>{{ text_state_event }}</td>
+                      <td>
+                        {% if event_registered %}
+                        <span class="label label-success">{{ text_state_event_ok }}</span>
+                        {% else %}
+                        <span class="label label-danger">{{ text_state_event_missing }}</span>
+                        {% endif %}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>{{ text_state_last_order }}</td>
+                      <td>
+                        {% if last_order_log %}
+                        <span class="label label-{% if last_order_log.status == 'sent' %}success{% else %}danger{% endif %}">
+                          {% if last_order_log.status == 'sent' %}{{ text_status_sent }}{% else %}{{ text_status_failed }}{% endif %}
+                        </span>
+                        <b>{{ last_order_log.channel }}</b> · {{ last_order_log.created_at }}
+                        {% if last_order_log.summary %}
+                        <div class="text-muted">{{ last_order_log.summary }}</div>
+                        {% endif %}
+                        {% if last_order_log.error %}
+                        <div class="text-danger">{{ last_order_log.error }}</div>
+                        {% endif %}
+                        {% else %}
+                        <span class="text-muted">{{ text_state_no_orders }}</span>
+                        {% endif %}
+                      </td>
+                    </tr>
+                  </table>
                 </div>
               </div>
             </div>
@@ -285,6 +344,22 @@ $('#button-import-legacy').on('click', function() {
   }
 });
 
+function notifyTestResult($res, json) {
+  var html = '';
+
+  if (json.ok) {
+    html += '<span class="text-success"><i class="fa fa-check-circle"></i> ' + json.message + '</span>';
+  } else {
+    html += '<span class="text-danger"><i class="fa fa-exclamation-triangle"></i> ' + json.message + '</span>';
+  }
+
+  if (json.warning) {
+    html += '<div class="text-warning" style="margin-top:8px;"><i class="fa fa-exclamation-circle"></i> ' + json.warning + '</div>';
+  }
+
+  $res.html(html);
+}
+
 $('#btn-test-tg').on('click', function() {
   var $btn = $(this);
   var $res = $('#tg-test-result');
@@ -301,11 +376,7 @@ $('#btn-test-tg').on('click', function() {
     dataType: 'json',
     success: function(json) {
       $btn.button('reset');
-      if (json.ok) {
-        $res.html('<span class="text-success"><i class="fa fa-check-circle"></i> ' + json.message + '</span>');
-      } else {
-        $res.html('<span class="text-danger"><i class="fa fa-exclamation-triangle"></i> ' + json.message + '</span>');
-      }
+      notifyTestResult($res, json);
     },
     error: function(xhr, status, error) {
       $btn.button('reset');
@@ -329,11 +400,7 @@ $('#btn-test-email').on('click', function() {
     dataType: 'json',
     success: function(json) {
       $btn.button('reset');
-      if (json.ok) {
-        $res.html('<span class="text-success"><i class="fa fa-check-circle"></i> ' + json.message + '</span>');
-      } else {
-        $res.html('<span class="text-danger"><i class="fa fa-exclamation-triangle"></i> ' + json.message + '</span>');
-      }
+      notifyTestResult($res, json);
     },
     error: function(xhr, status, error) {
       $btn.button('reset');
@@ -358,11 +425,7 @@ $('#btn-test-hook').on('click', function() {
     dataType: 'json',
     success: function(json) {
       $btn.button('reset');
-      if (json.ok) {
-        $res.html('<span class="text-success"><i class="fa fa-check-circle"></i> ' + json.message + '</span>');
-      } else {
-        $res.html('<span class="text-danger"><i class="fa fa-exclamation-triangle"></i> ' + json.message + '</span>');
-      }
+      notifyTestResult($res, json);
     },
     error: function(xhr, status, error) {
       $btn.button('reset');

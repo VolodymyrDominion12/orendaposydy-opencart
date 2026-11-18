@@ -97,3 +97,23 @@ CREATE TABLE IF NOT EXISTS `{{PREFIX}}kristal_notify_log` (
 ## 6. Як відкотити
 - `make migrate-down V=0015` — видаляє таблицю `oc_kristal_notify_log` та знімає подію з `oc_event`.
 - Видалити створені файли модуля.
+
+## 7. Виправлення 2026-11-18 (діагностика «тест є, замовлення немає»)
+
+### Нові/змінені запити
+1. `SELECT channel FROM oc_kristal_notify_log WHERE entity_id = ? AND event_type = ? AND status = 'sent' LIMIT 10`
+   — `idx_entity`, без `Using temporary` (замість `DISTINCT` — `array_unique` у PHP).
+2. `SELECT channel, status, error, summary, created_at FROM oc_kristal_notify_log WHERE event_type = 'order' ORDER BY log_id DESC LIMIT 1`
+   — `PRIMARY`, 1 рядок.
+3. `SELECT COUNT(*) FROM oc_event WHERE code = 'kristal_notify' AND \`trigger\` = 'catalog/model/checkout/order/addOrderHistory/after' AND status = '1'`
+   — `type=ALL` на 103 рядках; таблиця < 1000, тому прийнятно (індекс не додаємо).
+
+### Нові налаштування
+- `module_kristal_notify_admin_dir` — тека адмінки (на проді `kristal_admin`), зберігається при save; використовується для посилань у Telegram/Email.
+
+### Події
+- `registerEvents()` викликається при `install()` і при кожному збереженні налаштувань: видаляє старі `kristal_notify` і додає три тригери (`addOrderHistory/after`, `addOrder/after`, `simple_order/addOrder/after`).
+
+### Ризики та відкат
+- Тест каналу тепер може повернути попередження (не блокує відправку) — це очікувано.
+- Відкат: повернути файли; зайвий `module_kristal_notify_admin_dir` у `oc_setting` нешкідливий; події можна видалити `DELETE FROM oc_event WHERE code='kristal_notify'` і перевстановити модуль.

@@ -170,7 +170,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <a class="k-header__phone" href="{{ k_phone.tel }}">{{ k_phone.display }}</a>
     <a class="k-iconbtn k-header__phone-m" href="{{ k_phone.tel }}" aria-label="{{ k_call }} {{ k_phone.display }}"><svg class="k-ico"><use href="#i-phone"/></svg></a>
     {% endif %}
-    <a class="k-header__cart" href="{{ k_cart_href }}"><svg class="k-ico"><use href="#i-bag"/></svg><span class="t">{{ k_cart }}</span>{% if k_cart_count %} <span class="k-mono">({{ k_cart_count }})</span>{% endif %}</a>
+    <a class="k-header__cart" href="{{ k_cart_href }}" aria-label="{{ k_cart }}{% if k_cart_count %} ({{ k_cart_count }}){% endif %}"><svg class="k-ico"><use href="#i-bag"/></svg><span class="t">{{ k_cart }}</span>{% if k_cart_count %} <span class="k-mono">({{ k_cart_count }})</span>{% endif %}</a>
     <a class="k-btn k-btn--primary k-header__cta" href="#contacts">{{ k_cta }}</a>
   </div>
 </header>

@@ -152,9 +152,9 @@ h1, h2, h3, h4, p { margin: 0; }
 
 .k-header { position: sticky; top: 0; z-index: 30; background: var(--night); border-bottom: var(--border-hair) solid var(--line); }
 .k-header .k-wrap { display: flex; align-items: center; gap: var(--space-2); min-height: 64px; }
-.k-logo { display: inline-flex; align-items: center; gap: var(--space-3); margin-right: auto; }
+.k-logo { display: inline-flex; align-items: center; gap: var(--space-3); margin-right: auto; flex: none; }
 .k-logo img { width: 44px; height: 44px; }
-.k-logo__word { font: 400 24px/1 var(--font-display); letter-spacing: .08em; color: var(--gold-text); text-transform: uppercase; }
+.k-logo__word { font: 400 24px/1 var(--font-display); letter-spacing: .08em; color: var(--gold-text); text-transform: uppercase; white-space: nowrap; }
 .k-iconbtn { width: 48px; height: 48px; display: inline-grid; place-items: center; background: none; border: 0; cursor: pointer; color: var(--ink); position: relative; }
 .k-iconbtn:hover { color: var(--gold-text); }
 .k-count { position: absolute; top: 6px; right: 4px; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 9px;
@@ -176,7 +176,11 @@ h1, h2, h3, h4, p { margin: 0; }
   .k-header__cart .k-mono { color: var(--gold-text); }
   .k-header__cta { display: inline-flex; white-space: nowrap; }
 }
-@media (min-width: 1024px) and (max-width: 1279px) { .k-header__cart span.t { display: none; } .k-nav__a { padding: 0 var(--space-2); } }
+@media (min-width: 1024px) and (max-width: 1279px) { .k-nav__a { padding: 0 var(--space-2); } }
+/* З телефоном у шапці (≥1280) лого + меню + пошук + телефон + кошик + CTA не вміщаються
+   в 1216px контейнера, і лого стискалося, наїжджаючи словом на «Каталог». Підпис кошика
+   ховаємо на всіх десктопних ширинах: лишаються іконка та кількість. */
+@media (min-width: 1024px) { .k-header__cart span.t { display: none; } }
 
 /* Мегаменю */
 .k-mega { display: none; }

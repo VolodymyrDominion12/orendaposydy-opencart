@@ -26,7 +26,13 @@ class ControllerExtensionModuleKristalNotify extends Controller {
 				$post['module_kristal_notify_telegram_token'] = $saved['module_kristal_notify_telegram_token'];
 			}
 
+			// Тека адмінки для посилань у сповіщеннях (на проді вона перейменована, 017)
+			$post['module_kristal_notify_admin_dir'] = $this->adminDir();
+
 			$this->model_setting_setting->editSetting(self::CODE, $post);
+
+			// Самовідновлення подій: якщо міграцію не застосовували або подію видалили
+			$this->registerEvents();
 
 			$this->session->data['success'] = $this->language->get('text_success');
 			$this->response->redirect($this->url->link(self::ROUTE, 'user_token=' . $this->session->data['user_token'], true));
@@ -53,6 +59,23 @@ class ControllerExtensionModuleKristalNotify extends Controller {
 
 		$data['error_warning'] = isset($this->error['warning']) ? $this->error['warning'] : '';
 		$data['error'] = $this->error;
+
+		// Стан модуля для діагностики «тест є, а замовлення немає» (AC-12)
+		$data['warn_master_off'] = !$this->config->get('module_kristal_notify_status');
+		$data['event_registered'] = $this->isEventRegistered();
+		$data['last_order_log'] = $this->getLastOrderLog();
+
+		$data['text_warn_master_off'] = $this->language->get('text_warn_master_off');
+		$data['text_warn_event_missing'] = $this->language->get('text_warn_event_missing');
+		$data['text_module_state'] = $this->language->get('text_module_state');
+		$data['text_state_master'] = $this->language->get('text_state_master');
+		$data['text_state_event'] = $this->language->get('text_state_event');
+		$data['text_state_last_order'] = $this->language->get('text_state_last_order');
+		$data['text_state_no_orders'] = $this->language->get('text_state_no_orders');
+		$data['text_state_yes'] = $this->language->get('text_state_yes');
+		$data['text_state_no'] = $this->language->get('text_state_no');
+		$data['text_state_event_ok'] = $this->language->get('text_state_event_ok');
+		$data['text_state_event_missing'] = $this->language->get('text_state_event_missing');
 
 		if (isset($this->session->data['success'])) {
 			$data['success'] = $this->session->data['success'];
@@ -141,7 +164,9 @@ class ControllerExtensionModuleKristalNotify extends Controller {
 	}
 
 	public function testTelegram() {
-		$json = array('ok' => false, 'message' => '');
+		$this->load->language(self::ROUTE);
+
+		$json = array('ok' => false, 'message' => '', 'warning' => '');
 
 		if (!$this->user->hasPermission('modify', self::ROUTE)) {
 			$json['message'] = $this->language->get('error_permission');
@@ -161,6 +186,15 @@ class ControllerExtensionModuleKristalNotify extends Controller {
 		}
 
 		$chats = \Kristal\Notify::parseChatIds($chatsRaw);
+
+		// Попередження, яких сам тест не виявляє: вимкнений модуль/канал або незбережені значення (AC-11)
+		$savedToken = (string)$this->config->get('module_kristal_notify_telegram_token');
+		$savedChats = \Kristal\Notify::parseChatIds($this->config->get('module_kristal_notify_telegram_chats'));
+		$postedChats = $chats;
+		sort($postedChats);
+		sort($savedChats);
+
+		$json['warning'] = $this->testWarnings('telegram', ($token !== $savedToken) || ($postedChats !== $savedChats));
 
 		if ($token === '' || !\Kristal\Telegram::isValidToken($token)) {
 			$json['message'] = 'Вкажіть коректний Telegram Bot Token!';
@@ -211,7 +245,9 @@ class ControllerExtensionModuleKristalNotify extends Controller {
 	}
 
 	public function testEmail() {
-		$json = array('ok' => false, 'message' => '');
+		$this->load->language(self::ROUTE);
+
+		$json = array('ok' => false, 'message' => '', 'warning' => '');
 
 		if (!$this->user->hasPermission('modify', self::ROUTE)) {
 			$json['message'] = $this->language->get('error_permission');
@@ -226,6 +262,14 @@ class ControllerExtensionModuleKristalNotify extends Controller {
 		}
 
 		$emails = \Kristal\Notify::parseEmails($emailsRaw);
+
+		$savedEmails = \Kristal\Notify::parseEmails($this->config->get('module_kristal_notify_email_to'));
+		$postedEmails = $emails;
+		sort($postedEmails);
+		sort($savedEmails);
+		$changed = (trim($emailsRaw) !== '' && $postedEmails !== $savedEmails);
+		$json['warning'] = $this->testWarnings('email', $changed);
+
 		if (empty($emails)) {
 			$defaultEmail = (string)$this->config->get('config_email');
 			if ($defaultEmail !== '') {
@@ -288,7 +332,9 @@ class ControllerExtensionModuleKristalNotify extends Controller {
 	}
 
 	public function testWebhook() {
-		$json = array('ok' => false, 'message' => '');
+		$this->load->language(self::ROUTE);
+
+		$json = array('ok' => false, 'message' => '', 'warning' => '');
 
 		if (!$this->user->hasPermission('modify', self::ROUTE)) {
 			$json['message'] = $this->language->get('error_permission');
@@ -306,6 +352,10 @@ class ControllerExtensionModuleKristalNotify extends Controller {
 		if ($secret === '') {
 			$secret = (string)$this->config->get('module_kristal_notify_webhook_secret');
 		}
+
+		$savedUrl = (string)$this->config->get('module_kristal_notify_webhook_url');
+		$savedSecret = (string)$this->config->get('module_kristal_notify_webhook_secret');
+		$json['warning'] = $this->testWarnings('webhook', ($url !== $savedUrl) || ($secret !== $savedSecret));
 
 		if ($url === '' || !filter_var($url, FILTER_VALIDATE_URL)) {
 			$json['message'] = 'Вкажіть коректний URL вебхука!';
@@ -441,6 +491,9 @@ class ControllerExtensionModuleKristalNotify extends Controller {
 
 			$this->model_setting_setting->editSetting(self::CODE, $current);
 
+			// Перестраховуємось, що події зареєстровані
+			$this->registerEvents();
+
 			// Вимикаємо старий модуль
 			$this->model_setting_setting->editSettingValue('module_notifications_in_telegram', 'module_notifications_in_telegram_status', 0);
 
@@ -459,10 +512,8 @@ class ControllerExtensionModuleKristalNotify extends Controller {
 		$this->model_user_user_group->addPermission($this->user->getGroupId(), 'access', self::ROUTE);
 		$this->model_user_user_group->addPermission($this->user->getGroupId(), 'modify', self::ROUTE);
 
-		// Перевіряємо реєстрацію події
-		$this->load->model('setting/event');
-		$this->model_setting_event->deleteEventByCode('kristal_notify');
-		$this->model_setting_event->addEvent('kristal_notify', 'catalog/model/checkout/order/addOrderHistory/after', 'extension/kristal/notify/onOrderHistory', 1, 0);
+		// Реєструємо події (ідемпотентно)
+		$this->registerEvents();
 	}
 
 	public function uninstall() {
@@ -470,17 +521,133 @@ class ControllerExtensionModuleKristalNotify extends Controller {
 		$this->model_setting_event->deleteEventByCode('kristal_notify');
 	}
 
+	/**
+	 * Реєстрація подій OpenCart (ідемпотентно).
+	 */
+	private function registerEvents() {
+		$this->load->model('setting/event');
+
+		$this->model_setting_event->deleteEventByCode('kristal_notify');
+		$this->model_setting_event->addEvent('kristal_notify', 'catalog/model/checkout/order/addOrderHistory/after', 'extension/kristal/notify/onOrderHistory', 1, 0);
+		$this->model_setting_event->addEvent('kristal_notify', 'catalog/model/checkout/order/addOrder/after', 'extension/kristal/notify/onOrder', 1, 1);
+		$this->model_setting_event->addEvent('kristal_notify', 'catalog/model/checkout/simple_order/addOrder/after', 'extension/kristal/notify/onOrder', 1, 2);
+	}
+
+	/**
+	 * Чи зареєстровано основну подію замовлення.
+	 *
+	 * @return bool
+	 */
+	private function isEventRegistered() {
+		$query = $this->db->query("SELECT COUNT(*) AS total FROM `" . DB_PREFIX . "event` 
+			WHERE `code` = 'kristal_notify' 
+			AND `trigger` = 'catalog/model/checkout/order/addOrderHistory/after' 
+			AND `status` = '1'");
+
+		return (int)$query->row['total'] > 0;
+	}
+
+	/**
+	 * Останнє сповіщення про замовлення для панелі стану.
+	 *
+	 * @return array
+	 */
+	private function getLastOrderLog() {
+		$query = $this->db->query("SELECT `channel`, `status`, `error`, `summary`, `created_at` 
+			FROM `" . DB_PREFIX . "kristal_notify_log` 
+			WHERE `event_type` = 'order' 
+			ORDER BY `log_id` DESC LIMIT 1");
+
+		if (!$query->num_rows) {
+			return array();
+		}
+
+		$row = $query->row;
+
+		return array(
+			'channel' => $row['channel'],
+			'status' => $row['status'],
+			'error' => $row['error'],
+			'summary' => $row['summary'],
+			'created_at' => date('d.m.Y H:i:s', strtotime($row['created_at']))
+		);
+	}
+
+	/**
+	 * Тека адмінки відносно кореня сайту (на проді перейменована, 017).
+	 *
+	 * @return string
+	 */
+	private function adminDir() {
+		$script = isset($this->request->server['PHP_SELF']) ? (string)$this->request->server['PHP_SELF'] : '';
+		$dir = str_replace('\\', '/', dirname($script));
+		$dir = trim($dir, '/');
+
+		if ($dir === '.' || $dir === '') {
+			return '';
+		}
+
+		return $dir;
+	}
+
+	/**
+	 * Попередження до результату тесту каналу: тест не має вводити в оману (AC-11).
+	 *
+	 * @param string $channel
+	 * @param bool $changed
+	 * @return string
+	 */
+	private function testWarnings($channel, $changed) {
+		$warnings = array();
+
+		if (!$this->config->get('module_kristal_notify_status')) {
+			$warnings[] = $this->language->get('text_warn_master_off');
+		}
+
+		if (!$this->config->get('module_kristal_notify_' . $channel . '_status')) {
+			$warnings[] = sprintf($this->language->get('text_warn_channel_off'), $this->channelTitle($channel));
+		}
+
+		if ($changed) {
+			$warnings[] = $this->language->get('text_warn_unsaved');
+		}
+
+		return implode(' ', $warnings);
+	}
+
+	/**
+	 * Назва каналу для повідомлень.
+	 *
+	 * @param string $channel
+	 * @return string
+	 */
+	private function channelTitle($channel) {
+		if ($channel === 'telegram') {
+			return $this->language->get('text_telegram');
+		}
+
+		if ($channel === 'email') {
+			return $this->language->get('text_email');
+		}
+
+		if ($channel === 'webhook') {
+			return $this->language->get('text_webhook');
+		}
+
+		return $channel;
+	}
+
 	private function validate() {
 		if (!$this->user->hasPermission('modify', self::ROUTE)) {
 			$this->error['warning'] = $this->language->get('error_permission');
 		}
 
-		$token = trim((string)$this->request->post['module_kristal_notify_telegram_token']);
+		$token = isset($this->request->post['module_kristal_notify_telegram_token']) ? trim((string)$this->request->post['module_kristal_notify_telegram_token']) : '';
 		if ($token !== '' && !\Kristal\Telegram::isValidToken($token)) {
 			$this->error['tg_token'] = $this->language->get('error_tg_token');
 		}
 
-		$hookUrl = trim((string)$this->request->post['module_kristal_notify_webhook_url']);
+		$hookUrl = isset($this->request->post['module_kristal_notify_webhook_url']) ? trim((string)$this->request->post['module_kristal_notify_webhook_url']) : '';
 		if ($hookUrl !== '' && !filter_var($hookUrl, FILTER_VALIDATE_URL)) {
 			$this->error['hook_url'] = $this->language->get('error_hook_url');
 		}
