@@ -67,6 +67,7 @@ CREATE TABLE IF NOT EXISTS `{{PREFIX}}kristal_notify_log` (
 - **Тригер:** `model/checkout/order/addOrderHistory/after`
 - **Дія:** `extension/kristal/notify/onOrderHistory`
 - Коли статус замовлення змінюється на новий або підтверджений (за замовчуванням `order_status_id > 0`), перевіряється, чи сповіщення про цей `order_id` вже надсилалось (запобігання дублям через `oc_kristal_notify_log`).
+- **Порядок для нового оформлення (010):** `saveRental()` викликається після `addOrder()`, тому на `addOrder/after` ще немає дат оренди й каналу зв'язку. `onOrder()` пропускає ядровий тригер `checkout/order/addOrder` і не надсилає неповне повідомлення — це робить `onOrderHistory()`, коли рядок `oc_kristal_order_rental` уже записано. Для `simple_order/addOrder/after` (старий потік) `onOrder()` працює як раніше.
 
 ## 4. Канали відправки
 1. **Telegram:**

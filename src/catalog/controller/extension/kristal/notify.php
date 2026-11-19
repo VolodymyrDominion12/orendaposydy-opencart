@@ -31,6 +31,13 @@ class ControllerExtensionKristalNotify extends Controller {
 			return null;
 		}
 
+		// Ядровий addOrder спрацьовує до saveRental(): дат оренди й каналу зв'язку
+		// ще немає. Не надсилаємо неповне повідомлення — це зробить onOrderHistory()
+		// на addOrderHistory/after, коли рядок oc_kristal_order_rental уже записано.
+		if ($route === 'checkout/order/addOrder') {
+			return null;
+		}
+
 		// $output для addOrder — це створений order_id
 		$orderId = (int)$output;
 

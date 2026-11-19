@@ -326,6 +326,52 @@ class Notify {
 	}
 
 	/**
+	 * Людська назва каналу зв'язку, який обрав клієнт.
+	 *
+	 * @param string $channel viber|telegram|phone|email|whatsapp
+	 * @return string Порожній рядок для невідомого каналу (рядок у повідомлення не додаємо)
+	 */
+	public static function contactChannelLabel($channel) {
+		$key = strtolower(trim((string)$channel));
+
+		$labels = array(
+			'viber'    => 'Viber',
+			'telegram' => 'Telegram',
+			'phone'    => 'Телефонний дзвінок',
+			'email'    => 'Email',
+			'whatsapp' => 'WhatsApp'
+		);
+
+		return isset($labels[$key]) ? $labels[$key] : '';
+	}
+
+	/**
+	 * Правильна форма слова «доба» для кількості діб оренди: 1 доба, 2 доби, 5 діб.
+	 *
+	 * @param int $days
+	 * @return string
+	 */
+	private static function daysWord($days) {
+		$days = abs((int)$days);
+		$mod100 = $days % 100;
+		$mod10 = $days % 10;
+
+		if ($mod100 >= 11 && $mod100 <= 14) {
+			return 'діб';
+		}
+
+		if ($mod10 === 1) {
+			return 'доба';
+		}
+
+		if ($mod10 >= 2 && $mod10 <= 4) {
+			return 'доби';
+		}
+
+		return 'діб';
+	}
+
+	/**
 	 * Форматування повідомлення про замовлення для Telegram (HTML parse_mode).
 	 *
 	 * @param array $order
@@ -339,6 +385,7 @@ class Notify {
 		$name = trim((isset($order['firstname']) ? $order['firstname'] : '') . ' ' . (isset($order['lastname']) ? $order['lastname'] : ''));
 		$phone = isset($order['telephone']) ? $order['telephone'] : '';
 		$email = isset($order['email']) ? $order['email'] : '';
+		$channel = isset($order['contact_channel']) ? self::contactChannelLabel($order['contact_channel']) : '';
 		$total = isset($order['total_formatted']) ? $order['total_formatted'] : (isset($order['total']) ? $order['total'] . ' ₴' : '');
 		$shipping = isset($order['shipping_method']) ? $order['shipping_method'] : '';
 		$payment = isset($order['payment_method']) ? $order['payment_method'] : '';
@@ -357,12 +404,15 @@ class Notify {
 		if ($email !== '') {
 			$lines[] = '<b>Email:</b> ' . Telegram::escape($email);
 		}
+		if ($channel !== '') {
+			$lines[] = '<b>Канал зв\'язку:</b> ' . Telegram::escape($channel);
+		}
 
 		// Дати оренди (якщо передано)
 		if (!empty($order['rental_date_from']) || !empty($order['rental_date_to'])) {
 			$from = !empty($order['rental_date_from']) ? $order['rental_date_from'] : '—';
 			$to = !empty($order['rental_date_to']) ? $order['rental_date_to'] : '—';
-			$days = !empty($order['rental_days']) ? ' (' . (int)$order['rental_days'] . ' діб)' : '';
+			$days = !empty($order['rental_days']) ? ' (' . (int)$order['rental_days'] . ' ' . self::daysWord($order['rental_days']) . ')' : '';
 			$lines[] = '<b>Дати оренди:</b> ' . Telegram::escape($from . ' — ' . $to . $days);
 		}
 
@@ -414,6 +464,7 @@ class Notify {
 	public static function formatLeadTelegram(array $lead, $adminUrl = '') {
 		$typeTitle = isset($lead['type_title']) ? $lead['type_title'] : 'Заявка на оренду';
 		$leadId = isset($lead['lead_id']) ? (int)$lead['lead_id'] : 0;
+		$channel = isset($lead['contact_channel']) ? self::contactChannelLabel($lead['contact_channel']) : '';
 
 		$lines = array();
 		$lines[] = '<b>' . Telegram::escape($typeTitle) . ($leadId ? ' #' . $leadId : '') . '</b>';
@@ -427,6 +478,9 @@ class Notify {
 		}
 		if (!empty($lead['email'])) {
 			$lines[] = '<b>Email:</b> ' . Telegram::escape($lead['email']);
+		}
+		if ($channel !== '') {
+			$lines[] = '<b>Канал зв\'язку:</b> ' . Telegram::escape($channel);
 		}
 		if (!empty($lead['event_date'])) {
 			$lines[] = '<b>Дата події:</b> ' . Telegram::escape($lead['event_date']);

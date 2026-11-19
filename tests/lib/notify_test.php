@@ -52,6 +52,7 @@ test('formatOrderTelegram: HTML, екранування, товари, дати 
 		'firstname' => 'Олена',
 		'lastname' => 'Коваль & Co',
 		'telephone' => '+380501234567',
+		'contact_channel' => 'viber',
 		'rental_date_from' => '2026-12-01',
 		'rental_date_to' => '2026-12-03',
 		'rental_days' => 2,
@@ -68,9 +69,70 @@ test('formatOrderTelegram: HTML, екранування, товари, дати 
 
 	assert_true(strpos($msg, 'Крістал &lt;Оренда&gt;') !== false);
 	assert_true(strpos($msg, 'Коваль &amp; Co') !== false);
-	assert_true(strpos($msg, '2026-12-01 — 2026-12-03 (2 діб)') !== false);
+	assert_true(strpos($msg, 'Канал зв\'язку:</b> Viber') !== false);
+	assert_true(strpos($msg, '2026-12-01 — 2026-12-03 (2 доби)') !== false);
 	assert_true(strpos($msg, 'Тарілка &lt;Біла&gt; 27 см × 50 = 1 500 ₴') !== false);
 	assert_true(strpos($msg, 'https://orendaposudu.com/admin/order/105') !== false);
+});
+
+test('contactChannelLabel: людські назви каналів зв\'язку', function () {
+	assert_same('Viber', Notify::contactChannelLabel('viber'));
+	assert_same('Telegram', Notify::contactChannelLabel(' TELEGRAM '));
+	assert_same('Телефонний дзвінок', Notify::contactChannelLabel('phone'));
+	assert_same('Email', Notify::contactChannelLabel('email'));
+	assert_same('WhatsApp', Notify::contactChannelLabel('whatsapp'));
+	assert_same('', Notify::contactChannelLabel(''));
+	assert_same('', Notify::contactChannelLabel('some-unknown-value'));
+});
+
+test('formatOrderTelegram: без каналу зв\'язку рядок не додається', function () {
+	$order = array(
+		'order_id' => 106,
+		'firstname' => 'Іван',
+		'telephone' => '+380501112233',
+		'total_formatted' => '300 ₴'
+	);
+
+	$msg = Notify::formatOrderTelegram($order);
+
+	assert_true(strpos($msg, 'Канал зв\'язку:') === false);
+	assert_true(strpos($msg, 'Телефон:</b> +380501112233') !== false);
+});
+
+test('formatOrderTelegram: правильна форма «доба/доби/діб»', function () {
+	$cases = array(
+		1 => '1 доба',
+		2 => '2 доби',
+		5 => '5 діб',
+		11 => '11 діб',
+		21 => '21 доба'
+	);
+
+	foreach ($cases as $days => $expected) {
+		$msg = Notify::formatOrderTelegram(array(
+			'order_id' => 108,
+			'firstname' => 'Іван',
+			'rental_date_from' => '2026-12-01',
+			'rental_date_to' => '2026-12-02',
+			'rental_days' => $days
+		));
+
+		assert_true(strpos($msg, '(' . $expected . ')') !== false);
+	}
+});
+
+test('formatLeadTelegram: канал зв\'язку з заявки', function () {
+	$lead = array(
+		'lead_id' => 12,
+		'type_title' => 'Швидке замовлення',
+		'name' => 'Ірина',
+		'phone' => '+380671112233',
+		'contact_channel' => 'telegram'
+	);
+
+	$msg = Notify::formatLeadTelegram($lead);
+
+	assert_true(strpos($msg, 'Канал зв\'язку:</b> Telegram') !== false);
 });
 
 test('makeSummary: стислий опис без персональних даних', function () {
