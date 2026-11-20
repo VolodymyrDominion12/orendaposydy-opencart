@@ -228,6 +228,8 @@ class ControllerExtensionKristalTheme extends Controller {
 		$this->language->set('k_phone_display', $nap['primary_phone'] ? $nap['primary_phone']['display'] : '');
 		$this->language->set('k_viber_href', $viber);
 		$this->language->set('k_telegram_href', $telegram);
+		// Посилання з таблічки «Додано до кошика події» (005, AC-3) — та сама сторінка, що й кошик у шапці
+		$this->language->set('k_cart_url', self::$shared['k_cart_href']);
 		$this->language->set('k_lead_action', self::$shared['k_lead_action']);
 		$this->language->set('k_lead_js', self::$shared['k_lead_js']);
 		$this->language->set('k_antispam_token_name', $antispamFields['token_name']);
